@@ -39,7 +39,10 @@ namespace RimMind.Personality
             sb.AppendLine();
             sb.AppendLine("RimMind.Personality.Prompt.JsonFormatDirect".Translate());
             if (aiDecidesDuration)
+            {
+                sb.AppendLine("RimMind.Personality.Prompt.DurationHint".Translate());
                 sb.AppendLine("RimMind.Personality.Prompt.JsonTemplateWithDuration".Translate());
+            }
             else
                 sb.AppendLine("RimMind.Personality.Prompt.JsonTemplateNoDuration".Translate());
             return sb.ToString();

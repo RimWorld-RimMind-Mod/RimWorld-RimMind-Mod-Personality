@@ -67,6 +67,7 @@
     <RimMind.Personality.Prompt.DescHint>specific description (20 chars max, third person)</RimMind.Personality.Prompt.DescHint>
     <RimMind.Personality.Prompt.NarrativeHint>within 50 chars, describe the colonist's recent psychological changes</RimMind.Personality.Prompt.NarrativeHint>
     <RimMind.Personality.Prompt.JsonTemplateNoDuration>{{"thoughts":[{{"type":"state","label":"{0}","description":"{1}","intensity":-1}}],"narrative":"{2}"}}</RimMind.Personality.Prompt.JsonTemplateNoDuration>
+    <RimMind.Personality.Prompt.DurationHint>duration_hours guidelines: mild emotions (intensity ±1) = 1-4 hours; moderate emotions (intensity ±2) = 5-12 hours; strong/deep psychological states (intensity ±3) = 13-24 hours.</RimMind.Personality.Prompt.DurationHint>
     <RimMind.Personality.Prompt.JsonTemplateWithDuration>{{"thoughts":[{{"type":"state","label":"{0}","description":"{1}","intensity":-1,"duration_hours":8}}],"narrative":"{2}"}}</RimMind.Personality.Prompt.JsonTemplateWithDuration>
 
     <!-- Five-section System Prompt -->

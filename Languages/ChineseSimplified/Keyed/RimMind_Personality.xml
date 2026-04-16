@@ -67,6 +67,7 @@
     <RimMind.Personality.Prompt.DescHint>具体描述（≤20字，第三人称）</RimMind.Personality.Prompt.DescHint>
     <RimMind.Personality.Prompt.NarrativeHint>50字以内，描述小人近期心理状态的变化故事</RimMind.Personality.Prompt.NarrativeHint>
     <RimMind.Personality.Prompt.JsonTemplateNoDuration>{{"thoughts":[{{"type":"state","label":"{0}","description":"{1}","intensity":-1}}],"narrative":"{2}"}}</RimMind.Personality.Prompt.JsonTemplateNoDuration>
+    <RimMind.Personality.Prompt.DurationHint>duration_hours 设置建议：轻微情绪（intensity ±1）设为 1-4 小时；中等情绪（intensity ±2）设为 5-12 小时；强烈/深层心理状态（intensity ±3）设为 13-24 小时。</RimMind.Personality.Prompt.DurationHint>
     <RimMind.Personality.Prompt.JsonTemplateWithDuration>{{"thoughts":[{{"type":"state","label":"{0}","description":"{1}","intensity":-1,"duration_hours":8}}],"narrative":"{2}"}}</RimMind.Personality.Prompt.JsonTemplateWithDuration>
 
     <!-- Five-section System Prompt -->
