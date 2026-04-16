@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <AIPersonality_Slot_0.stages.AI_personality_state.label>AI人格状态</AIPersonality_Slot_0.stages.AI_personality_state.label>
+  <AIPersonality_Slot_0.stages.AI_personality_state.description>（AI生成）</AIPersonality_Slot_0.stages.AI_personality_state.description>
+  <AIPersonality_Slot_1.stages.AI_personality_state.label>AI人格状态</AIPersonality_Slot_1.stages.AI_personality_state.label>
+  <AIPersonality_Slot_1.stages.AI_personality_state.description>（AI生成）</AIPersonality_Slot_1.stages.AI_personality_state.description>
+  <AIPersonality_Slot_2.stages.AI_personality_state.label>AI人格状态</AIPersonality_Slot_2.stages.AI_personality_state.label>
+  <AIPersonality_Slot_2.stages.AI_personality_state.description>（AI生成）</AIPersonality_Slot_2.stages.AI_personality_state.description>
+</LanguageData>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+  <!--
+    CompAIPersonality 的注入通过 C# Harmony Postfix 完成（AddCompToHumanlikePatch.cs），
+    而非 XML PatchOperation。
+
+    原因：XML Patch 在 RimWorld 继承解析之前运行，raw XML 节点中
+    没有 race/intelligence 字段（它们从 BasePawn 继承而来），
+    因此任何基于 race/intelligence 的 XPath 过滤都匹配 0 个节点。
+
+    Harmony Postfix 挂在 ThingDef.ResolveReferences() 之后，
+    此时继承已解析，可直接判断 race.intelligence == Humanlike，
+    覆盖原版 Human + 所有 AlienRaces 外星种族 + 未来任何人形 mod。
+  -->
+</Patch>

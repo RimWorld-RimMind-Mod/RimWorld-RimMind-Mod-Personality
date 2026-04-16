@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- Personality Thought slots 0 / 1 / 2 (max 3 per evaluation)
+       Each slot has stackLimit=1, displayed as separate entries in the needs panel.
+       durationDays is a fallback upper bound; actual duration is overridden via customDurationTicks at injection time. -->
+
+  <ThoughtDef>
+    <defName>AIPersonality_Slot_0</defName>
+    <thoughtClass>RimMind.Personality.Thought_AIPersonality</thoughtClass>
+    <durationDays>1</durationDays>
+    <stackLimit>1</stackLimit>
+    <stages>
+      <li>
+        <label>AI personality state</label>
+        <description>(AI generated)</description>
+        <baseMoodEffect>0</baseMoodEffect>
+      </li>
+    </stages>
+  </ThoughtDef>
+
+  <ThoughtDef>
+    <defName>AIPersonality_Slot_1</defName>
+    <thoughtClass>RimMind.Personality.Thought_AIPersonality</thoughtClass>
+    <durationDays>1</durationDays>
+    <stackLimit>1</stackLimit>
+    <stages>
+      <li>
+        <label>AI personality state</label>
+        <description>(AI generated)</description>
+        <baseMoodEffect>0</baseMoodEffect>
+      </li>
+    </stages>
+  </ThoughtDef>
+
+  <ThoughtDef>
+    <defName>AIPersonality_Slot_2</defName>
+    <thoughtClass>RimMind.Personality.Thought_AIPersonality</thoughtClass>
+    <durationDays>1</durationDays>
+    <stackLimit>1</stackLimit>
+    <stages>
+      <li>
+        <label>AI personality state</label>
+        <description>(AI generated)</description>
+        <baseMoodEffect>0</baseMoodEffect>
+      </li>
+    </stages>
+  </ThoughtDef>
+
+</Defs>
