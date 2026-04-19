@@ -73,15 +73,14 @@ namespace RimMind.Personality
 
                 int maxCount = Settings?.shapingHistoryMaxCount ?? 50;
                 var recent = profile.playerShapingHistory.Skip(System.Math.Max(0, profile.playerShapingHistory.Count - maxCount)).ToList();
-                var sb = new System.Text.StringBuilder();
-                sb.AppendLine("[玩家塑造历史]");
+                var sb = new System.Text.StringBuilder("RimMind.Personality.Context.ShapingHistoryHeader".Translate());
                 foreach (var r in recent)
                 {
                     string actionLabel = r.action switch
                     {
-                        "reinforce" => "强化",
-                        "suppress" => "抑制",
-                        _ => "忽略"
+                        "reinforce" => "RimMind.Personality.ShapingAction.Reinforce".Translate(),
+                        "suppress" => "RimMind.Personality.ShapingAction.Suppress".Translate(),
+                        _ => "RimMind.Personality.ShapingAction.Ignore".Translate()
                     };
                     sb.AppendLine($"- {r.label}: {actionLabel}");
                 }
@@ -125,16 +124,26 @@ namespace RimMind.Personality
 
             SettingsUIHelper.DrawSectionHeader(listing, "RimMind.Personality.Settings.Section.Thought".Translate());
             listing.Label("RimMind.Personality.Settings.ThoughtCountLabel".Translate($"{Settings.thoughtCountMu:F1}"));
+            GUI.color = UnityEngine.Color.gray;
+            listing.Label("  " + "RimMind.Personality.Settings.ThoughtCountLabel.Desc".Translate());
+            GUI.color = UnityEngine.Color.white;
             Settings.thoughtCountMu = listing.Slider(Settings.thoughtCountMu, 0f, 3f);
 
             listing.Label("RimMind.Personality.Settings.ThoughtDuration".Translate());
+            GUI.color = UnityEngine.Color.gray;
+            listing.Label("  " + "RimMind.Personality.Settings.ThoughtDuration.Desc".Translate());
+            GUI.color = UnityEngine.Color.white;
             bool aiDecides = Settings.durationMode == ThoughtDurationMode.AIDecides;
-            listing.CheckboxLabeled("RimMind.Personality.Settings.AIDecidesDuration".Translate(), ref aiDecides);
+            listing.CheckboxLabeled("RimMind.Personality.Settings.AIDecidesDuration".Translate(), ref aiDecides,
+                "RimMind.Personality.Settings.AIDecidesDuration.Desc".Translate());
             Settings.durationMode = aiDecides ? ThoughtDurationMode.AIDecides : ThoughtDurationMode.Fixed;
 
             if (!aiDecides)
             {
                 listing.Label("RimMind.Personality.Settings.FixedDuration".Translate($"{Settings.thoughtDurationHours:F0}"));
+                GUI.color = UnityEngine.Color.gray;
+                listing.Label("  " + "RimMind.Personality.Settings.FixedDuration.Desc".Translate());
+                GUI.color = UnityEngine.Color.white;
                 Settings.thoughtDurationHours = listing.Slider(Settings.thoughtDurationHours, 1f, 24f);
             }
             else
@@ -176,9 +185,9 @@ namespace RimMind.Personality
                 Settings.enableSkillTrigger = true;
                 Settings.enableIncidentTrigger = true;
                 Settings.enableDeathTrigger = true;
-                Settings.thoughtCountMu = 1.5f;
+                Settings.thoughtCountMu = 1.0f;
                 Settings.thoughtDurationHours = 24f;
-                Settings.durationMode = ThoughtDurationMode.Fixed;
+                Settings.durationMode = ThoughtDurationMode.AIDecides;
                 Settings.requestExpireTicks = 30000;
                 Settings.enableShapingVote = true;
                 Settings.shapingHistoryMaxCount = 20;

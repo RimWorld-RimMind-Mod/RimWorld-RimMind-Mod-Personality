@@ -7,6 +7,8 @@ using Verse;
 
 namespace RimMind.Personality.Comps
 {
+    public enum TriggerEventType { Injury, Skill, Incident, Death }
+
     public class CompProperties_AIPersonality : CompProperties
     {
         public CompProperties_AIPersonality()
@@ -47,7 +49,7 @@ namespace RimMind.Personality.Comps
             if (_hasPendingRequest)           return;
             if (!IsEligible())                return;
 
-            bool dailyFire = Pawn.IsHashIntervalTick(DailyInterval + GetDailyJitter());
+            bool dailyFire = Settings.enableDailyEval && Pawn.IsHashIntervalTick(DailyInterval + GetDailyJitter());
             bool eventFire = _pendingEventContext != null &&
                              Find.TickManager.TicksGame - _lastEventTick >= EventCooldownTicks;
 
@@ -68,6 +70,7 @@ namespace RimMind.Personality.Comps
                 RequestId    = $"Personality_{Pawn.ThingID}",
                 ModId        = "Personality",
                 ExpireAtTicks = Find.TickManager.TicksGame + Settings.requestExpireTicks,
+                Priority     = AIRequestPriority.Low,
             };
 
             RimMindAPI.RequestAsync(request, response =>
@@ -80,9 +83,20 @@ namespace RimMind.Personality.Comps
         /// <summary>
         /// 从外部 Patch（受伤、技能升级、事件等）触发一次人格评估。
         /// </summary>
-        public void TriggerEvent(string context)
+        public void TriggerEvent(string context, TriggerEventType eventType = TriggerEventType.Incident)
         {
             if (!Settings.enablePersonality) return;
+
+            bool enabled = eventType switch
+            {
+                TriggerEventType.Injury  => Settings.enableInjuryTrigger,
+                TriggerEventType.Skill   => Settings.enableSkillTrigger,
+                TriggerEventType.Incident => Settings.enableIncidentTrigger,
+                TriggerEventType.Death   => Settings.enableDeathTrigger,
+                _ => true,
+            };
+            if (!enabled) return;
+
             _pendingEventContext = context;
         }
 
