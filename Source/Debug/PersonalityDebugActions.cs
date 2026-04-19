@@ -57,6 +57,7 @@ namespace RimMind.Personality.Debug
                 RequestId    = $"Debug_ForceEval_{pawn.ThingID}_{Find.TickManager.TicksGame}",
                 ModId        = "Personality",
                 ExpireAtTicks = Find.TickManager.TicksGame + 36000,
+                Priority = AIRequestPriority.Low,
             };
 
             RimMindAPI.RequestImmediate(request, response =>

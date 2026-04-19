@@ -1,4 +1,5 @@
 using System.Text;
+using RimMind.Core.Prompt;
 using Verse;
 
 namespace RimMind.Personality
@@ -17,7 +18,7 @@ namespace RimMind.Personality
             return System.Math.Clamp(k - 1, 1, 3);
         }
 
-        public static string Append(string basePrompt, string? eventContext = null, int targetCount = 2, bool aiDecidesDuration = false)
+        public static string Append(string basePrompt, string? eventContext = null, int targetCount = 2, bool aiDecidesDuration = false, bool enableShapingVote = false)
         {
             var sb = new StringBuilder(basePrompt);
             sb.AppendLine();
@@ -28,15 +29,20 @@ namespace RimMind.Personality
                 sb.AppendLine();
             }
 
-            sb.Append(BuildInstruction(targetCount, aiDecidesDuration));
+            sb.Append(PromptSanitizer.Sanitize(BuildInstruction(targetCount, aiDecidesDuration, enableShapingVote)));
             return sb.ToString();
         }
 
-        private static string BuildInstruction(int targetCount, bool aiDecidesDuration)
+        private static string BuildInstruction(int targetCount, bool aiDecidesDuration, bool enableShapingVote)
         {
             var sb = new StringBuilder();
             sb.AppendLine("RimMind.Personality.Prompt.EvalInstruction".Translate(targetCount));
             sb.AppendLine();
+            if (enableShapingVote)
+            {
+                sb.AppendLine("RimMind.Personality.Prompt.DiversityHint".Translate());
+                sb.AppendLine();
+            }
             sb.AppendLine("RimMind.Personality.Prompt.JsonFormatDirect".Translate());
             if (aiDecidesDuration)
             {

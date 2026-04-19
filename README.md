@@ -90,15 +90,15 @@ Thought 通过独立槽位注入，在心情面板独立显示，互不叠加。
 
 ### 触发机制
 
-| 触发类型 | 说明 |
-|---------|------|
-| 每日定时 | 每游戏天评估一次 |
-| 受伤/患病 | 健康状态剧变时触发 |
-| 技能里程碑 | 技能等级提升时触发 |
-| 重要事件 | 袭击、收获等事件时触发 |
-| 亲近者死亡 | 社交关系对象死亡时触发 |
+| 触发类型 | 设置开关 | 说明 |
+|---------|---------|------|
+| 每日定时 | enableDailyEval | 每游戏天评估一次（含随机抖动避免同时触发） |
+| 受伤/患病 | enableInjuryTrigger | 健康状态剧变时触发 |
+| 技能里程碑 | enableSkillTrigger | 技能等级提升时触发 |
+| 重要事件 | enableIncidentTrigger | 袭击、收获等事件时触发 |
+| 亲近者死亡 | enableDeathTrigger | 社交关系对象死亡时触发 |
 
-事件触发有 0.5 天冷却期，防止连锁触发。
+事件触发有 1200 tick 冷却期（约 0.02 游戏天），防止连锁触发。每种触发方式可独立开关。
 
 ### 人格档案
 
@@ -134,11 +134,14 @@ Thought 通过独立槽位注入，在心情面板独立显示，互不叠加。
 | 技能升级触发 | 开启 | 技能提升时触发 |
 | 事件触发 | 开启 | 重要事件时触发 |
 | 死亡触发 | 开启 | 亲近者死亡时触发 |
-| Thought 数量期望值 | 1.5 | 每次评估生成 1-3 个 Thought |
-| Thought 持续时长模式 | 固定 | 固定 / AI 决定 |
-| 固定时长 | 24 游戏小时 | 固定模式下的时长 |
+| Thought 数量期望值 (μ) | 1.0 | Poisson 抽样参数（0→固定1个，越大越多，结果 1~3） |
+| Thought 持续时长模式 | AI 决定 | 固定 / AI 决定 |
+| 固定时长 | 24 游戏小时 | 固定模式下的时长（1~24 小时） |
 | 显示通知 | 开启 | 人格更新时右下角提示 |
+| 显示 [RimMind] 前缀 | 开启 | 在心情面板区分 AI 生成和原版 Thought |
 | 启用塑造投票 | 开启 | 玩家可对 AI 评估投票 |
+| 请求过期时间 | 0.50 游戏天 | 评估请求超时自动取消 |
+| 塑造历史保留数量 | 20 | 保留最近 N 次投票记录供 AI 参考 |
 
 ## 常见问题
 
@@ -149,10 +152,13 @@ A: AI 根据殖民者的状态、经历和关系生成符合情境的 Thought。
 A: 可以。在 Bio 页面的"人格"面板中，你可以编辑人格描述、工作倾向和社交倾向。AI 评估时会参考你填写的内容。
 
 **Q: 塑造投票有什么用？**
-A: 你可以对 AI 的人格评估投票（赞同/反对），投票历史会注入后续 AI 请求的上下文，让 AI 逐渐学习你的偏好。
+A: 你可以对 AI 的人格评估投票（强化/抑制/忽略），投票历史会注入后续 AI 请求的上下文，让 AI 逐渐学习你的偏好。选择"忽略"不会写入记录。
 
 **Q: Thought 持续多久？**
-A: 默认 24 游戏小时。可以切换为"AI 决定"模式，让 AI 根据情境设定 1-24 小时不等的时长。
+A: 默认模式为"AI 决定"，AI 根据情境设定 1-24 小时不等的时长。也可切换为"固定"模式，统一使用设定的小时数（默认 24 游戏小时）。
+
+**Q: 触发开关有什么用？**
+A: 每种触发方式（每日定时、受伤、技能升级、事件、死亡）都有独立开关。关闭后该类型的触发将不再发起人格评估。
 
 **Q: 配合 Memory 和 Advisor 效果更好吗？**
 A: 是的。Memory 提供历史记忆，Personality 提供人格档案，Advisor 综合这些信息做出更符合角色的决策。
@@ -237,10 +243,41 @@ cd RimWorld-RimMind-Mod-Personality
 ## Key Features
 
 - **AI Personality Assessment**: Daily (or event-triggered) LLM evaluation generates 1-3 dynamic mood Thoughts + narrative summary
-- **Multiple Triggers**: Daily timer, injury, skill milestone, incidents, death of loved ones
+- **Multiple Triggers**: Daily timer, injury, skill milestone, incidents, death of loved ones - each with independent toggle
 - **Editable Profile**: Players can edit personality description, work tendencies, and social tendencies
-- **Shaping Vote**: Players can vote on AI assessments, influencing future evaluations
+- **Shaping Vote**: Players can vote (reinforce/suppress/ignore) on AI assessments, influencing future evaluations
 - **Context Injection**: Personality profiles and current Thoughts are automatically injected into AI prompts
+
+## Trigger Mechanism
+
+| Trigger Type | Setting Switch | Description |
+|-------------|---------------|-------------|
+| Daily timer | enableDailyEval | Evaluate once per game day (with random jitter) |
+| Injury/Illness | enableInjuryTrigger | Trigger on health state changes |
+| Skill milestone | enableSkillTrigger | Trigger on skill level up |
+| Major incident | enableIncidentTrigger | Trigger on raids, harvests, etc. |
+| Death of loved one | enableDeathTrigger | Trigger when a social relation dies |
+
+Event triggers have a 1200 tick cooldown (~0.02 game days) to prevent chain triggering.
+
+## Settings
+
+| Setting | Default | Description |
+|---------|---------|-------------|
+| Enable AI Personality System | On | Master switch |
+| Daily Evaluation | On | Evaluate once per game day |
+| Injury Trigger | On | Trigger on health changes |
+| Skill Level Up Trigger | On | Trigger on skill improvement |
+| Incident Trigger | On | Trigger on major events |
+| Death Trigger | On | Trigger when loved ones die |
+| Thought Count Expectation (μ) | 1.0 | Poisson sampling parameter (0=fixed 1, higher=more, result 1~3) |
+| Thought Duration Mode | AI Decides | Fixed / AI Decides |
+| Fixed Duration | 24 game hours | Duration in Fixed mode (1~24 hours) |
+| Show Notifications | On | Display notification on personality updates |
+| Show [RimMind] Prefix | On | Distinguish AI-generated Thoughts from vanilla in mood panel |
+| Enable Shaping Vote | On | Players can vote on AI assessments |
+| Request Expiry | 0.50 game days | Auto-cancel evaluation requests after timeout |
+| Shaping History Limit | 20 | Keep last N vote records for AI reference |
 
 ## FAQ
 
@@ -251,10 +288,13 @@ A: AI generates context-appropriate Thoughts based on colonist state. For exampl
 A: Yes. In the Bio tab's "Personality" panel, you can edit description, work tendencies, and social tendencies. AI evaluations reference your input.
 
 **Q: What does shaping vote do?**
-A: You can vote (approve/disapprove) on AI personality assessments. Vote history is injected into future AI requests, helping AI learn your preferences.
+A: You can vote (reinforce/suppress/ignore) on AI personality assessments. Choosing "reinforce" or "suppress" writes a record; "ignore" does not. Vote history is injected into future AI requests, helping AI learn your preferences.
 
 **Q: How long do Thoughts last?**
-A: Default is 24 game hours. You can switch to "AI Decides" mode for 1-24 hour durations based on context.
+A: Default mode is "AI Decides", where AI sets 1-24 hour durations based on context. You can also switch to "Fixed" mode for a uniform duration (default 24 game hours).
+
+**Q: What do the trigger toggles do?**
+A: Each trigger type (daily timer, injury, skill level up, incident, death) has an independent toggle. When disabled, that trigger type will no longer initiate personality evaluations.
 
 **Q: Does it work better with Memory and Advisor?**
 A: Yes. Memory provides history, Personality provides character profiles, and Advisor combines these for more character-appropriate decisions.

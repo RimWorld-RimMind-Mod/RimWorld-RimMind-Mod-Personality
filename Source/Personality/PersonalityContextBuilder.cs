@@ -21,7 +21,8 @@ namespace RimMind.Personality
                 excludeProviders: new[] { "personality_state" });
 
             bool aiDecidesDuration = RimMindPersonalityMod.Settings.durationMode == ThoughtDurationMode.AIDecides;
-            return EvaluationInstructionHelper.Append(basePrompt, eventContext, targetCount, aiDecidesDuration);
+            bool enableShapingVote = RimMindPersonalityMod.Settings.enableShapingVote;
+            return EvaluationInstructionHelper.Append(basePrompt, eventContext, targetCount, aiDecidesDuration, enableShapingVote);
         }
     }
 }

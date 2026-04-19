@@ -9,9 +9,13 @@
     <RimMind.Personality.Settings.ShowLabelPrefix>显示标签前缀</RimMind.Personality.Settings.ShowLabelPrefix>
     <RimMind.Personality.Settings.ShowLabelPrefix.Desc>在心理状态标签前显示"RimMind"前缀，便于区分原版和 AI 生成的 Thought。</RimMind.Personality.Settings.ShowLabelPrefix.Desc>
     <RimMind.Personality.Settings.ThoughtCountLabel>每次评估生成 Thought 数量（μ = {0}，Poisson 抽样，结果 1~3）</RimMind.Personality.Settings.ThoughtCountLabel>
+    <RimMind.Personality.Settings.ThoughtCountLabel.Desc>使用 Poisson 分布抽样决定每次评估生成的 Thought 数量。μ 越大，生成的 Thought 越多。</RimMind.Personality.Settings.ThoughtCountLabel.Desc>
     <RimMind.Personality.Settings.ThoughtDuration>Thought 持续时长：</RimMind.Personality.Settings.ThoughtDuration>
+    <RimMind.Personality.Settings.ThoughtDuration.Desc>设置 AI 生成的心理状态（Thought）的持续时间模式。</RimMind.Personality.Settings.ThoughtDuration.Desc>
     <RimMind.Personality.Settings.AIDecidesDuration>由 AI 决定每个 Thought 的时长</RimMind.Personality.Settings.AIDecidesDuration>
+    <RimMind.Personality.Settings.AIDecidesDuration.Desc>开启后，AI 会在 JSON 中输出 duration_hours 字段，根据情绪强度自动设定持续时间。</RimMind.Personality.Settings.AIDecidesDuration.Desc>
     <RimMind.Personality.Settings.FixedDuration>  固定时长：{0} 游戏小时</RimMind.Personality.Settings.FixedDuration>
+    <RimMind.Personality.Settings.FixedDuration.Desc>所有 AI 生成的 Thought 统一使用此固定时长。</RimMind.Personality.Settings.FixedDuration.Desc>
     <RimMind.Personality.Settings.AIDurationHint>  AI 在 JSON 中输出 duration_hours（1~24），自动应用</RimMind.Personality.Settings.AIDurationHint>
     <RimMind.Personality.Settings.TriggerSources>触发来源</RimMind.Personality.Settings.TriggerSources>
     <RimMind.Personality.Settings.DailyEval>每日评估</RimMind.Personality.Settings.DailyEval>
@@ -62,6 +66,7 @@
     <!-- EvaluationInstructionHelper.cs -->
     <RimMind.Personality.Prompt.TriggerReason>[触发原因] {0}</RimMind.Personality.Prompt.TriggerReason>
     <RimMind.Personality.Prompt.EvalInstruction>请根据以上信息，选择今天适用的人格状态，恰好生成 {0} 个 thought。</RimMind.Personality.Prompt.EvalInstruction>
+    <RimMind.Personality.Prompt.DiversityHint>多样化提示：尽量保证多样化的人格特质，避免重复生成相同类型的心理状态。如果近期已有类似的心理状态，请尝试生成不同维度的 Thought。</RimMind.Personality.Prompt.DiversityHint>
     <RimMind.Personality.Prompt.JsonFormatDirect>直接输出以下 JSON 格式，不要包含任何其他文字：</RimMind.Personality.Prompt.JsonFormatDirect>
     <RimMind.Personality.Prompt.LabelHint>简短标签（≤8字）</RimMind.Personality.Prompt.LabelHint>
     <RimMind.Personality.Prompt.DescHint>具体描述（≤20字，第三人称）</RimMind.Personality.Prompt.DescHint>
@@ -75,9 +80,9 @@
     <RimMind.Personality.Prompt.System.Goal>[目标] 根据小人的当前状态、人格档案和触发原因，生成符合角色心理的 Thought 和叙事。</RimMind.Personality.Prompt.System.Goal>
     <RimMind.Personality.Prompt.System.Process>[流程]\n1. 阅读小人的完整状态（心情、健康、技能、特性、背景）\n2. 参考人格档案和玩家塑造历史\n3. 如果有触发原因，优先反映该事件的心理影响\n4. 生成 Thought（type + label + description + intensity）\n5. 生成叙事（描述小人近期心理状态变化）</RimMind.Personality.Prompt.System.Process>
     <RimMind.Personality.Prompt.System.Constraint>[约束]\n- label ≤8字，description ≤20字（第三人称）\n- intensity 范围 -3~+3\n- Thought 应反映小人的真实状态，不要凭空创造\n- 叙事 ≤50字\n- 不要打破第四面墙</RimMind.Personality.Prompt.System.Constraint>
-    <RimMind.Personality.Prompt.System.Example>[示例]\n输入：小人心情35%，刚在战斗中受重伤，特性：坚韧\n输出：{"thoughts":[{"type":"state","label":"忍痛坚持","description":"虽然受了重伤，但意志坚定","intensity":2}],"narrative":"尽管伤痛难忍，他依然咬牙坚持，不愿让同伴担心。"}</RimMind.Personality.Prompt.System.Example>
-    <RimMind.Personality.Prompt.System.Output>[输出] 只返回以下 JSON 格式，不要输出其他内容：\n{"thoughts":[{"type":"state","label":"...","description":"...","intensity":0}],"narrative":"..."}</RimMind.Personality.Prompt.System.Output>
-    <RimMind.Personality.Prompt.System.Fallback>[兜底] 如果无法评估，返回 {"thoughts":[],"narrative":"状态正常，无明显心理波动。"}。</RimMind.Personality.Prompt.System.Fallback>
+    <RimMind.Personality.Prompt.System.Example>[示例]\n输入：小人心情35%，刚在战斗中受重伤，特性：坚韧\n输出：{{"thoughts":[{{"type":"state","label":"忍痛坚持","description":"虽然受了重伤，但意志坚定","intensity":2}}],"narrative":"尽管伤痛难忍，他依然咬牙坚持，不愿让同伴担心。"}}</RimMind.Personality.Prompt.System.Example>
+    <RimMind.Personality.Prompt.System.Output>[输出] 只返回以下 JSON 格式，不要输出其他内容：\n{{"thoughts":[{{"type":"state","label":"...","description":"...","intensity":0}}],"narrative":"..."}}</RimMind.Personality.Prompt.System.Output>
+    <RimMind.Personality.Prompt.System.Fallback>[兜底] 如果无法评估，返回 {{"thoughts":[],"narrative":"状态正常，无明显心理波动。"}}。</RimMind.Personality.Prompt.System.Fallback>
 
     <!-- Shaping Vote -->
     <RimMind.Personality.Settings.EnableShapingVote>启用人格塑造投票</RimMind.Personality.Settings.EnableShapingVote>
@@ -86,4 +91,10 @@
     <RimMind.Personality.Shaping.Reinforce>强化</RimMind.Personality.Shaping.Reinforce>
     <RimMind.Personality.Shaping.Suppress>抑制</RimMind.Personality.Shaping.Suppress>
     <RimMind.Personality.Shaping.Ignore>忽略</RimMind.Personality.Shaping.Ignore>
+
+    <!-- RimMindPersonalityMod.cs - Shaping Action Labels (context provider) -->
+    <RimMind.Personality.Context.ShapingHistoryHeader>[玩家塑造历史]</RimMind.Personality.Context.ShapingHistoryHeader>
+    <RimMind.Personality.ShapingAction.Reinforce>强化</RimMind.Personality.ShapingAction.Reinforce>
+    <RimMind.Personality.ShapingAction.Suppress>抑制</RimMind.Personality.ShapingAction.Suppress>
+    <RimMind.Personality.ShapingAction.Ignore>忽略</RimMind.Personality.ShapingAction.Ignore>
 </LanguageData>
