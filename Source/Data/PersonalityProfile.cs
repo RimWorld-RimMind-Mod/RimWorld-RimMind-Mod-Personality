@@ -13,8 +13,8 @@ namespace RimMind.Personality.Data
     public class PersonalityProfile : IExposable
     {
         // ── 玩家可编辑 ────────────────────────────────────────────────────
-        public string description      = string.Empty;
-        public string workTendencies   = string.Empty;
+        public string description = string.Empty;
+        public string workTendencies = string.Empty;
         public string socialTendencies = string.Empty;
 
         // ── AI 生成（玩家可查看/覆盖） ────────────────────────────────────
@@ -22,7 +22,7 @@ namespace RimMind.Personality.Data
 
         // ── 元数据 ────────────────────────────────────────────────────────
         public bool rimTalkSynced;
-        public int  lastNarrativeUpdateTick;
+        public int lastNarrativeUpdateTick;
 
         // ── 人格塑造投票 ──────────────────────────────────────────────────
         public List<ShapingRecord> playerShapingHistory = new List<ShapingRecord>();
@@ -47,13 +47,13 @@ namespace RimMind.Personality.Data
         {
             // Scribe_Values.Look 在 Nullable 模式下会给 string 字段赋 null（RimWorld 存档系统行为）
 #pragma warning disable CS8601
-            Scribe_Values.Look(ref description,              "description",             string.Empty);
-            Scribe_Values.Look(ref workTendencies,           "workTendencies",          string.Empty);
-            Scribe_Values.Look(ref socialTendencies,         "socialTendencies",        string.Empty);
-            Scribe_Values.Look(ref aiNarrative,              "aiNarrative",             string.Empty);
+            Scribe_Values.Look(ref description, "description", string.Empty);
+            Scribe_Values.Look(ref workTendencies, "workTendencies", string.Empty);
+            Scribe_Values.Look(ref socialTendencies, "socialTendencies", string.Empty);
+            Scribe_Values.Look(ref aiNarrative, "aiNarrative", string.Empty);
 #pragma warning restore CS8601
-            Scribe_Values.Look(ref rimTalkSynced,            "rimTalkSynced");
-            Scribe_Values.Look(ref lastNarrativeUpdateTick,  "lastNarrativeUpdateTick");
+            Scribe_Values.Look(ref rimTalkSynced, "rimTalkSynced");
+            Scribe_Values.Look(ref lastNarrativeUpdateTick, "lastNarrativeUpdateTick");
             Scribe_Collections.Look(ref playerShapingHistory, "playerShapingHistory", LookMode.Deep);
             playerShapingHistory ??= new List<ShapingRecord>();
             Scribe_Deep.Look(ref agentIdentity, "agentIdentity");

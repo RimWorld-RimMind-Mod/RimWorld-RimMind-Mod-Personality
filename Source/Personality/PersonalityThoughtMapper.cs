@@ -59,7 +59,7 @@ namespace RimMind.Personality
                 var profile = AIPersonalityWorldComponent.Instance?.GetOrCreate(pawn);
                 if (profile != null)
                 {
-                    profile.aiNarrative             = result.narrative;
+                    profile.aiNarrative = result.narrative;
                     profile.lastNarrativeUpdateTick = Find.TickManager.TicksGame;
                 }
             }
@@ -110,8 +110,8 @@ namespace RimMind.Personality
                     var capturedEntry = entry;
 
                     string optReinforce = "RimMind.Personality.Shaping.Reinforce".Translate();
-                    string optSuppress  = "RimMind.Personality.Shaping.Suppress".Translate();
-                    string optIgnore    = "RimMind.Personality.Shaping.Ignore".Translate();
+                    string optSuppress = "RimMind.Personality.Shaping.Suppress".Translate();
+                    string optIgnore = "RimMind.Personality.Shaping.Ignore".Translate();
 
                     RimMindAPI.RegisterPendingRequest(new RequestEntry
                     {

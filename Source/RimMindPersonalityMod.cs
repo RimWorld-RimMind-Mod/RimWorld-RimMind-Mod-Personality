@@ -66,7 +66,7 @@ namespace RimMind.Personality
                     if (!Personality.PersonalityThoughtMapper.IsAIPersonalityDef(t.def.defName)) continue;
 
                     string desc = (t as Thought_AIPersonality)?.aiDescription ?? t.def.label;
-                    float  hours = t.DurationTicks / 2500f;
+                    float hours = t.DurationTicks / 2500f;
                     sb.AppendLine("RimMind.Personality.Context.StateEntry".Translate(desc, $"{hours:F1}"));
                     any = true;
                 }
@@ -106,7 +106,7 @@ namespace RimMind.Personality
         internal static void DrawSettingsContent(UnityEngine.Rect inRect)
         {
             UnityEngine.Rect contentArea = SettingsUIHelper.SplitContentArea(inRect);
-            UnityEngine.Rect bottomBar  = SettingsUIHelper.SplitBottomBar(inRect);
+            UnityEngine.Rect bottomBar = SettingsUIHelper.SplitBottomBar(inRect);
 
             float contentH = EstimateHeight();
             UnityEngine.Rect viewRect = new UnityEngine.Rect(0f, 0f, contentArea.width - 16f, contentH);

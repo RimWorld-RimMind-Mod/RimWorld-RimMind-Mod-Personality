@@ -1,77 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
-    <!-- RimMindPersonalityMod.cs -->
-    <RimMind.Personality.Settings.TabLabel>Personality</RimMind.Personality.Settings.TabLabel>
-    <RimMind.Personality.Settings.EnablePersonality>Enable AI Personality System</RimMind.Personality.Settings.EnablePersonality>
-    <RimMind.Personality.Settings.EnablePersonality.Desc>When enabled, AI dynamically generates psychological states (Thoughts) based on game events and colonist conditions.</RimMind.Personality.Settings.EnablePersonality.Desc>
-    <RimMind.Personality.Settings.ShowNotifications>Show Personality Change Notifications</RimMind.Personality.Settings.ShowNotifications>
-    <RimMind.Personality.Settings.ShowNotifications.Desc>Display a notification on screen when AI generates a new psychological state.</RimMind.Personality.Settings.ShowNotifications.Desc>
-    <RimMind.Personality.Settings.ShowLabelPrefix>Show [RimMind] Prefix</RimMind.Personality.Settings.ShowLabelPrefix>
-    <RimMind.Personality.Settings.ShowLabelPrefix.Desc>Display a "RimMind" prefix before psychological state labels to distinguish AI-generated Thoughts from vanilla ones.</RimMind.Personality.Settings.ShowLabelPrefix.Desc>
-    <RimMind.Personality.Settings.ThoughtDuration>Thought duration:</RimMind.Personality.Settings.ThoughtDuration>
-    <RimMind.Personality.Settings.ThoughtDuration.Desc>Set the duration mode for AI-generated psychological states (Thoughts).</RimMind.Personality.Settings.ThoughtDuration.Desc>
-    <RimMind.Personality.Settings.AIDecidesDuration>Let AI decide each Thought's duration</RimMind.Personality.Settings.AIDecidesDuration>
-    <RimMind.Personality.Settings.AIDecidesDuration.Desc>When enabled, AI outputs a duration_hours field in JSON, automatically setting duration based on emotional intensity.</RimMind.Personality.Settings.AIDecidesDuration.Desc>
-    <RimMind.Personality.Settings.FixedDuration>  Fixed duration: {0} game hours</RimMind.Personality.Settings.FixedDuration>
-    <RimMind.Personality.Settings.FixedDuration.Desc>All AI-generated Thoughts use this fixed duration uniformly.</RimMind.Personality.Settings.FixedDuration.Desc>
-    <RimMind.Personality.Settings.AIDurationHint>  AI outputs duration_hours (1~24) in JSON, applied automatically</RimMind.Personality.Settings.AIDurationHint>
-    <RimMind.Personality.Settings.TriggerSources>Trigger Sources</RimMind.Personality.Settings.TriggerSources>
-    <RimMind.Personality.Settings.DailyEval>Daily Evaluation</RimMind.Personality.Settings.DailyEval>
-    <RimMind.Personality.Settings.DailyEval.Desc>Automatically evaluate colonist personality each day, generating psychological states.</RimMind.Personality.Settings.DailyEval.Desc>
-    <RimMind.Personality.Settings.InjuryTrigger>Injury / Illness</RimMind.Personality.Settings.InjuryTrigger>
-    <RimMind.Personality.Settings.InjuryTrigger.Desc>Trigger personality evaluation when a colonist is injured.</RimMind.Personality.Settings.InjuryTrigger.Desc>
-    <RimMind.Personality.Settings.SkillTrigger>Skill Level Up</RimMind.Personality.Settings.SkillTrigger>
-    <RimMind.Personality.Settings.SkillTrigger.Desc>Trigger personality evaluation when a colonist levels up a skill.</RimMind.Personality.Settings.SkillTrigger.Desc>
-    <RimMind.Personality.Settings.IncidentTrigger>Major Incident</RimMind.Personality.Settings.IncidentTrigger>
-    <RimMind.Personality.Settings.IncidentTrigger.Desc>Trigger personality evaluation when a major colony incident occurs.</RimMind.Personality.Settings.IncidentTrigger.Desc>
-    <RimMind.Personality.Settings.DeathTrigger>Close One Died</RimMind.Personality.Settings.DeathTrigger>
-    <RimMind.Personality.Settings.DeathTrigger.Desc>Trigger personality evaluation for other colonists when someone dies.</RimMind.Personality.Settings.DeathTrigger.Desc>
-    <RimMind.Personality.Settings.Section.Display>Display</RimMind.Personality.Settings.Section.Display>
-    <RimMind.Personality.Settings.Section.Thought>Thought Settings</RimMind.Personality.Settings.Section.Thought>
-    <RimMind.Personality.Settings.Section.Request>Request Settings</RimMind.Personality.Settings.Section.Request>
-    <RimMind.Personality.Settings.RequestExpire>Shaping vote expiry: {0} game days</RimMind.Personality.Settings.RequestExpire>
-    <RimMind.Personality.Settings.RequestExpire.Desc>Shaping vote requests that are not responded to within this time are automatically cancelled.</RimMind.Personality.Settings.RequestExpire.Desc>
-    <RimMind.Personality.Settings.ShapingHistoryMax>Shaping history limit: {0}</RimMind.Personality.Settings.ShapingHistoryMax>
-    <RimMind.Personality.Settings.ShapingHistoryMax.Desc>Keep the last N personality shaping vote records for AI evaluation reference.</RimMind.Personality.Settings.ShapingHistoryMax.Desc>
-
-    <!-- Dialog_PersonalityProfile.cs -->
-    <RimMind.Personality.UI.ProfileTitle>{0}'s AI Personality</RimMind.Personality.UI.ProfileTitle>
-    <RimMind.Personality.UI.DescriptionLabel>Personality description (background, referenced by AI evaluation)</RimMind.Personality.UI.DescriptionLabel>
-    <RimMind.Personality.UI.WorkTendencies>Work tendencies</RimMind.Personality.UI.WorkTendencies>
-    <RimMind.Personality.UI.SocialTendencies>Social tendencies</RimMind.Personality.UI.SocialTendencies>
-    <RimMind.Personality.UI.AINarrative>AI recent narrative (read-only, updated daily by AI)</RimMind.Personality.UI.AINarrative>
-    <RimMind.Personality.UI.NarrativeEmpty>(Not yet evaluated - AI will fill in automatically after running for a while)</RimMind.Personality.UI.NarrativeEmpty>
-    <RimMind.Personality.UI.Save>Save</RimMind.Personality.UI.Save>
-    <RimMind.Personality.UI.Cancel>Cancel</RimMind.Personality.UI.Cancel>
-    <RimMind.Personality.UI.ProfileSaved>[RimMind] {0}'s personality profile saved.</RimMind.Personality.UI.ProfileSaved>
-
-    <!-- BioTabPersonalityPatch.cs -->
-    <RimMind.Personality.UI.BioTab.Label>Personality</RimMind.Personality.UI.BioTab.Label>
-    <RimMind.Personality.UI.BioTab.NarrativeTip>AI recent narrative: {0}</RimMind.Personality.UI.BioTab.NarrativeTip>
-    <RimMind.Personality.UI.BioTab.NotEvaluatedTip>Not yet evaluated - AI will fill in personality narrative automatically after running for a while.</RimMind.Personality.UI.BioTab.NotEvaluatedTip>
-
-    <!-- PersonalityThoughtMapper.cs -->
-    <RimMind.Personality.UI.PersonalityUpdated>[RimMind] {0}'s personality state has been updated.</RimMind.Personality.UI.PersonalityUpdated>
-
-    <!-- RimMindPersonalityMod.cs (Context Providers) -->
-    <RimMind.Personality.Context.ProfileHeader>[{0}'s Personality Profile]</RimMind.Personality.Context.ProfileHeader>
-    <RimMind.Personality.Context.WorkTendencies>Work tendencies: {0}</RimMind.Personality.Context.WorkTendencies>
-    <RimMind.Personality.Context.SocialTendencies>Social tendencies: {0}</RimMind.Personality.Context.SocialTendencies>
-    <RimMind.Personality.Context.RecentState>Recent psychological state: {0}</RimMind.Personality.Context.RecentState>
-    <RimMind.Personality.Context.StateHeader>[Current Personality/Dialogue State]</RimMind.Personality.Context.StateHeader>
-    <RimMind.Personality.Context.StateEntry>- {0} ({1} game hours remaining)</RimMind.Personality.Context.StateEntry>
-
-    <!-- Shaping Vote -->
-    <RimMind.Personality.Settings.EnableShapingVote>Enable Personality Shaping Vote</RimMind.Personality.Settings.EnableShapingVote>
-    <RimMind.Personality.Settings.EnableShapingVote.Desc>When enabled, AI proposes new personality traits during evaluation, and the player can vote to reinforce, suppress, or ignore them.</RimMind.Personality.Settings.EnableShapingVote.Desc>
-    <RimMind.Personality.Shaping.NewTrait>New Personality Trait</RimMind.Personality.Shaping.NewTrait>
-    <RimMind.Personality.Shaping.Reinforce>Reinforce</RimMind.Personality.Shaping.Reinforce>
-    <RimMind.Personality.Shaping.Suppress>Suppress</RimMind.Personality.Shaping.Suppress>
-    <RimMind.Personality.Shaping.Ignore>Ignore</RimMind.Personality.Shaping.Ignore>
-
-    <!-- RimMindPersonalityMod.cs - Shaping Action Labels (context provider) -->
-    <RimMind.Personality.Context.ShapingHistoryHeader>[Player Shaping History]</RimMind.Personality.Context.ShapingHistoryHeader>
-    <RimMind.Personality.ShapingAction.Reinforce>Reinforce</RimMind.Personality.ShapingAction.Reinforce>
-    <RimMind.Personality.ShapingAction.Suppress>Suppress</RimMind.Personality.ShapingAction.Suppress>
-    <RimMind.Personality.ShapingAction.Ignore>Ignore</RimMind.Personality.ShapingAction.Ignore>
+  <!-- RimMindPersonalityMod.cs -->
+  <RimMind.Personality.Settings.TabLabel>Personality</RimMind.Personality.Settings.TabLabel>
+  <RimMind.Personality.Settings.EnablePersonality>Enable AI Personality System</RimMind.Personality.Settings.EnablePersonality>
+  <RimMind.Personality.Settings.EnablePersonality.Desc>When enabled, AI dynamically generates psychological states (Thoughts) based on game events and colonist conditions.</RimMind.Personality.Settings.EnablePersonality.Desc>
+  <RimMind.Personality.Settings.ShowNotifications>Show Personality Change Notifications</RimMind.Personality.Settings.ShowNotifications>
+  <RimMind.Personality.Settings.ShowNotifications.Desc>Display a notification on screen when AI generates a new psychological state.</RimMind.Personality.Settings.ShowNotifications.Desc>
+  <RimMind.Personality.Settings.ShowLabelPrefix>Show [RimMind] Prefix</RimMind.Personality.Settings.ShowLabelPrefix>
+  <RimMind.Personality.Settings.ShowLabelPrefix.Desc>Display a "RimMind" prefix before psychological state labels to distinguish AI-generated Thoughts from vanilla ones.</RimMind.Personality.Settings.ShowLabelPrefix.Desc>
+  <RimMind.Personality.Settings.ThoughtDuration>Thought duration:</RimMind.Personality.Settings.ThoughtDuration>
+  <RimMind.Personality.Settings.ThoughtDuration.Desc>Set the duration mode for AI-generated psychological states (Thoughts).</RimMind.Personality.Settings.ThoughtDuration.Desc>
+  <RimMind.Personality.Settings.AIDecidesDuration>Let AI decide each Thought's duration</RimMind.Personality.Settings.AIDecidesDuration>
+  <RimMind.Personality.Settings.AIDecidesDuration.Desc>When enabled, AI outputs a duration_hours field in JSON, automatically setting duration based on emotional intensity.</RimMind.Personality.Settings.AIDecidesDuration.Desc>
+  <RimMind.Personality.Settings.FixedDuration>  Fixed duration: {0} game hours</RimMind.Personality.Settings.FixedDuration>
+  <RimMind.Personality.Settings.FixedDuration.Desc>All AI-generated Thoughts use this fixed duration uniformly.</RimMind.Personality.Settings.FixedDuration.Desc>
+  <RimMind.Personality.Settings.AIDurationHint>  AI outputs duration_hours (1~24) in JSON, applied automatically</RimMind.Personality.Settings.AIDurationHint>
+  <RimMind.Personality.Settings.TriggerSources>Trigger Sources</RimMind.Personality.Settings.TriggerSources>
+  <RimMind.Personality.Settings.DailyEval>Daily Evaluation</RimMind.Personality.Settings.DailyEval>
+  <RimMind.Personality.Settings.DailyEval.Desc>Automatically evaluate colonist personality each day, generating psychological states.</RimMind.Personality.Settings.DailyEval.Desc>
+  <RimMind.Personality.Settings.InjuryTrigger>Injury / Illness</RimMind.Personality.Settings.InjuryTrigger>
+  <RimMind.Personality.Settings.InjuryTrigger.Desc>Trigger personality evaluation when a colonist is injured.</RimMind.Personality.Settings.InjuryTrigger.Desc>
+  <RimMind.Personality.Settings.SkillTrigger>Skill Level Up</RimMind.Personality.Settings.SkillTrigger>
+  <RimMind.Personality.Settings.SkillTrigger.Desc>Trigger personality evaluation when a colonist levels up a skill.</RimMind.Personality.Settings.SkillTrigger.Desc>
+  <RimMind.Personality.Settings.IncidentTrigger>Major Incident</RimMind.Personality.Settings.IncidentTrigger>
+  <RimMind.Personality.Settings.IncidentTrigger.Desc>Trigger personality evaluation when a major colony incident occurs.</RimMind.Personality.Settings.IncidentTrigger.Desc>
+  <RimMind.Personality.Settings.DeathTrigger>Close One Died</RimMind.Personality.Settings.DeathTrigger>
+  <RimMind.Personality.Settings.DeathTrigger.Desc>Trigger personality evaluation for other colonists when someone dies.</RimMind.Personality.Settings.DeathTrigger.Desc>
+  <RimMind.Personality.Settings.Section.Display>Display</RimMind.Personality.Settings.Section.Display>
+  <RimMind.Personality.Settings.Section.Thought>Thought Settings</RimMind.Personality.Settings.Section.Thought>
+  <RimMind.Personality.Settings.Section.Request>Request Settings</RimMind.Personality.Settings.Section.Request>
+  <RimMind.Personality.Settings.RequestExpire>Shaping vote expiry: {0} game days</RimMind.Personality.Settings.RequestExpire>
+  <RimMind.Personality.Settings.RequestExpire.Desc>Shaping vote requests that are not responded to within this time are automatically cancelled.</RimMind.Personality.Settings.RequestExpire.Desc>
+  <RimMind.Personality.Settings.ShapingHistoryMax>Shaping history limit: {0}</RimMind.Personality.Settings.ShapingHistoryMax>
+  <RimMind.Personality.Settings.ShapingHistoryMax.Desc>Keep the last N personality shaping vote records for AI evaluation reference.</RimMind.Personality.Settings.ShapingHistoryMax.Desc>
+  <!-- Dialog_PersonalityProfile.cs -->
+  <RimMind.Personality.UI.ProfileTitle>{0}'s AI Personality</RimMind.Personality.UI.ProfileTitle>
+  <RimMind.Personality.UI.DescriptionLabel>Personality description (background, referenced by AI evaluation)</RimMind.Personality.UI.DescriptionLabel>
+  <RimMind.Personality.UI.WorkTendencies>Work tendencies</RimMind.Personality.UI.WorkTendencies>
+  <RimMind.Personality.UI.SocialTendencies>Social tendencies</RimMind.Personality.UI.SocialTendencies>
+  <RimMind.Personality.UI.AINarrative>AI recent narrative (read-only, updated daily by AI)</RimMind.Personality.UI.AINarrative>
+  <RimMind.Personality.UI.NarrativeEmpty>(Not yet evaluated - AI will fill in automatically after running for a while)</RimMind.Personality.UI.NarrativeEmpty>
+  <RimMind.Personality.UI.Save>Save</RimMind.Personality.UI.Save>
+  <RimMind.Personality.UI.Cancel>Cancel</RimMind.Personality.UI.Cancel>
+  <RimMind.Personality.UI.ProfileSaved>[RimMind] {0}'s personality profile saved.</RimMind.Personality.UI.ProfileSaved>
+  <!-- BioTabPersonalityPatch.cs -->
+  <RimMind.Personality.UI.BioTab.Label>Personality</RimMind.Personality.UI.BioTab.Label>
+  <RimMind.Personality.UI.BioTab.NarrativeTip>AI recent narrative: {0}</RimMind.Personality.UI.BioTab.NarrativeTip>
+  <RimMind.Personality.UI.BioTab.NotEvaluatedTip>Not yet evaluated - AI will fill in personality narrative automatically after running for a while.</RimMind.Personality.UI.BioTab.NotEvaluatedTip>
+  <!-- PersonalityThoughtMapper.cs -->
+  <RimMind.Personality.UI.PersonalityUpdated>[RimMind] {0}'s personality state has been updated.</RimMind.Personality.UI.PersonalityUpdated>
+  <!-- RimMindPersonalityMod.cs (Context Providers) -->
+  <RimMind.Personality.Context.ProfileHeader>[{0}'s Personality Profile]</RimMind.Personality.Context.ProfileHeader>
+  <RimMind.Personality.Context.WorkTendencies>Work tendencies: {0}</RimMind.Personality.Context.WorkTendencies>
+  <RimMind.Personality.Context.SocialTendencies>Social tendencies: {0}</RimMind.Personality.Context.SocialTendencies>
+  <RimMind.Personality.Context.RecentState>Recent psychological state: {0}</RimMind.Personality.Context.RecentState>
+  <RimMind.Personality.Context.StateHeader>[Current Personality/Dialogue State]</RimMind.Personality.Context.StateHeader>
+  <RimMind.Personality.Context.StateEntry>- {0} ({1} game hours remaining)</RimMind.Personality.Context.StateEntry>
+  <!-- Shaping Vote -->
+  <RimMind.Personality.Settings.EnableShapingVote>Enable Personality Shaping Vote</RimMind.Personality.Settings.EnableShapingVote>
+  <RimMind.Personality.Settings.EnableShapingVote.Desc>When enabled, AI proposes new personality traits during evaluation, and the player can vote to reinforce, suppress, or ignore them.</RimMind.Personality.Settings.EnableShapingVote.Desc>
+  <RimMind.Personality.Shaping.NewTrait>New Personality Trait</RimMind.Personality.Shaping.NewTrait>
+  <RimMind.Personality.Shaping.Reinforce>Reinforce</RimMind.Personality.Shaping.Reinforce>
+  <RimMind.Personality.Shaping.Suppress>Suppress</RimMind.Personality.Shaping.Suppress>
+  <RimMind.Personality.Shaping.Ignore>Ignore</RimMind.Personality.Shaping.Ignore>
+  <!-- RimMindPersonalityMod.cs - Shaping Action Labels (context provider) -->
+  <RimMind.Personality.Context.ShapingHistoryHeader>[Player Shaping History]</RimMind.Personality.Context.ShapingHistoryHeader>
+  <RimMind.Personality.ShapingAction.Reinforce>Reinforce</RimMind.Personality.ShapingAction.Reinforce>
+  <RimMind.Personality.ShapingAction.Suppress>Suppress</RimMind.Personality.ShapingAction.Suppress>
+  <RimMind.Personality.ShapingAction.Ignore>Ignore</RimMind.Personality.ShapingAction.Ignore>
 </LanguageData>

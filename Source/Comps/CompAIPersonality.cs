@@ -27,11 +27,11 @@ namespace RimMind.Personality.Comps
         private const int JitterRange = 3000;
         private const int EventCooldownTicks = 1200;
 
-        private bool   _hasPendingRequest;
-        private int    _lastEventTick = -EventCooldownTicks;
-        private int    _pendingRequestTick;
+        private bool _hasPendingRequest;
+        private int _lastEventTick = -EventCooldownTicks;
+        private int _pendingRequestTick;
         private string? _pendingEventContext;
-        private int    _dailyJitter = -1;
+        private int _dailyJitter = -1;
 
         private Pawn Pawn => (Pawn)parent;
         private AIPersonalitySettings Settings => RimMindPersonalityMod.Settings;
@@ -60,7 +60,7 @@ namespace RimMind.Personality.Comps
                     return;
                 }
             }
-            if (!IsEligible())                return;
+            if (!IsEligible()) return;
 
             bool dailyFire = Settings.enableDailyEval && Pawn.IsHashIntervalTick(DailyInterval + GetDailyJitter());
             bool eventFire = _pendingEventContext != null &&
@@ -70,19 +70,19 @@ namespace RimMind.Personality.Comps
 
             string? eventCtx = _pendingEventContext;
             _pendingEventContext = null;
-            _lastEventTick       = Find.TickManager.TicksGame;
-            _hasPendingRequest   = true;
-            _pendingRequestTick  = Find.TickManager.TicksGame;
+            _lastEventTick = Find.TickManager.TicksGame;
+            _hasPendingRequest = true;
+            _pendingRequestTick = Find.TickManager.TicksGame;
 
             // ContextEngine + RequestStructured 路径
             var ctxRequest = new ContextRequest
             {
-                NpcId       = $"NPC-{Pawn.ThingID}",
-                Scenario    = ScenarioIds.Personality,
-                Budget      = PersonalityThoughtMapper.GetPersonalityBudget(),
+                NpcId = $"NPC-{Pawn.ThingID}",
+                Scenario = ScenarioIds.Personality,
+                Budget = PersonalityThoughtMapper.GetPersonalityBudget(),
                 CurrentQuery = eventCtx,
                 ExcludeKeys = new[] { "personality_state" },
-                MaxTokens   = 300,
+                MaxTokens = 300,
                 Temperature = 0.8f,
             };
 
@@ -104,10 +104,10 @@ namespace RimMind.Personality.Comps
 
             bool enabled = eventType switch
             {
-                TriggerEventType.Injury  => Settings.enableInjuryTrigger,
-                TriggerEventType.Skill   => Settings.enableSkillTrigger,
+                TriggerEventType.Injury => Settings.enableInjuryTrigger,
+                TriggerEventType.Skill => Settings.enableSkillTrigger,
                 TriggerEventType.Incident => Settings.enableIncidentTrigger,
-                TriggerEventType.Death   => Settings.enableDeathTrigger,
+                TriggerEventType.Death => Settings.enableDeathTrigger,
                 _ => true,
             };
             if (!enabled) return;

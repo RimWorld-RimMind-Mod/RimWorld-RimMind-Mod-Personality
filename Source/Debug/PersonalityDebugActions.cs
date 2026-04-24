@@ -39,12 +39,12 @@ namespace RimMind.Personality.Debug
 
             var ctxRequest = new ContextRequest
             {
-                NpcId       = $"NPC-{pawn.ThingID}",
-                Scenario    = ScenarioIds.Personality,
-                Budget      = PersonalityThoughtMapper.GetPersonalityBudget(),
+                NpcId = $"NPC-{pawn.ThingID}",
+                Scenario = ScenarioIds.Personality,
+                Budget = PersonalityThoughtMapper.GetPersonalityBudget(),
                 CurrentQuery = "[Debug] Force evaluate",
                 ExcludeKeys = new[] { "personality_state" },
-                MaxTokens   = 300,
+                MaxTokens = 300,
                 Temperature = 0.8f,
             };
 
@@ -85,10 +85,10 @@ namespace RimMind.Personality.Debug
             if (profile != null && !profile.IsEmpty)
             {
                 sb.AppendLine("[Personality Profile]");
-                if (!profile.description.NullOrEmpty())      sb.AppendLine($"  Description: {profile.description}");
-                if (!profile.workTendencies.NullOrEmpty())   sb.AppendLine($"  Work tendencies: {profile.workTendencies}");
+                if (!profile.description.NullOrEmpty()) sb.AppendLine($"  Description: {profile.description}");
+                if (!profile.workTendencies.NullOrEmpty()) sb.AppendLine($"  Work tendencies: {profile.workTendencies}");
                 if (!profile.socialTendencies.NullOrEmpty()) sb.AppendLine($"  Social tendencies: {profile.socialTendencies}");
-                if (!profile.aiNarrative.NullOrEmpty())      sb.AppendLine($"  Recent narrative: {profile.aiNarrative}");
+                if (!profile.aiNarrative.NullOrEmpty()) sb.AppendLine($"  Recent narrative: {profile.aiNarrative}");
                 float daysSince = (Find.TickManager.TicksGame - profile.lastNarrativeUpdateTick) / 60000f;
                 sb.AppendLine($"  Last updated: {daysSince:F1} game days ago");
             }
@@ -107,7 +107,7 @@ namespace RimMind.Personality.Debug
                     if (!PersonalityThoughtMapper.IsAIPersonalityDef(t.def.defName)) continue;
 
                     var pt = t as Thought_AIPersonality;
-                    float mood  = MoodOffsetCalculator.CalcMoodOffset(pt?.aiIntensity ?? 0);
+                    float mood = MoodOffsetCalculator.CalcMoodOffset(pt?.aiIntensity ?? 0);
                     float hours = t.DurationTicks / 2500f;
                     sb.AppendLine($"  [{t.def.defName}] {pt?.aiLabel ?? t.def.label} " +
                                   $"(intensity={pt?.aiIntensity ?? 0}, mood={mood:+0;-0}, {hours:F1}h remaining)");
