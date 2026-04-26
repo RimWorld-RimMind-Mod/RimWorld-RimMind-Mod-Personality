@@ -15,7 +15,7 @@ namespace RimMind.Personality
     {
         public const string EvaluationSchema = SchemaRegistry.PersonalityOutput;
         public const string DefaultExcludeKey = "personality_state";
-        public const int DefaultMaxTokens = 300;
+        public const int DefaultMaxTokens = 600;
         public const float DefaultTemperature = 0.8f;
 
         public static float GetPersonalityBudget()
@@ -45,11 +45,25 @@ namespace RimMind.Personality
             PersonalityResultDto? result;
             try
             {
-                result = JsonConvert.DeserializeObject<PersonalityResultDto>(response.Content);
+                string content = response.Content ?? "";
+                result = JsonConvert.DeserializeObject<PersonalityResultDto>(content);
             }
             catch
             {
                 result = null;
+            }
+
+            if (result == null)
+            {
+                string? trimmed = JsonRepairHelper.TryRepairTruncatedJson(response.Content ?? "");
+                if (trimmed != null)
+                {
+                    try
+                    {
+                        result = JsonConvert.DeserializeObject<PersonalityResultDto>(trimmed);
+                    }
+                    catch { }
+                }
             }
 
             if (result == null)
@@ -197,5 +211,6 @@ namespace RimMind.Personality
                 if (s == defName) return true;
             return false;
         }
+
     }
 }
