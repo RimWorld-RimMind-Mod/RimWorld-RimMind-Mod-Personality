@@ -18,6 +18,9 @@ RimMind-Personality 是 RimMind AI 模组套件的人格系统模块。职责：
 - 依赖 RimMind-Core 提供的 API（RimMindAPI、ContextEngine、ContextRequest、SchemaRegistry、ScenarioIds）
 - 被 RimMind-Advisor 和 RimMind-Dialogue 消费（人格上下文影响决策和对话风格）
 
+**已知缺口**：
+- `TriggerEvent()` 方法设计为外部调用入口，但当前代码库中无任何 Patch 调用它，4 种事件触发（受伤/技能/事件/死亡）暂不工作
+
 ## 源码结构
 
 ```
@@ -29,7 +32,7 @@ Source/
 │   ├── Thought_AIPersonality.cs     自定义 Thought 类型（重写 Label/Description/MoodOffset/DurationTicks）
 │   └── MoodOffsetCalculator.cs     强度→心情偏移查表（无 RimWorld 依赖）
 ├── Settings/
-│   └── AIPersonalitySettings.cs     模组设置（12 项：触发源、持续时间、塑造等）
+│   └── AIPersonalitySettings.cs     模组设置（13 项：触发源、持续时间、塑造等）
 ├── Data/
 │   ├── PersonalityProfile.cs        人格档案 + AIPersonalityWorldComponent
 │   └── ShapingRecord.cs             玩家塑造记录
@@ -41,7 +44,7 @@ Source/
 ├── Patches/
 │   └── AddCompToHumanlikePatch.cs   Harmony Postfix 为人形种族注入 Comp
 └── Debug/
-    └── PersonalityDebugActions.cs   Dev 菜单调试动作（5 个）
+    └── PersonalityDebugActions.cs   Dev 菜单调试动作（8 个）
 
 Tests/  (xUnit，无 RimWorld 依赖)
 ├── MoodOffsetTests.cs               心情偏移查表测试
@@ -50,7 +53,7 @@ Tests/  (xUnit，无 RimWorld 依赖)
 
 Defs/ThoughtDefs/AIPersonalityThoughts.xml   3 个 ThoughtDef 槽位定义
 Patches/AddAIPersonalityComp.xml             空文件（仅注释说明为何不用 XML Patch）
-Languages/{ChineseSimplified,English}/Keyed/RimMind_Personality.xml  翻译（61 个 key）
+Languages/{ChineseSimplified,English}/Keyed/RimMind_Personality.xml  翻译（93 个 key）
 Languages/ChineseSimplified/DefInjected/ThoughtDef/  ThoughtDef 中译
 About/About.xml                               模组元数据
 ```
@@ -97,7 +100,7 @@ bool IsEligible()            // 自由非奴隶殖民者、未死亡、在地图
 | `Incident` | `enableIncidentTrigger` | 重大事件触发（默认值） |
 | `Death` | `enableDeathTrigger` | 亲近者死亡触发 |
 
-**ContextRequest 参数**：`Scenario=Personality, ExcludeKeys=["personality_state"], MaxTokens=300, Temperature=0.8f`
+**ContextRequest 参数**：`Scenario=Personality, ExcludeKeys=["personality_state"], MaxTokens=600, Temperature=0.8f`
 
 ### PersonalityThoughtMapper
 
@@ -105,17 +108,20 @@ bool IsEligible()            // 自由非奴隶殖民者、未死亡、在地图
 
 ```csharp
 public const string EvaluationSchema = SchemaRegistry.PersonalityOutput;
+public const string DefaultExcludeKey = "personality_state";
+public const int DefaultMaxTokens = 600;
+public const float DefaultTemperature = 0.8f;
 
 public static float GetPersonalityBudget()
 // 从 Core 的 ContextSettings 读取 ContextBudget，null 时兜底 0.6f
 
 public static void Apply(AIResponse response, Pawn pawn)
 // 1. 检查 response.Success
-// 2. JsonConvert.DeserializeObject<PersonalityResultDto>(response.Content)（try-catch，失败时 log 并 return）
+// 2. JsonConvert.DeserializeObject<PersonalityResultDto>(response.Content)（try-catch，失败时尝试 JsonRepairHelper，再失败 log 并 return）
 // 3. 写入 narrative → PersonalityProfile（更新 lastNarrativeUpdateTick）
 // 4. 写入 identity → PersonalityProfile.agentIdentity（motivations/traits/core_values）
 // 5. RemoveAllAIPersonalityThoughts（清除旧 Thought）
-// 6. 遍历 result.thoughts，创建 Thought_AIPersonality（最多 SlotDefNames.Length 个）
+// 6. 遍历 result.thoughts（null-coalescing 防护），创建 Thought_AIPersonality（最多 SlotDefNames.Length 个）
 // 7. 若 enableShapingVote，为每个 Thought 注册 RimMindAPI.RegisterPendingRequest
 //    选项：强化/抑制/忽略，选择"忽略"时不写入 ShapingRecord
 // 8. 若 showNotifications，发 Messages.Message
@@ -167,7 +173,7 @@ static class MoodOffsetCalculator
     static readonly float[] MoodTable = { -10f, -3f, -1f, 0f, +1f, +3f, +10f };
     // intensity: -3  -2  -1  0  +1  +2  +3
 
-    static float CalcMoodOffset(int intensity);  // 自动 clamp 到 [-3, +3] 后查表
+    static float CalcMoodOffset(float intensity);  // 自动 clamp 到 [-3, +3] 后查表
 }
 ```
 
@@ -186,8 +192,8 @@ public class ThoughtEntryDto
     public string type { get; set; } = "state";    // "state" 或 "behavior"（当前生产代码未区分）
     public string label { get; set; } = string.Empty;
     public string description { get; set; } = string.Empty;
-    public int intensity { get; set; }                         // -3 ~ +3
-    public int? duration_hours { get; set; } = null;           // 可选，仅 AIDecides 模式，1~24
+    public float intensity { get; set; }                       // -3 ~ +3（float，与 Schema "number" 一致）
+    public float? duration_hours { get; set; } = null;         // 可选，仅 AIDecides 模式，1~24
 }
 
 public class PersonalityIdentityDto
@@ -211,7 +217,7 @@ public class PersonalityProfile : IExposable
     // AI 生成（玩家可查看/覆盖）
     public string aiNarrative = string.Empty;       // AI 叙事文本（每日更新）
     // 元数据
-    public bool rimTalkSynced;                       // RimTalk 同步标记（预留）
+    public bool rimTalkSynced;                       // RimTalk 同步标记（预留，当前未使用）
     public int lastNarrativeUpdateTick;              // 上次叙事更新的 tick
 
     // 人格塑造投票
@@ -261,13 +267,13 @@ public class ShapingRecord : IExposable
 ```csharp
 var ctxRequest = new ContextRequest
 {
-    NpcId = $"NPC-{Pawn.ThingID}",
+    NpcId = $"NPC-{Pawn.thingIDNumber}",
     Scenario = ScenarioIds.Personality,
     Budget = PersonalityThoughtMapper.GetPersonalityBudget(),
     CurrentQuery = eventCtx,
-    ExcludeKeys = new[] { "personality_state" },
-    MaxTokens = 300,
-    Temperature = 0.8f,
+    ExcludeKeys = new[] { PersonalityThoughtMapper.DefaultExcludeKey },
+    MaxTokens = PersonalityThoughtMapper.DefaultMaxTokens,
+    Temperature = PersonalityThoughtMapper.DefaultTemperature,
 };
 
 var schema = PersonalityThoughtMapper.EvaluationSchema;
@@ -301,7 +307,7 @@ Personality 向 Core 注册三个 PawnContextProvider + 一个 AgentIdentityProv
 |----------|------|------|
 | personality_profile | 人格档案（描述+工作倾向+社交倾向+AI叙事） | 含翻译 key 格式化 |
 | personality_state | 当前活跃的人格 Thought 列表 | 使用 `PersonalityThoughtMapper.IsAIPersonalityDef` 检查 Slot_0/1/2 |
-| personality_shaping | 玩家塑造历史记录 | 取最近 maxCount 条（Settings 为 null 时兜底 50），格式为翻译后标签 |
+| personality_shaping | 玩家塑造历史记录 | 取最近 maxCount 条（Settings 为 null 时兜底 20），格式为翻译后标签 |
 
 AgentIdentity Provider：通过 `RimMindAPI.RegisterAgentIdentityProvider` 注册，返回 `profile?.agentIdentity`。
 
@@ -335,6 +341,7 @@ CompAIPersonality.CompTick()
     │       ▼
     ├── PersonalityThoughtMapper.Apply(response, pawn)
     │       ├── JsonConvert.DeserializeObject<PersonalityResultDto>(response.Content)
+    │       ├── JsonRepairHelper.TryRepairTruncatedJson（首次失败时尝试修复）
     │       ├── profile.aiNarrative = result.narrative
     │       ├── profile.agentIdentity ← result.identity（motivations/traits/core_values）
     │       ├── RemoveAllAIPersonalityThoughts(pawn)
@@ -369,10 +376,10 @@ CompAIPersonality.CompTick()
 | enablePersonality | bool | true | 总开关 |
 | showNotifications | bool | true | 显示通知 |
 | enableDailyEval | bool | true | 每日定时评估 |
-| enableInjuryTrigger | bool | true | 受伤触发 |
-| enableSkillTrigger | bool | true | 技能升级触发 |
-| enableIncidentTrigger | bool | true | 事件触发 |
-| enableDeathTrigger | bool | true | 死亡触发 |
+| enableInjuryTrigger | bool | true | 受伤触发（⚠️ Patch 未实现） |
+| enableSkillTrigger | bool | true | 技能升级触发（⚠️ Patch 未实现） |
+| enableIncidentTrigger | bool | true | 事件触发（⚠️ Patch 未实现） |
+| enableDeathTrigger | bool | true | 死亡触发（⚠️ Patch 未实现） |
 | thoughtDurationHours | float | 24 | 固定持续时间（小时），仅 Fixed 模式 |
 | durationMode | enum | AIDecides | 持续时间模式（Fixed/AIDecides） |
 | showLabelPrefix | bool | true | [RimMind] 前缀 |
@@ -460,7 +467,7 @@ Scribe_Values.Look(ref customDurationTicks, "customDurationTicks", -1);
 ### 翻译
 
 - 中英双语，key 前缀 `RimMind.Personality.`
-- 共 61 个翻译 key，全部有 C# `.Translate()` 调用方，无死键
+- 共 93 个翻译 key（含 TaskInstruction 子键 16 个），全部有 C# `.Translate()` 调用方，无死键
 
 ## 调试
 
@@ -471,6 +478,9 @@ Dev 菜单（需开启开发模式）→ RimMind Personality：
 - **Clear Personality Thoughts (selected)** — 清除选中 Pawn 的人格 Thought
 - **List Personality-Enabled Pawns** — 列出启用人格系统的殖民者
 - **Reset Personality Profile (selected)** — 重置选中 Pawn 的人格档案
+- **Show Shaping History (selected)** — 显示选中 Pawn 的塑造投票历史
+- **Show Mood Offset Table** — 显示心情偏移查表
+- **Test MoodOffset Calculation** — 测试心情偏移计算（intensity -5 到 +5）
 
 ## 注意事项
 
@@ -488,3 +498,6 @@ Dev 菜单（需开启开发模式）→ RimMind Personality：
 12. **TriggerEvent 默认值**：`eventType` 默认为 `TriggerEventType.Incident`，未传入 eventType 的旧调用默认检查 `enableIncidentTrigger`
 13. **Agent 互斥**：`CompPawnAgent.IsAgentActive(Pawn)` 为 true 时跳过评估，避免与 Advisor 冲突
 14. **identity 写入**：AI 返回 identity 时更新 `profile.agentIdentity` 的 Motivations/PersonalityTraits/CoreValues
+15. **事件触发 Patch 缺失**：TriggerEvent 方法存在但无 Patch 调用，4 种事件触发暂不工作
+16. **rimTalkSynced 死字段**：序列化但从未读写，可考虑移除
+17. **Profile 不清理**：死亡/离队 Pawn 的 Profile 永不清理，长期游戏存档膨胀

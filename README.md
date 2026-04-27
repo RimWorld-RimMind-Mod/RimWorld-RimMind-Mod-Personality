@@ -71,7 +71,7 @@ cd RimWorld-RimMind-Mod-Personality
 
 ### AI 人格评估
 
-每日（或事件触发）向 LLM 发送殖民者状态，AI 返回：
+每日向 LLM 发送殖民者状态，AI 返回：
 
 - **人格 Thought**：1-3 个动态心情状态，含标签、描述、强度、持续时长
 - **叙事摘要**：50 字内描述小人近期心理变化
@@ -232,7 +232,7 @@ cd RimWorld-RimMind-Mod-Personality
 
 ## Key Features
 
-- **AI Personality Assessment**: Daily (or event-triggered) LLM evaluation generates 1-3 dynamic mood Thoughts + narrative summary + identity (motivations, traits, core values)
+- **AI Personality Assessment**: Daily LLM evaluation generates 1-3 dynamic mood Thoughts + narrative summary + identity (motivations, traits, core values)
 - **Multiple Triggers**: Daily timer, injury, skill milestone, incidents, death of loved ones - each with independent toggle
 - **Editable Profile**: Players can edit personality description, work tendencies, and social tendencies
 - **Shaping Vote**: Players can vote (reinforce/suppress/ignore) on AI assessments, influencing future evaluations
