@@ -30,14 +30,11 @@ namespace RimMind.Personality.Patches
             {
                 foreach (var pawn in map.mapPawns.FreeColonists)
                 {
-                    if (pawn.skills == null) continue;
-                    var field = AccessTools.Field(typeof(Pawn_SkillTracker), "skills");
-                    var skills = field?.GetValue(pawn.skills) as List<SkillRecord>;
-                    if (skills != null && skills.Contains(__instance))
+                    if (pawn.skills?.GetSkill(__instance.def) == __instance)
                     {
                         var comp = pawn.GetComp<CompAIPersonality>();
                         if (comp != null)
-                            comp.TriggerEvent($"{"RimMind.Memory.Trigger.SkillUp".Translate(__instance.def.LabelCap, __instance.levelInt, preLevel, __instance.levelInt)}", TriggerEventType.Skill);
+                            comp.TriggerEvent($"{"RimMind.Memory.Trigger.SkillUp".Translate(__instance.def.LabelCap, preLevel, __instance.levelInt)}", TriggerEventType.Skill);
                         return;
                     }
                 }

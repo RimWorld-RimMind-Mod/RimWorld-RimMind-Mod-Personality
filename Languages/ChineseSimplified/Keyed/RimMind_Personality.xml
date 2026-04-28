@@ -90,4 +90,9 @@
   <RimMind.Personality.Prompt.TaskInstruction.DurationHint>duration_hours 设置建议：轻微情绪（intensity ±1）设为 1-4 小时；中等情绪（intensity ±2）设为 5-12 小时；强烈/深层心理状态（intensity ±3）设为 13-24 小时。</RimMind.Personality.Prompt.TaskInstruction.DurationHint>
   <RimMind.Personality.Prompt.TaskInstruction.DiversityHint>多样化提示：尽量保证多样化的人格特质，避免重复生成相同类型的心理状态。如果近期已有类似的心理状态，请尝试生成不同维度的 Thought。</RimMind.Personality.Prompt.TaskInstruction.DiversityHint>
   <RimMind.Personality.Prompt.TaskInstruction.TriggerReason>[触发原因] {0}</RimMind.Personality.Prompt.TaskInstruction.TriggerReason>
+  <RimMind.Memory.Trigger.Contracted>感染了{0}（{1}）</RimMind.Memory.Trigger.Contracted>
+  <RimMind.Memory.Trigger.FullBody>全身</RimMind.Memory.Trigger.FullBody>
+  <RimMind.Memory.Trigger.RelationDeath>{0}去世了</RimMind.Memory.Trigger.RelationDeath>
+  <RimMind.Memory.Trigger.SkillUp>{0}技能升级至{2}级（原{1}级）</RimMind.Memory.Trigger.SkillUp>
+  <RimMind.Storyteller.Context.IncidentOccurred>发生了事件：{0}</RimMind.Storyteller.Context.IncidentOccurred>
 </LanguageData>

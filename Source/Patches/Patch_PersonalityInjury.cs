@@ -12,6 +12,8 @@ namespace RimMind.Personality.Patches
         {
             if (!RimMindPersonalityMod.Settings.enableInjuryTrigger) return;
             if (hediff == null) return;
+            if (hediff.def.isBad == false) return;
+            if (hediff.Severity < 0.2f) return;
             var pawn = __instance.pawn;
             if (pawn == null || !pawn.IsColonist) return;
 

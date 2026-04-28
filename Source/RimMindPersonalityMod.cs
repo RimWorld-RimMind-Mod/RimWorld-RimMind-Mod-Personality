@@ -39,64 +39,70 @@ namespace RimMind.Personality
 
         private static void RegisterContextProviders()
         {
-            RimMindAPI.RegisterPawnContextProvider("personality_profile", pawn =>
-            {
-                var profile = AIPersonalityWorldComponent.Instance?.GetOrCreate(pawn);
-                if (profile == null || profile.IsEmpty) return null;
-
-                var sb = new System.Text.StringBuilder();
-                sb.AppendLine("RimMind.Personality.Context.ProfileHeader".Translate(pawn.Name.ToStringShort));
-                if (!profile.description.NullOrEmpty())
-                    sb.AppendLine(profile.description);
-                if (!profile.workTendencies.NullOrEmpty())
-                    sb.AppendLine("RimMind.Personality.Context.WorkTendencies".Translate(profile.workTendencies));
-                if (!profile.socialTendencies.NullOrEmpty())
-                    sb.AppendLine("RimMind.Personality.Context.SocialTendencies".Translate(profile.socialTendencies));
-                if (!profile.aiNarrative.NullOrEmpty())
-                    sb.AppendLine("RimMind.Personality.Context.RecentState".Translate(profile.aiNarrative));
-                return sb.ToString().TrimEnd();
-            });
-
-            RimMindAPI.RegisterPawnContextProvider("personality_state", pawn =>
-            {
-                var memories = pawn.needs?.mood?.thoughts?.memories?.Memories;
-                if (memories == null) return null;
-
-                var sb = new System.Text.StringBuilder("RimMind.Personality.Context.StateHeader".Translate() + "\n");
-                bool any = false;
-                foreach (var t in memories)
+            ContextKeyRegistry.Register("personality_profile", ContextLayer.L3_State, 0.25f,
+                pawn =>
                 {
-                    if (!Personality.PersonalityThoughtMapper.IsAIPersonalityDef(t.def.defName)) continue;
+                    if (ContextKeyRegistry.CurrentScenario != ScenarioIds.Personality) return new List<ContextEntry>();
+                    var profile = AIPersonalityWorldComponent.Instance?.GetOrCreate(pawn);
+                    if (profile == null || profile.IsEmpty) return new List<ContextEntry>();
 
-                    string desc = (t as Thought_AIPersonality)?.aiDescription ?? t.def.label;
-                    float hours = t.DurationTicks / 2500f;
-                    sb.AppendLine("RimMind.Personality.Context.StateEntry".Translate(desc, $"{hours:F1}"));
-                    any = true;
-                }
-                return any ? sb.ToString().TrimEnd() : null;
-            });
+                    var sb = new System.Text.StringBuilder();
+                    sb.AppendLine("RimMind.Personality.Context.ProfileHeader".Translate(pawn.Name.ToStringShort));
+                    if (!profile.description.NullOrEmpty())
+                        sb.AppendLine(profile.description);
+                    if (!profile.workTendencies.NullOrEmpty())
+                        sb.AppendLine("RimMind.Personality.Context.WorkTendencies".Translate(profile.workTendencies));
+                    if (!profile.socialTendencies.NullOrEmpty())
+                        sb.AppendLine("RimMind.Personality.Context.SocialTendencies".Translate(profile.socialTendencies));
+                    if (!profile.aiNarrative.NullOrEmpty())
+                        sb.AppendLine("RimMind.Personality.Context.RecentState".Translate(profile.aiNarrative));
+                    return new List<ContextEntry> { new ContextEntry(sb.ToString().TrimEnd()) };
+                }, "RimMind.Personality");
 
-            RimMindAPI.RegisterPawnContextProvider("personality_shaping", pawn =>
-            {
-                var profile = AIPersonalityWorldComponent.Instance?.GetOrCreate(pawn);
-                if (profile?.playerShapingHistory == null || profile.playerShapingHistory.Count == 0)
-                    return null;
-
-                int maxCount = Settings?.shapingHistoryMaxCount ?? 20;
-                var recent = profile.playerShapingHistory.Skip(System.Math.Max(0, profile.playerShapingHistory.Count - maxCount)).ToList();
-                var sb = new System.Text.StringBuilder("RimMind.Personality.Context.ShapingHistoryHeader".Translate());
-                foreach (var r in recent)
+            ContextKeyRegistry.Register("personality_state", ContextLayer.L3_State, 0.2f,
+                pawn =>
                 {
-                    string actionLabel = r.action switch
+                    if (ContextKeyRegistry.CurrentScenario != ScenarioIds.Personality) return new List<ContextEntry>();
+                    var memories = pawn.needs?.mood?.thoughts?.memories?.Memories;
+                    if (memories == null) return new List<ContextEntry>();
+
+                    var sb = new System.Text.StringBuilder("RimMind.Personality.Context.StateHeader".Translate() + "\n");
+                    bool any = false;
+                    foreach (var t in memories)
                     {
-                        "reinforce" => "RimMind.Personality.ShapingAction.Reinforce".Translate(),
-                        "suppress" => "RimMind.Personality.ShapingAction.Suppress".Translate(),
-                        _ => "RimMind.Personality.ShapingAction.Ignore".Translate()
-                    };
-                    sb.AppendLine($"- {r.label}: {actionLabel}");
-                }
-                return sb.ToString().TrimEnd();
-            });
+                        if (!Personality.PersonalityThoughtMapper.IsAIPersonalityDef(t.def.defName)) continue;
+
+                        string desc = (t as Thought_AIPersonality)?.aiDescription ?? t.def.label;
+                        float hours = t.DurationTicks / 2500f;
+                        sb.AppendLine("RimMind.Personality.Context.StateEntry".Translate(desc, $"{hours:F1}"));
+                        any = true;
+                    }
+                    return any ? new List<ContextEntry> { new ContextEntry(sb.ToString().TrimEnd()) } : new List<ContextEntry>();
+                }, "RimMind.Personality");
+
+            ContextKeyRegistry.Register("personality_shaping", ContextLayer.L3_State, 0.15f,
+                pawn =>
+                {
+                    if (ContextKeyRegistry.CurrentScenario != ScenarioIds.Personality) return new List<ContextEntry>();
+                    var profile = AIPersonalityWorldComponent.Instance?.GetOrCreate(pawn);
+                    if (profile?.playerShapingHistory == null || profile.playerShapingHistory.Count == 0)
+                        return new List<ContextEntry>();
+
+                    int maxCount = Settings?.shapingHistoryMaxCount ?? 20;
+                    var recent = profile.playerShapingHistory.Skip(System.Math.Max(0, profile.playerShapingHistory.Count - maxCount)).ToList();
+                    var sb = new System.Text.StringBuilder("RimMind.Personality.Context.ShapingHistoryHeader".Translate());
+                    foreach (var r in recent)
+                    {
+                        string actionLabel = r.action switch
+                        {
+                            "reinforce" => "RimMind.Personality.ShapingAction.Reinforce".Translate(),
+                            "suppress" => "RimMind.Personality.ShapingAction.Suppress".Translate(),
+                            _ => "RimMind.Personality.ShapingAction.Ignore".Translate()
+                        };
+                        sb.AppendLine($"- {r.label}: {actionLabel}");
+                    }
+                    return new List<ContextEntry> { new ContextEntry(sb.ToString().TrimEnd()) };
+                }, "RimMind.Personality");
 
             var personalityTaskInstruction = TaskInstructionBuilder.Build("RimMind.Personality.Prompt.TaskInstruction",
                 "Role", "Goal", "Process", "Constraint", "Example", "Output", "Fallback",

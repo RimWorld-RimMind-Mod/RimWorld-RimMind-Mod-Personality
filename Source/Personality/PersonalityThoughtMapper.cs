@@ -72,30 +72,24 @@ namespace RimMind.Personality
                 return;
             }
 
-            if (!result.narrative.NullOrEmpty())
+            var profile = AIPersonalityWorldComponent.Instance?.GetOrCreate(pawn);
+
+            if (!result.narrative.NullOrEmpty() && profile != null)
             {
-                var profile = AIPersonalityWorldComponent.Instance?.GetOrCreate(pawn);
-                if (profile != null)
-                {
-                    profile.aiNarrative = result.narrative;
-                    profile.lastNarrativeUpdateTick = Find.TickManager.TicksGame;
-                }
+                profile.aiNarrative = result.narrative;
+                profile.lastNarrativeUpdateTick = Find.TickManager.TicksGame;
             }
 
-            if (result.identity != null)
+            if (result.identity != null && profile != null)
             {
-                var profile = AIPersonalityWorldComponent.Instance?.GetOrCreate(pawn);
-                if (profile != null)
-                {
-                    if (profile.agentIdentity == null)
-                        profile.agentIdentity = new RimMind.Core.Agent.AgentIdentity();
-                    if (result.identity.motivations != null)
-                        profile.agentIdentity.Motivations = new List<string>(result.identity.motivations);
-                    if (result.identity.traits != null)
-                        profile.agentIdentity.PersonalityTraits = new List<string>(result.identity.traits);
-                    if (result.identity.core_values != null)
-                        profile.agentIdentity.CoreValues = new List<string>(result.identity.core_values);
-                }
+                if (profile.agentIdentity == null)
+                    profile.agentIdentity = new RimMind.Core.Agent.AgentIdentity();
+                if (result.identity.motivations != null)
+                    profile.agentIdentity.Motivations = new List<string>(result.identity.motivations);
+                if (result.identity.traits != null)
+                    profile.agentIdentity.PersonalityTraits = new List<string>(result.identity.traits);
+                if (result.identity.core_values != null)
+                    profile.agentIdentity.CoreValues = new List<string>(result.identity.core_values);
             }
 
             RemoveAllAIPersonalityThoughts(pawn);

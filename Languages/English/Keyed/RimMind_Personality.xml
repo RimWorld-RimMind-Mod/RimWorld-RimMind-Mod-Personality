@@ -90,4 +90,9 @@ Output: {"thoughts":[{"type":"state","label":"Enduring Pain","description":"Seri
   <RimMind.Personality.Prompt.TaskInstruction.DurationHint>duration_hours suggestion: mild emotion (intensity ±1) set 1-4 hours; moderate emotion (intensity ±2) set 5-12 hours; intense/deep psychological state (intensity ±3) set 13-24 hours.</RimMind.Personality.Prompt.TaskInstruction.DurationHint>
   <RimMind.Personality.Prompt.TaskInstruction.DiversityHint>Diversity hint: strive for diverse personality traits, avoid repeating the same type of psychological state. If similar psychological states already exist recently, try generating Thoughts from different dimensions.</RimMind.Personality.Prompt.TaskInstruction.DiversityHint>
   <RimMind.Personality.Prompt.TaskInstruction.TriggerReason>[Trigger Reason] {0}</RimMind.Personality.Prompt.TaskInstruction.TriggerReason>
+  <RimMind.Memory.Trigger.Contracted>contracted {0} ({1})</RimMind.Memory.Trigger.Contracted>
+  <RimMind.Memory.Trigger.FullBody>whole body</RimMind.Memory.Trigger.FullBody>
+  <RimMind.Memory.Trigger.RelationDeath>{0} died</RimMind.Memory.Trigger.RelationDeath>
+  <RimMind.Memory.Trigger.SkillUp>{0} leveled up to {2} (was {1})</RimMind.Memory.Trigger.SkillUp>
+  <RimMind.Storyteller.Context.IncidentOccurred>{0} occurred</RimMind.Storyteller.Context.IncidentOccurred>
 </LanguageData>

@@ -15,7 +15,9 @@ namespace RimMind.Personality.Patches
             if (parms.target is not Map map) return;
 
             var def = __instance.def;
-            if (def == null) return;
+            if (def == null || def.category == null) return;
+            var catName = def.category.defName;
+            if (catName != "ThreatBig" && catName != "ThreatSmall") return;
 
             foreach (var pawn in map.mapPawns.FreeColonists)
             {
