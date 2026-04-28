@@ -81,13 +81,13 @@ Thought 通过独立槽位注入，在心情面板独立显示，互不叠加。
 
 ### 触发机制
 
-| 触发类型 | 设置开关 | 说明 |
-|---------|---------|------|
-| 每日定时 | enableDailyEval | 每游戏天评估一次（含随机抖动避免同时触发） |
-| 受伤/患病 | enableInjuryTrigger | 殖民者受伤或患病时触发 |
-| 技能里程碑 | enableSkillTrigger | 技能等级提升时触发 |
-| 重要事件 | enableIncidentTrigger | 袭击、收获等事件成功执行时触发 |
-| 亲近者死亡 | enableDeathTrigger | 有社交关系的殖民者死亡时触发 |
+| 触发类型 | 设置开关 | 过滤条件 | 说明 |
+|---------|---------|---------|------|
+| 每日定时 | enableDailyEval | — | 每游戏天评估一次（含随机抖动避免同时触发） |
+| 受伤/患病 | enableInjuryTrigger | isBad + Severity≥0.2 | 殖民者受伤或患病时触发，轻微伤不触发 |
+| 技能里程碑 | enableSkillTrigger | levelInt > preLevel | 技能等级提升时触发 |
+| 威胁事件 | enableIncidentTrigger | ThreatBig/ThreatSmall | 仅威胁类事件触发，访客/贸易不触发 |
+| 亲近者死亡 | enableDeathTrigger | 有社交关系 | 有社交关系的殖民者死亡时触发 |
 
 事件触发有 1200 tick 冷却期（约 0.02 游戏天），防止连锁触发。每种触发方式可独立开关。
 
@@ -121,9 +121,9 @@ Thought 通过独立槽位注入，在心情面板独立显示，互不叠加。
 |------|--------|------|
 | 启用 AI 人格系统 | 开启 | 总开关 |
 | 每日定时评估 | 开启 | 每游戏天评估一次 |
-| 受伤触发 | 开启 | 健康剧变时触发 |
+| 受伤触发 | 开启 | 受伤或患病时触发（过滤轻微伤） |
 | 技能升级触发 | 开启 | 技能提升时触发 |
-| 事件触发 | 开启 | 重要事件时触发 |
+| 事件触发 | 开启 | 威胁类事件时触发 |
 | 死亡触发 | 开启 | 亲近者死亡时触发 |
 | Thought 持续时长模式 | AI 决定 | 固定 / AI 决定 |
 | 固定时长 | 24 游戏小时 | 固定模式下的时长（1~24 小时） |
@@ -233,20 +233,20 @@ cd RimWorld-RimMind-Mod-Personality
 ## Key Features
 
 - **AI Personality Assessment**: Daily LLM evaluation generates 1-3 dynamic mood Thoughts + narrative summary + identity (motivations, traits, core values)
-- **Multiple Triggers**: Daily timer, injury, skill milestone, incidents, death of loved ones - each with independent toggle
+- **Multiple Triggers**: Daily timer, injury, skill milestone, threat incidents, death of loved ones - each with independent toggle and smart filtering
 - **Editable Profile**: Players can edit personality description, work tendencies, and social tendencies
 - **Shaping Vote**: Players can vote (reinforce/suppress/ignore) on AI assessments, influencing future evaluations
 - **Context Injection**: Personality profiles and current Thoughts are automatically injected into AI prompts
 
 ## Trigger Mechanism
 
-| Trigger Type | Setting Switch | Description |
-|-------------|---------------|-------------|
-| Daily timer | enableDailyEval | Evaluate once per game day (with random jitter) |
-| Injury/Illness | enableInjuryTrigger | Trigger when colonist is injured or falls ill |
-| Skill milestone | enableSkillTrigger | Trigger on skill level up |
-| Major incident | enableIncidentTrigger | Trigger when incident successfully executes |
-| Death of loved one | enableDeathTrigger | Trigger when a colonist with social relation dies |
+| Trigger Type | Setting Switch | Filter | Description |
+|-------------|---------------|--------|-------------|
+| Daily timer | enableDailyEval | — | Evaluate once per game day (with random jitter) |
+| Injury/Illness | enableInjuryTrigger | isBad + Severity≥0.2 | Trigger on significant injuries, not minor scratches |
+| Skill milestone | enableSkillTrigger | levelInt > preLevel | Trigger on skill level up |
+| Threat incident | enableIncidentTrigger | ThreatBig/ThreatSmall | Only threat events trigger, not visitors/traders |
+| Death of loved one | enableDeathTrigger | Has social relation | Trigger when a colonist with social relation dies |
 
 Event triggers have a 1200 tick cooldown (~0.02 game days) to prevent chain triggering.
 
@@ -256,9 +256,9 @@ Event triggers have a 1200 tick cooldown (~0.02 game days) to prevent chain trig
 |---------|---------|-------------|
 | Enable AI Personality System | On | Master switch |
 | Daily Evaluation | On | Evaluate once per game day |
-| Injury Trigger | On | Trigger on health changes |
+| Injury Trigger | On | Trigger on significant injuries (filters minor) |
 | Skill Level Up Trigger | On | Trigger on skill improvement |
-| Incident Trigger | On | Trigger on major events |
+| Incident Trigger | On | Trigger on threat events only |
 | Death Trigger | On | Trigger when loved ones die |
 | Thought Duration Mode | AI Decides | Fixed / AI Decides |
 | Fixed Duration | 24 game hours | Duration in Fixed mode (1~24 hours) |
