@@ -51,8 +51,9 @@ namespace RimMind.Personality.Data
             Scribe_Values.Look(ref aiNarrative, "aiNarrative", string.Empty);
 #pragma warning restore CS8601
             Scribe_Values.Look(ref lastNarrativeUpdateTick, "lastNarrativeUpdateTick");
-            bool rimTalkSynced = false;
-            Scribe_Values.Look(ref rimTalkSynced, "rimTalkSynced");
+            // _compat1: backward serialization compat — consumes old "rimTalkSynced" field so saved games don't break
+            bool _compat1 = false;
+            Scribe_Values.Look(ref _compat1, "rimTalkSynced");
             Scribe_Collections.Look(ref playerShapingHistory, "playerShapingHistory", LookMode.Deep);
             playerShapingHistory ??= new List<ShapingRecord>();
             Scribe_Deep.Look(ref agentIdentity, "agentIdentity");

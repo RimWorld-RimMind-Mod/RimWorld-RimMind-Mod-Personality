@@ -33,6 +33,15 @@
   <RimMind.Personality.Settings.RequestExpire.Desc>塑造投票请求超过此时间未获响应则自动取消。</RimMind.Personality.Settings.RequestExpire.Desc>
   <RimMind.Personality.Settings.ShapingHistoryMax>塑造历史保留数量：{0}</RimMind.Personality.Settings.ShapingHistoryMax>
   <RimMind.Personality.Settings.ShapingHistoryMax.Desc>保留最近 N 次人格塑造投票记录，用于 AI 评估时参考。</RimMind.Personality.Settings.ShapingHistoryMax.Desc>
+  <RimMind.Personality.Settings.Section.Timing>时间设置</RimMind.Personality.Settings.Section.Timing>
+  <RimMind.Personality.Settings.DailyInterval>每日评估间隔：{0} 游戏小时</RimMind.Personality.Settings.DailyInterval>
+  <RimMind.Personality.Settings.DailyInterval.Desc>自动每日人格评估之间的时间间隔。</RimMind.Personality.Settings.DailyInterval.Desc>
+  <RimMind.Personality.Settings.JitterRange>抖动范围：{0} 游戏小时</RimMind.Personality.Settings.JitterRange>
+  <RimMind.Personality.Settings.JitterRange.Desc>每日间隔上增加的随机波动，防止所有殖民者同时被评估。</RimMind.Personality.Settings.JitterRange.Desc>
+  <RimMind.Personality.Settings.EventCooldown>事件冷却：{0} 游戏小时</RimMind.Personality.Settings.EventCooldown>
+  <RimMind.Personality.Settings.EventCooldown.Desc>事件触发（受伤、技能升级等）评估之间的最小间隔。</RimMind.Personality.Settings.EventCooldown.Desc>
+  <RimMind.Personality.Settings.RequestTimeout>请求超时：{0} 游戏小时</RimMind.Personality.Settings.RequestTimeout>
+  <RimMind.Personality.Settings.RequestTimeout.Desc>超过此时长的待处理 AI 请求将被取消。</RimMind.Personality.Settings.RequestTimeout.Desc>
   <!-- Dialog_PersonalityProfile.cs -->
   <RimMind.Personality.UI.ProfileTitle>{0} 的 AI 人格</RimMind.Personality.UI.ProfileTitle>
   <RimMind.Personality.UI.DescriptionLabel>人格描述（底色，AI 评估时参考）</RimMind.Personality.UI.DescriptionLabel>

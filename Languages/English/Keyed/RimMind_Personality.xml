@@ -33,6 +33,15 @@
   <RimMind.Personality.Settings.RequestExpire.Desc>Shaping vote requests that are not responded to within this time are automatically cancelled.</RimMind.Personality.Settings.RequestExpire.Desc>
   <RimMind.Personality.Settings.ShapingHistoryMax>Shaping history limit: {0}</RimMind.Personality.Settings.ShapingHistoryMax>
   <RimMind.Personality.Settings.ShapingHistoryMax.Desc>Keep the last N personality shaping vote records for AI evaluation reference.</RimMind.Personality.Settings.ShapingHistoryMax.Desc>
+  <RimMind.Personality.Settings.Section.Timing>Timing</RimMind.Personality.Settings.Section.Timing>
+  <RimMind.Personality.Settings.DailyInterval>Daily evaluation interval: {0} game hours</RimMind.Personality.Settings.DailyInterval>
+  <RimMind.Personality.Settings.DailyInterval.Desc>Time between automatic daily personality evaluations.</RimMind.Personality.Settings.DailyInterval.Desc>
+  <RimMind.Personality.Settings.JitterRange>Jitter range: {0} game hours</RimMind.Personality.Settings.JitterRange>
+  <RimMind.Personality.Settings.JitterRange.Desc>Random variation added to daily interval, preventing all colonists from being evaluated simultaneously.</RimMind.Personality.Settings.JitterRange.Desc>
+  <RimMind.Personality.Settings.EventCooldown>Event cooldown: {0} game hours</RimMind.Personality.Settings.EventCooldown>
+  <RimMind.Personality.Settings.EventCooldown.Desc>Minimum time between event-triggered (injury, skill up, etc.) evaluations.</RimMind.Personality.Settings.EventCooldown.Desc>
+  <RimMind.Personality.Settings.RequestTimeout>Request timeout: {0} game hours</RimMind.Personality.Settings.RequestTimeout>
+  <RimMind.Personality.Settings.RequestTimeout.Desc>Cancel pending AI requests that exceed this duration.</RimMind.Personality.Settings.RequestTimeout.Desc>
   <!-- Dialog_PersonalityProfile.cs -->
   <RimMind.Personality.UI.ProfileTitle>{0}'s AI Personality</RimMind.Personality.UI.ProfileTitle>
   <RimMind.Personality.UI.DescriptionLabel>Personality description (background, referenced by AI evaluation)</RimMind.Personality.UI.DescriptionLabel>

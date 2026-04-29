@@ -30,6 +30,11 @@ namespace RimMind.Personality
 
         public int shapingHistoryMaxCount = 20;
 
+        public int dailyIntervalTicks = 60000;
+        public int jitterRangeTicks = 3000;
+        public int eventCooldownTicks = 1200;
+        public int requestTimeoutTicks = 60000;
+
         public override void ExposeData()
         {
             Scribe_Values.Look(ref enablePersonality, "enablePersonality", true);
@@ -45,6 +50,10 @@ namespace RimMind.Personality
             Scribe_Values.Look(ref requestExpireTicks, "requestExpireTicks", 30000);
             Scribe_Values.Look(ref enableShapingVote, "enableShapingVote", true);
             Scribe_Values.Look(ref shapingHistoryMaxCount, "shapingHistoryMaxCount", 20);
+            Scribe_Values.Look(ref dailyIntervalTicks, "dailyIntervalTicks", 60000);
+            Scribe_Values.Look(ref jitterRangeTicks, "jitterRangeTicks", 3000);
+            Scribe_Values.Look(ref eventCooldownTicks, "eventCooldownTicks", 1200);
+            Scribe_Values.Look(ref requestTimeoutTicks, "requestTimeoutTicks", 60000);
         }
     }
 }

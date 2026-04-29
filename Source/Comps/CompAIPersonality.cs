@@ -23,12 +23,8 @@ namespace RimMind.Personality.Comps
     /// </summary>
     public class CompAIPersonality : ThingComp
     {
-        private const int DailyInterval = 60000;
-        private const int JitterRange = 3000;
-        private const int EventCooldownTicks = 1200;
-
         private bool _hasPendingRequest;
-        private int _lastEventTick = -EventCooldownTicks;
+        private int _lastEventTick = -1200;
         private int _pendingRequestTick;
         private string? _pendingEventContext;
         private int _dailyJitter = -1;
@@ -39,7 +35,7 @@ namespace RimMind.Personality.Comps
         private int GetDailyJitter()
         {
             if (_dailyJitter < 0)
-                _dailyJitter = new System.Random(Pawn.thingIDNumber ^ 0x3C3C3C3C).Next(-JitterRange, JitterRange + 1);
+                _dailyJitter = new System.Random(Pawn.thingIDNumber ^ 0x3C3C3C3C).Next(-Settings.jitterRangeTicks, Settings.jitterRangeTicks + 1);
             return _dailyJitter;
         }
 
@@ -50,7 +46,7 @@ namespace RimMind.Personality.Comps
             if (CompPawnAgent.IsAgentActive(Pawn)) return;
             if (_hasPendingRequest)
             {
-                if (Find.TickManager.TicksGame - _pendingRequestTick > 60000)
+                if (Find.TickManager.TicksGame - _pendingRequestTick > Settings.requestTimeoutTicks)
                 {
                     Log.Warning($"[RimMind-Personality] Pending request timeout for {Pawn.Name.ToStringShort}, resetting.");
                     _hasPendingRequest = false;
@@ -62,9 +58,9 @@ namespace RimMind.Personality.Comps
             }
             if (!IsEligible()) return;
 
-            bool dailyFire = Settings.enableDailyEval && Pawn.IsHashIntervalTick(DailyInterval + GetDailyJitter());
+            bool dailyFire = Settings.enableDailyEval && Pawn.IsHashIntervalTick(Settings.dailyIntervalTicks + GetDailyJitter());
             bool eventFire = _pendingEventContext != null &&
-                             Find.TickManager.TicksGame - _lastEventTick >= EventCooldownTicks;
+                             Find.TickManager.TicksGame - _lastEventTick >= Settings.eventCooldownTicks;
 
             if (!dailyFire && !eventFire) return;
 
@@ -127,7 +123,7 @@ namespace RimMind.Personality.Comps
         public override void PostExposeData()
         {
             base.PostExposeData();
-            Scribe_Values.Look(ref _lastEventTick, "lastEventTick", -EventCooldownTicks);
+            Scribe_Values.Look(ref _lastEventTick, "lastEventTick", -1200);
             Scribe_Values.Look(ref _dailyJitter, "dailyJitter", -1);
         }
     }

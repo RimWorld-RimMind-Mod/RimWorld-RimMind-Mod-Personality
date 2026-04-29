@@ -196,6 +196,36 @@ namespace RimMind.Personality
             GUI.color = UnityEngine.Color.white;
             Settings.shapingHistoryMaxCount = (int)listing.Slider(Settings.shapingHistoryMaxCount, 10f, 200f);
 
+            SettingsUIHelper.DrawSectionHeader(listing, "RimMind.Personality.Settings.Section.Timing".Translate());
+
+            listing.Label("RimMind.Personality.Settings.DailyInterval".Translate($"{Settings.dailyIntervalTicks / 2500f:F1}"));
+            GUI.color = UnityEngine.Color.gray;
+            listing.Label("  " + "RimMind.Personality.Settings.DailyInterval.Desc".Translate());
+            GUI.color = UnityEngine.Color.white;
+            Settings.dailyIntervalTicks = (int)listing.Slider(Settings.dailyIntervalTicks, 12000f, 120000f);
+            Settings.dailyIntervalTicks = (Settings.dailyIntervalTicks / 3000) * 3000;
+
+            listing.Label("RimMind.Personality.Settings.JitterRange".Translate($"{Settings.jitterRangeTicks / 2500f:F1}"));
+            GUI.color = UnityEngine.Color.gray;
+            listing.Label("  " + "RimMind.Personality.Settings.JitterRange.Desc".Translate());
+            GUI.color = UnityEngine.Color.white;
+            Settings.jitterRangeTicks = (int)listing.Slider(Settings.jitterRangeTicks, 0f, 12000f);
+            Settings.jitterRangeTicks = (Settings.jitterRangeTicks / 600) * 600;
+
+            listing.Label("RimMind.Personality.Settings.EventCooldown".Translate($"{Settings.eventCooldownTicks / 2500f:F1}"));
+            GUI.color = UnityEngine.Color.gray;
+            listing.Label("  " + "RimMind.Personality.Settings.EventCooldown.Desc".Translate());
+            GUI.color = UnityEngine.Color.white;
+            Settings.eventCooldownTicks = (int)listing.Slider(Settings.eventCooldownTicks, 600f, 6000f);
+            Settings.eventCooldownTicks = (Settings.eventCooldownTicks / 300) * 300;
+
+            listing.Label("RimMind.Personality.Settings.RequestTimeout".Translate($"{Settings.requestTimeoutTicks / 2500f:F1}"));
+            GUI.color = UnityEngine.Color.gray;
+            listing.Label("  " + "RimMind.Personality.Settings.RequestTimeout.Desc".Translate());
+            GUI.color = UnityEngine.Color.white;
+            Settings.requestTimeoutTicks = (int)listing.Slider(Settings.requestTimeoutTicks, 12000f, 120000f);
+            Settings.requestTimeoutTicks = (Settings.requestTimeoutTicks / 3000) * 3000;
+
             listing.End();
             Widgets.EndScrollView();
 
@@ -214,6 +244,10 @@ namespace RimMind.Personality
                 Settings.requestExpireTicks = 30000;
                 Settings.enableShapingVote = true;
                 Settings.shapingHistoryMaxCount = 20;
+                Settings.dailyIntervalTicks = 60000;
+                Settings.jitterRangeTicks = 3000;
+                Settings.eventCooldownTicks = 1200;
+                Settings.requestTimeoutTicks = 60000;
             });
 
             Settings.Write();
@@ -232,6 +266,7 @@ namespace RimMind.Personality
                 h += 24f;
             h += 24f + 24f * 2;
             h += 24f + 24f + 32f;
+            h += 24f + (24f + 24f + 32f) * 4;
             return h + 40f;
         }
     }
