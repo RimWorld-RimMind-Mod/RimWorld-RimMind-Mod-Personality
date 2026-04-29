@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using HarmonyLib;
 using RimMind.Personality.Comps;
 using RimWorld;
@@ -9,20 +10,19 @@ namespace RimMind.Personality.Patches
     [HarmonyPatch(typeof(SkillRecord), "Learn")]
     static class Patch_PersonalitySkill
     {
-        internal static readonly Dictionary<int, int> PreLevels = new Dictionary<int, int>();
+        internal static readonly Dictionary<object, int> PreLevels = new Dictionary<object, int>();
 
         static void Prefix(SkillRecord __instance)
         {
             if (!RimMindPersonalityMod.Settings.enableSkillTrigger) return;
-            PreLevels[__instance.GetHashCode()] = __instance.levelInt;
+            PreLevels[__instance] = __instance.levelInt;
         }
 
         static void Postfix(SkillRecord __instance)
         {
             if (!RimMindPersonalityMod.Settings.enableSkillTrigger) return;
-            var hash = __instance.GetHashCode();
-            if (!PreLevels.TryGetValue(hash, out int preLevel)) return;
-            PreLevels.Remove(hash);
+            if (!PreLevels.TryGetValue(__instance, out int preLevel)) return;
+            PreLevels.Remove(__instance);
 
             if (__instance.levelInt <= preLevel) return;
 

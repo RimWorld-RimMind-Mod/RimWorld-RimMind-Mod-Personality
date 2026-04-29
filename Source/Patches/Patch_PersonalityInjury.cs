@@ -15,7 +15,7 @@ namespace RimMind.Personality.Patches
             if (hediff.def.isBad == false) return;
             if (hediff.Severity < 0.2f) return;
             var pawn = __instance.pawn;
-            if (pawn == null || !pawn.IsColonist) return;
+            if (pawn == null || !pawn.IsFreeNonSlaveColonist) return;
 
             var comp = pawn.GetComp<CompAIPersonality>();
             if (comp == null) return;
