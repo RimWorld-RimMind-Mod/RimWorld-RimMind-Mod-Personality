@@ -5,7 +5,7 @@ using Verse;
 
 namespace RimMind.Personality.Patches
 {
-    [HarmonyPatch(typeof(HediffSet), "AddHediff")]
+    [HarmonyPatch(typeof(HediffSet), "AddDirect")]
     static class Patch_PersonalityInjury
     {
         static void Postfix(HediffSet __instance, Hediff hediff)
