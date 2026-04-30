@@ -89,7 +89,7 @@ Thought 通过独立槽位注入，在心情面板独立显示，互不叠加。
 | 威胁事件 | enableIncidentTrigger | ThreatBig/ThreatSmall | 仅威胁类事件触发，访客/贸易不触发 |
 | 亲近者死亡 | enableDeathTrigger | 有社交关系 | 有社交关系的殖民者死亡时触发 |
 
-事件触发有 1200 tick 冷却期（约 0.02 游戏天），防止连锁触发。每种触发方式可独立开关。
+事件触发有冷却期（默认 1200 tick），防止连锁触发。每种触发方式可独立开关。
 
 ### 人格档案
 
@@ -132,6 +132,10 @@ Thought 通过独立槽位注入，在心情面板独立显示，互不叠加。
 | 启用塑造投票 | 开启 | 玩家可对 AI 评估投票 |
 | 请求过期时间 | 0.50 游戏天 | 塑造投票超时自动取消 |
 | 塑造历史保留数量 | 20 | 保留最近 N 次投票记录供 AI 参考 |
+| 每日评估间隔 | 24 游戏小时 | 自动评估的时间间隔 |
+| 抖动范围 | 1.2 游戏小时 | 防止所有殖民者同时被评估 |
+| 事件冷却 | 0.48 游戏小时 | 事件触发之间的最小间隔 |
+| 请求超时 | 24 游戏小时 | 超时的待处理 AI 请求将被取消 |
 
 ## 常见问题
 
@@ -248,7 +252,7 @@ cd RimWorld-RimMind-Mod-Personality
 | Threat incident | enableIncidentTrigger | ThreatBig/ThreatSmall | Only threat events trigger, not visitors/traders |
 | Death of loved one | enableDeathTrigger | Has social relation | Trigger when a colonist with social relation dies |
 
-Event triggers have a 1200 tick cooldown (~0.02 game days) to prevent chain triggering.
+Event triggers have a cooldown period (default 1200 ticks) to prevent chain triggering.
 
 ## Settings
 
@@ -267,6 +271,10 @@ Event triggers have a 1200 tick cooldown (~0.02 game days) to prevent chain trig
 | Enable Shaping Vote | On | Players can vote on AI assessments |
 | Request Expiry | 0.50 game days | Auto-cancel shaping votes after timeout |
 | Shaping History Limit | 20 | Keep last N vote records for AI reference |
+| Daily Evaluation Interval | 24 game hours | Time between automatic evaluations |
+| Jitter Range | 1.2 game hours | Prevents all colonists from being evaluated simultaneously |
+| Event Cooldown | 0.48 game hours | Minimum time between event-triggered evaluations |
+| Request Timeout | 24 game hours | Cancel pending AI requests that exceed this duration |
 
 ## FAQ
 

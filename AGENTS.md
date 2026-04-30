@@ -28,7 +28,7 @@ Source/
 │   ├── PersonalityResultDto.cs           JSON DTO(无RimWorld依赖)
 │   ├── Thought_AIPersonality.cs          自定义Thought(重写Label/MoodOffset/DurationTicks)
 │   └── MoodOffsetCalculator.cs           强度→心情偏移查表(-3~+3)
-├── Settings/AIPersonalitySettings.cs     13项设置
+├── Settings/AIPersonalitySettings.cs     17项设置(含4项时间参数)
 ├── Data/
 │   ├── PersonalityProfile.cs             人格档案(IExposable) + AIPersonalityWorldComponent(含定期清理)
 │   └── ShapingRecord.cs                  玩家塑造记录
@@ -36,16 +36,16 @@ Source/
 ├── UI/BioTabPersonalityPatch.cs + Dialog_PersonalityProfile.cs
 ├── Patches/
 │   ├── AddCompToHumanlikePatch.cs        ThingDef.ResolveReferences Postfix注入Comp
-│   ├── Patch_PersonalityInjury.cs        HediffSet.AddHediff Postfix(isBad+Severity>=0.2f过滤)
+│   ├── Patch_PersonalityInjury.cs        HediffSet.AddDirect Postfix(isBad+Severity>=0.2f+IsFreeNonSlaveColonist过滤)
 │   ├── Patch_PersonalityDeath.cs         Pawn.Kill Postfix(检查DirectRelations)
 │   ├── Patch_PersonalityIncident.cs      IncidentWorker.TryExecuteWorker Postfix(ThreatBig/ThreatSmall过滤)
-│   └── Patch_PersonalitySkill.cs         SkillRecord.Learn Prefix+Postfix(GetSkill引用比较)
+│   └── Patch_PersonalitySkill.cs         SkillRecord.Learn Prefix+Postfix(对象引用作键+GetSkill引用比较)
 └── Debug/PersonalityDebugActions.cs      8个Debug动作
 ```
 
 ## 触发机制
 
-CompAIPersonality.CompTick: `DailyInterval=60000` + `JitterRange=3000`(基于thingIDNumber确定性抖动) + 事件触发(1200tick冷却)。
+CompAIPersonality.CompTick: `DailyInterval` + `JitterRange`(基于thingIDNumber确定性抖动) + 事件触发(eventCooldownTicks冷却)。
 
 TriggerEventType枚举: `Injury`(enableInjuryTrigger) / `Skill`(enableSkillTrigger) / `Incident`(enableIncidentTrigger) / `Death`(enableDeathTrigger)
 
@@ -55,7 +55,7 @@ TriggerEventType枚举: `Injury`(enableInjuryTrigger) / `Skill`(enableSkillTrigg
 
 | Patch | 过滤条件 |
 |-------|---------|
-| Injury | `hediff.def.isBad != false` + `hediff.Severity >= 0.2f` + `pawn.IsColonist` |
+| Injury | `hediff.def.isBad != false` + `hediff.Severity >= 0.2f` + `pawn.IsFreeNonSlaveColonist` |
 | Skill | `__instance.levelInt > preLevel`(通过GetSkill引用比较找Pawn) |
 | Incident | `def.category.defName == "ThreatBig" \|\| "ThreatSmall"` |
 | Death | `pawn.relations.DirectRelations` 包含 killedPawn |
@@ -99,7 +99,10 @@ identity?: {motivations[], traits[], core_values[]}
 - `AIDecides` 模式: `duration_hours` clamp到[1,24]
 - 翻译键前缀: `RimMind.Personality.*`
 - 事件触发翻译key虽含 `RimMind.Memory.*` / `RimMind.Storyteller.*` 命名空间，但已定义在自身语言文件中
-- Injury Patch使用 `pawn.IsColonist`(含奴隶)，与CompAIPersonality.IsEligible()的 `IsFreeNonSlaveColonist` 不一致
+- Injury Patch使用 `IsFreeNonSlaveColonist`，与CompAIPersonality.IsEligible()一致
+- Skill Patch使用 `Dictionary<object, int>` 以对象引用为键，避免哈希碰撞
+- Skill Patch使用 try/finally 确保 PreLevels 条目在异常时也能清理
+- `_compat1` 字段仅消费旧存档 `rimTalkSynced` key，值不使用
 
 ## 操作边界
 
@@ -111,10 +114,10 @@ identity?: {motivations[], traits[], core_values[]}
 - 修改 `MoodTable` 心情偏移值
 - 修改每日抖动算法
 - 修改Patch触发过滤(如Injury调整严重度阈值)
-- 修改 `rimTalkSynced` 序列化(影响旧存档兼容)
+- 修改 `_compat1` 序列化(影响旧存档兼容)
 
 ### 🚫 绝对禁止
 - 后台线程调用 `ThoughtMaker.MakeThought`/`TryGainMemory`
 - 修改 `"aiDesc"` 存档key(破坏向后兼容)
 - 向Core注册Provider用旧API(用 `ContextKeyRegistry.Register`)
-- Patch_PersonalitySkill 中用 `GetHashCode()` 作字典键(有碰撞风险，应改用 `RuntimeHelpers.GetHashCode` 或 `ConditionalWeakTable`)
+- Skill Patch 中用 `GetHashCode()` 作字典键(已改用对象引用)
