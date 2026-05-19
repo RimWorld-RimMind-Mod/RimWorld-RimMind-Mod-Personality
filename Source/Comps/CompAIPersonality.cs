@@ -1,7 +1,8 @@
 using RimMind.Domain.ValueObjects;
 using RimMind.Presentation;
 using RimMind.Presentation.Context;
-using RimMind.Infrastructure.Verse;
+using RimMind.Application.Common.Interfaces.Agent;
+using RimMind.Application.Common.Interfaces.Internal;
 using RimMind.Application.Features.Context;
 using RimMind.Application.Common.Models.Context;
 using RimMind.Application.Common.Interfaces.Context;
@@ -22,8 +23,8 @@ namespace RimMind.Personality.Comps
     }
 
     /// <summary>
-    /// 挂载�?Pawn �?ThingComp，负责触�?AI 人格评估�?
-    /// 支持每日定时触发和事件驱动触发（外部 Patch 通过 TriggerEvent 注入）�?
+    /// 挂载�?Pawn �?ThingComp，负责触�?AI 人格评估�?
+    /// 支持每日定时触发和事件驱动触发（外部 Patch 通过 TriggerEvent 注入）�?
     /// </summary>
     public class CompAIPersonality : ThingComp
     {
@@ -47,7 +48,7 @@ namespace RimMind.Personality.Comps
         {
             if (!Settings.enablePersonality) return;
             if (RimMindAPI.IsConfigured() == false) return;
-            if (CompPawnAgent.IsAgentActive(Pawn)) return;
+            if (RimMindServiceLocator.Get<IAgentActiveChecker>()?.IsAgentActive(Pawn.ThingID) == true) return;
             if (_hasPendingRequest)
             {
                 if (Find.TickManager.TicksGame - _pendingRequestTick > Settings.requestTimeoutTicks)
@@ -96,7 +97,7 @@ namespace RimMind.Personality.Comps
         }
 
         /// <summary>
-        /// 从外�?Patch（受伤、技能升级、事件等）触发一次人格评估�?
+        /// 从外�?Patch（受伤、技能升级、事件等）触发一次人格评估�?
         /// </summary>
         public void TriggerEvent(string context, TriggerEventType eventType = TriggerEventType.Incident)
         {
@@ -121,9 +122,9 @@ namespace RimMind.Personality.Comps
             Pawn.Map != null &&
             Pawn.needs?.mood != null;
 
-        // ContextEngine 接管，不再手动构�?SystemPrompt
+        // ContextEngine 接管，不再手动构�?SystemPrompt
 
-        // �?ContextSettings 读取人格场景预算
+        // �?ContextSettings 读取人格场景预算
         public override void PostExposeData()
         {
             base.PostExposeData();

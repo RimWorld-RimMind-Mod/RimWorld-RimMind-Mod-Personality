@@ -10,7 +10,7 @@ using RimMind.Application.Common.Models.UI;
 using RimMind.Application.Features.Prompt;
 using RimMind.Domain.ValueObjects;
 using HarmonyLib;
-using RimMind.Infrastructure.UI;
+using RimMind.Presentation.UI;
 using RimMind.Presentation.Context;
 using RimMind.Personality.Data;
 using UnityEngine;
