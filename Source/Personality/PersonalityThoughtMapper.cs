@@ -8,11 +8,9 @@ using RimMind.Application.Common.Interfaces.UI;
 using RimMind.Application.Common.Models.UI;
 using RimMind.Presentation;
 using RimMind.Application.Common.Interfaces.Extension;
-using RimMind.Application.Features.Json;
-using RimMind.Application.Features.Context;
+using RimMind.Application.Common.Models.Agent;
 using RimMind.Application.Common.Models.Context;
 using RimMind.Application.Common.Interfaces.Context;
-using RimMind.Presentation.Context;
 using RimMind.Personality.Data;
 using RimWorld;
 using Verse;
@@ -21,14 +19,14 @@ namespace RimMind.Personality
 {
     public static class PersonalityThoughtMapper
     {
-        public static readonly string EvaluationSchema = SchemaRegistry.PersonalityOutput;
+        public static readonly string EvaluationSchema = RimMindAPI.Context.SchemaPersonalityOutput;
         public const string DefaultExcludeKey = "personality_state";
         public const int DefaultMaxTokens = 600;
         public const float DefaultTemperature = 0.8f;
 
         public static float GetPersonalityBudget()
         {
-            var ctx = RimMindCoreMod.Settings?.Context;
+            var ctx = RimMindAPI.Settings.ContextSettings;
             if (ctx == null) return 0.6f;
             return ctx.ContextBudget;
         }
@@ -65,7 +63,7 @@ namespace RimMind.Personality
 
             if (dto == null)
             {
-                string? trimmed = JsonRepairHelper.TryRepairTruncatedJson(response.Content ?? "");
+                string? trimmed = RimMindAPI.Json.TryRepairTruncatedJson(response.Content ?? "");
                 if (trimmed != null)
                 {
                     try
@@ -93,7 +91,7 @@ namespace RimMind.Personality
             if (dto.identity != null && profile != null)
             {
                 if (profile.agentIdentity == null)
-                    profile.agentIdentity = new RimMind.Presentation.Agent.AgentIdentity();
+                    profile.agentIdentity = new AgentIdentity();
                 if (dto.identity.motivations != null)
                     profile.agentIdentity.Motivations = new List<string>(dto.identity.motivations);
                 if (dto.identity.traits != null)

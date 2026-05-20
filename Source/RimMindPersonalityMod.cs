@@ -4,14 +4,11 @@ using RimMind.Application.Common.Interfaces.Context;
 using RimMind.Application.Common.Interfaces.Extension;
 using RimMind.Presentation;
 using RimMind.Presentation.Settings;
-using RimMind.Application.Features.Context;
 using RimMind.Application.Common.Models.Context;
 using RimMind.Application.Common.Models.UI;
-using RimMind.Application.Features.Prompt;
 using RimMind.Domain.ValueObjects;
 using HarmonyLib;
 using RimMind.Presentation.UI;
-using RimMind.Presentation.Context;
 using RimMind.Personality.Data;
 using UnityEngine;
 using Verse;
@@ -48,10 +45,10 @@ namespace RimMind.Personality
 
         private static void RegisterContextProviders()
         {
-            ContextKeyRegistry.Register("personality_profile", ContextLayer.L3_State, 0.25f,
+            RimMindAPI.Context.RegisterContextKey("personality_profile", ContextLayer.L3_State, 0.25f,
                 pawnObj =>
                 {
-                    if (ContextKeyRegistry.CurrentScenario != ScenarioIds.Personality) return new List<ContextEntry>();
+                    if (RimMindAPI.Context.CurrentScenario != RimMindAPI.Context.ScenarioPersonality) return new List<ContextEntry>();
                     var pawn = pawnObj as Pawn;
                     if (pawn == null) return new List<ContextEntry>();
                     var profile = AIPersonalityWorldComponent.Instance?.GetOrCreate(pawn);
@@ -70,10 +67,10 @@ namespace RimMind.Personality
                     return new List<ContextEntry> { new ContextEntry(sb.ToString().TrimEnd()) };
                 }, "RimMind.Personality");
 
-            ContextKeyRegistry.Register("personality_state", ContextLayer.L3_State, 0.2f,
+            RimMindAPI.Context.RegisterContextKey("personality_state", ContextLayer.L3_State, 0.2f,
                 pawnObj =>
                 {
-                    if (ContextKeyRegistry.CurrentScenario != ScenarioIds.Personality) return new List<ContextEntry>();
+                    if (RimMindAPI.Context.CurrentScenario != RimMindAPI.Context.ScenarioPersonality) return new List<ContextEntry>();
                     var pawn = pawnObj as Pawn;
                     if (pawn == null) return new List<ContextEntry>();
                     var memories = pawn.needs?.mood?.thoughts?.memories?.Memories;
@@ -93,10 +90,10 @@ namespace RimMind.Personality
                     return any ? new List<ContextEntry> { new ContextEntry(sb.ToString().TrimEnd()) } : new List<ContextEntry>();
                 }, "RimMind.Personality");
 
-            ContextKeyRegistry.Register("personality_shaping", ContextLayer.L3_State, 0.15f,
+            RimMindAPI.Context.RegisterContextKey("personality_shaping", ContextLayer.L3_State, 0.15f,
                 pawnObj =>
                 {
-                    if (ContextKeyRegistry.CurrentScenario != ScenarioIds.Personality) return new List<ContextEntry>();
+                    if (RimMindAPI.Context.CurrentScenario != RimMindAPI.Context.ScenarioPersonality) return new List<ContextEntry>();
                     var pawn = pawnObj as Pawn;
                     if (pawn == null) return new List<ContextEntry>();
                     var profile = AIPersonalityWorldComponent.Instance?.GetOrCreate(pawn);
@@ -119,15 +116,15 @@ namespace RimMind.Personality
                     return new List<ContextEntry> { new ContextEntry(sb.ToString().TrimEnd()) };
                 }, "RimMind.Personality");
 
-            var personalityTaskInstruction = TaskInstructionBuilder.Build("RimMind.Personality.Prompt.TaskInstruction", null,
+            var personalityTaskInstruction = RimMindAPI.Prompt.BuildTaskInstruction("RimMind.Personality.Prompt.TaskInstruction", null,
                 "Role", "Goal", "Process", "Constraint", "Example", "Output", "Fallback",
                 "EvalInstruction", "JsonFormatDirect", "LabelHint", "DescHint",
                 "NarrativeHint", "DurationHint", "DiversityHint", "TriggerReason");
 
-            ContextKeyRegistry.Register("personality_task", ContextLayer.L0_Static, 0.95f,
+            RimMindAPI.Context.RegisterContextKey("personality_task", ContextLayer.L0_Static, 0.95f,
                 pawnObj =>
                 {
-                    if (ContextKeyRegistry.CurrentScenario != ScenarioIds.Personality) return new List<ContextEntry>();
+                    if (RimMindAPI.Context.CurrentScenario != RimMindAPI.Context.ScenarioPersonality) return new List<ContextEntry>();
                     return new List<ContextEntry> { new ContextEntry(personalityTaskInstruction) };
                 }, "RimMind.Personality");
         }

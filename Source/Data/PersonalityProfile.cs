@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using RimMind.Presentation.Agent;
+using RimMind.Application.Common.Models.Agent;
 using RimWorld.Planet;
 using Verse;
 

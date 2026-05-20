@@ -1,9 +1,5 @@
 using RimMind.Domain.ValueObjects;
 using RimMind.Presentation;
-using RimMind.Presentation.Context;
-using RimMind.Application.Common.Interfaces.Agent;
-using RimMind.Application.Common.Interfaces.Internal;
-using RimMind.Application.Features.Context;
 using RimMind.Application.Common.Models.Context;
 using RimMind.Application.Common.Interfaces.Context;
 using RimMind.Personality.Data;
@@ -48,7 +44,7 @@ namespace RimMind.Personality.Comps
         {
             if (!Settings.enablePersonality) return;
             if (RimMindAPI.IsConfigured() == false) return;
-            if (RimMindServiceLocator.Get<IAgentActiveChecker>()?.IsAgentActive(Pawn.ThingID) == true) return;
+            if (RimMindAPI.IsAgentActive(Pawn.ThingID)) return;
             if (_hasPendingRequest)
             {
                 if (Find.TickManager.TicksGame - _pendingRequestTick > Settings.requestTimeoutTicks)
@@ -79,7 +75,7 @@ namespace RimMind.Personality.Comps
             var ctxRequest = new ContextRequest
             {
                 NpcId = $"NPC-{Pawn.thingIDNumber}",
-                Scenario = ScenarioIds.Personality,
+                Scenario = RimMindAPI.Context.ScenarioPersonality,
                 Budget = PersonalityThoughtMapper.GetPersonalityBudget(),
                 CurrentQuery = eventCtx,
                 ExcludeKeys = new[] { PersonalityThoughtMapper.DefaultExcludeKey },
