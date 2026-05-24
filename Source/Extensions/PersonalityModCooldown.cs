@@ -5,6 +5,7 @@ namespace RimMind.Personality
     internal sealed class PersonalityModCooldown : IModCooldown
     {
         public string Id => "Personality";
+        public string OwnerModId => "RimMind.Personality";
         public int CooldownTicks => 36000;
     }
 }

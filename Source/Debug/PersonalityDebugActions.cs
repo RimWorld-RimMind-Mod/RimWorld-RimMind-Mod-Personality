@@ -1,8 +1,8 @@
 using LudeonTK;
+using RimMind.Domain.Llm;
 using RimMind.Domain.ValueObjects;
 using RimMind.Presentation;
 using RimMind.Application.Common.Models.Context;
-using RimMind.Application.Common.Interfaces.Context;
 using RimMind.Personality.Comps;
 using RimMind.Personality.Data;
 using RimWorld;
@@ -40,20 +40,20 @@ namespace RimMind.Personality.Debug
 
             Log.Message($"[RimMind-Personality] Sending evaluation request for {pawn.Name.ToStringShort}...");
 
-            var ctxRequest = new ContextRequest
-            {
-                NpcId = $"NPC-{pawn.thingIDNumber}",
-                Scenario = ScenarioIds.Personality,
-                Budget = PersonalityThoughtMapper.GetPersonalityBudget(),
-                CurrentQuery = "[Debug] Force evaluate",
-                ExcludeKeys = new[] { PersonalityThoughtMapper.DefaultExcludeKey },
-                MaxTokens = PersonalityThoughtMapper.DefaultMaxTokens,
-                Temperature = PersonalityThoughtMapper.DefaultTemperature,
-            };
-
             var schema = PersonalityThoughtMapper.EvaluationSchema;
 
-            RimMindAPI.RequestStructured(ctxRequest, schema, result =>
+            var npcId = $"NPC-{pawn.thingIDNumber}";
+            var envelope = LlmRequestEnvelopeBuilder
+                .ForScenario(ScenarioIds.Personality)
+                .WithModId("RimMind.Personality")
+                .WithNpcId(npcId)
+                .WithGameStateInfo("[Debug] Force evaluate")
+                .WithSchema(schema)
+                .WithMaxTokens(PersonalityThoughtMapper.DefaultMaxTokens)
+                .WithTemperature(PersonalityThoughtMapper.DefaultTemperature)
+                .Build();
+
+            RimMindAPI.Request.Send(envelope, result =>
             {
                 if (result.IsErr)
                 {
@@ -61,8 +61,9 @@ namespace RimMind.Personality.Debug
                     return;
                 }
 
-                Log.Message($"[RimMind-Personality] Received response ({pawn.Name.ToStringShort}):\n{result.Value.Content}");
-                PersonalityThoughtMapper.Apply(result, pawn);
+                var aiResult = result;
+                Log.Message($"[RimMind-Personality] Received response ({pawn.Name.ToStringShort}):\n{aiResult.Value.Content}");
+                PersonalityThoughtMapper.Apply(aiResult, pawn);
             });
         }
 
@@ -244,5 +245,6 @@ namespace RimMind.Personality.Debug
             }
             Log.Message(sb.ToString());
         }
+
     }
 }

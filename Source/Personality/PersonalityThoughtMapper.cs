@@ -1,8 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
-using RimMind.Application.Common.Interfaces.Client;
-using RimMind.Application.Common.Models.Client;
+using RimMind.Domain.Llm;
 using RimMind.Domain.ValueObjects;
 using RimMind.Application.Common.Interfaces.UI;
 using RimMind.Application.Common.Models.UI;
@@ -40,7 +39,7 @@ namespace RimMind.Personality
 
         private const int TicksPerHour = 2500;
 
-        public static void Apply(Result<AIResponse, RimMindError> result, Pawn pawn)
+        public static void Apply(Result<LlmResponse, RimMindError> result, Pawn pawn)
         {
             if (result.IsErr)
             {

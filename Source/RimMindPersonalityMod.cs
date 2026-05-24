@@ -138,8 +138,8 @@ namespace RimMind.Personality
 
         internal static void DrawSettingsContent(UnityEngine.Rect inRect)
         {
-            UnityEngine.Rect contentArea = SettingsUIHelper.SplitContentArea(inRect);
-            UnityEngine.Rect bottomBar = SettingsUIHelper.SplitBottomBar(inRect);
+            UnityEngine.Rect contentArea = SettingsUIDrawer.SplitContentArea(inRect);
+            UnityEngine.Rect bottomBar = SettingsUIDrawer.SplitBottomBar(inRect);
 
             float contentH = EstimateHeight();
             UnityEngine.Rect viewRect = new UnityEngine.Rect(0f, 0f, contentArea.width - 16f, contentH);
@@ -151,7 +151,7 @@ namespace RimMind.Personality
             listing.CheckboxLabeled("RimMind.Personality.Settings.EnablePersonality".Translate(), ref Settings.enablePersonality,
                 "RimMind.Personality.Settings.EnablePersonality.Desc".Translate());
 
-            SettingsUIHelper.DrawSectionHeader(listing, "RimMind.Personality.Settings.TriggerSources".Translate());
+            SettingsUIDrawer.DrawSectionHeader(listing, "RimMind.Personality.Settings.TriggerSources".Translate());
             listing.CheckboxLabeled("RimMind.Personality.Settings.DailyEval".Translate(), ref Settings.enableDailyEval,
                 "RimMind.Personality.Settings.DailyEval.Desc".Translate());
             listing.CheckboxLabeled("RimMind.Personality.Settings.InjuryTrigger".Translate(), ref Settings.enableInjuryTrigger,
@@ -163,7 +163,7 @@ namespace RimMind.Personality
             listing.CheckboxLabeled("RimMind.Personality.Settings.DeathTrigger".Translate(), ref Settings.enableDeathTrigger,
                 "RimMind.Personality.Settings.DeathTrigger.Desc".Translate());
 
-            SettingsUIHelper.DrawSectionHeader(listing, "RimMind.Personality.Settings.Section.Thought".Translate());
+            SettingsUIDrawer.DrawSectionHeader(listing, "RimMind.Personality.Settings.Section.Thought".Translate());
 
             listing.Label("RimMind.Personality.Settings.ThoughtDuration".Translate());
             GUI.color = UnityEngine.Color.gray;
@@ -187,13 +187,13 @@ namespace RimMind.Personality
                 listing.Label("RimMind.Personality.Settings.AIDurationHint".Translate());
             }
 
-            SettingsUIHelper.DrawSectionHeader(listing, "RimMind.Personality.Settings.Section.Display".Translate());
+            SettingsUIDrawer.DrawSectionHeader(listing, "RimMind.Personality.Settings.Section.Display".Translate());
             listing.CheckboxLabeled("RimMind.Personality.Settings.ShowNotifications".Translate(), ref Settings.showNotifications,
                 "RimMind.Personality.Settings.ShowNotifications.Desc".Translate());
             listing.CheckboxLabeled("RimMind.Personality.Settings.ShowLabelPrefix".Translate(), ref Settings.showLabelPrefix,
                 "RimMind.Personality.Settings.ShowLabelPrefix.Desc".Translate());
 
-            SettingsUIHelper.DrawSectionHeader(listing, "RimMind.Personality.Settings.Section.Request".Translate());
+            SettingsUIDrawer.DrawSectionHeader(listing, "RimMind.Personality.Settings.Section.Request".Translate());
             listing.CheckboxLabeled("RimMind.Personality.Settings.EnableShapingVote".Translate(), ref Settings.enableShapingVote,
                 "RimMind.Personality.Settings.EnableShapingVote.Desc".Translate());
             listing.Label("RimMind.Personality.Settings.RequestExpire".Translate($"{Settings.requestExpireTicks / 60000f:F2}"));
@@ -208,7 +208,7 @@ namespace RimMind.Personality
             GUI.color = UnityEngine.Color.white;
             Settings.shapingHistoryMaxCount = (int)listing.Slider(Settings.shapingHistoryMaxCount, 10f, 200f);
 
-            SettingsUIHelper.DrawSectionHeader(listing, "RimMind.Personality.Settings.Section.Timing".Translate());
+            SettingsUIDrawer.DrawSectionHeader(listing, "RimMind.Personality.Settings.Section.Timing".Translate());
 
             listing.Label("RimMind.Personality.Settings.DailyInterval".Translate($"{Settings.dailyIntervalTicks / 2500f:F1}"));
             GUI.color = UnityEngine.Color.gray;
@@ -241,7 +241,7 @@ namespace RimMind.Personality
             listing.End();
             Widgets.EndScrollView();
 
-            SettingsUIHelper.DrawBottomBar(bottomBar, () =>
+            SettingsUIDrawer.DrawBottomBar(bottomBar, () =>
             {
                 Settings.enablePersonality = true;
                 Settings.showNotifications = true;

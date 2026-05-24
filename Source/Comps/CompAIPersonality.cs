@@ -1,3 +1,4 @@
+using RimMind.Domain.Llm;
 using RimMind.Domain.ValueObjects;
 using RimMind.Presentation;
 using RimMind.Application.Common.Models.Context;
@@ -71,21 +72,20 @@ namespace RimMind.Personality.Comps
             _hasPendingRequest = true;
             _pendingRequestTick = Find.TickManager.TicksGame;
 
-            // ContextEngine + RequestStructured 路径
-            var ctxRequest = new ContextRequest
-            {
-                NpcId = $"NPC-{Pawn.thingIDNumber}",
-                Scenario = RimMindAPI.Context.ScenarioPersonality,
-                Budget = PersonalityThoughtMapper.GetPersonalityBudget(),
-                CurrentQuery = eventCtx,
-                ExcludeKeys = new[] { PersonalityThoughtMapper.DefaultExcludeKey },
-                MaxTokens = PersonalityThoughtMapper.DefaultMaxTokens,
-                Temperature = PersonalityThoughtMapper.DefaultTemperature,
-            };
-
             var schema = PersonalityThoughtMapper.EvaluationSchema;
 
-            RimMindAPI.RequestStructured(ctxRequest, schema, result =>
+            var npcId = $"NPC-{Pawn.thingIDNumber}";
+            var envelope = LlmRequestEnvelopeBuilder
+                .ForScenario(RimMindAPI.Context.ScenarioPersonality)
+                .WithModId("RimMind.Personality")
+                .WithNpcId(npcId)
+                .WithGameStateInfo(eventCtx)
+                .WithSchema(schema)
+                .WithMaxTokens(PersonalityThoughtMapper.DefaultMaxTokens)
+                .WithTemperature(PersonalityThoughtMapper.DefaultTemperature)
+                .Build();
+
+            RimMindAPI.Request.Send(envelope, result =>
             {
                 _hasPendingRequest = false;
                 PersonalityThoughtMapper.Apply(result, Pawn);
@@ -118,7 +118,7 @@ namespace RimMind.Personality.Comps
             Pawn.Map != null &&
             Pawn.needs?.mood != null;
 
-        // ContextEngine 接管，不再手动构�?SystemPrompt
+        // ContextEngine 接管，不再手动构建 SystemPrompt
 
         // �?ContextSettings 读取人格场景预算
         public override void PostExposeData()
