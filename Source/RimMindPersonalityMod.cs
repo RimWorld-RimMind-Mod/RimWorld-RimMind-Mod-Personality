@@ -1,11 +1,10 @@
-using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using RimMind.Application.Common.Interfaces.Context;
 using RimMind.Application.Common.Interfaces.Extension;
 using RimMind.Presentation;
 using RimMind.Presentation.Settings;
-using RimMind.Application.Common.Models.Context;
-using RimMind.Application.Common.Models.UI;
 using RimMind.Domain.ValueObjects;
 using HarmonyLib;
 using RimMind.Presentation.UI;
@@ -45,14 +44,17 @@ namespace RimMind.Personality
 
         private static void RegisterContextProviders()
         {
-            RimMindAPI.Context.RegisterContextKey("personality_profile", ContextLayer.L3_State, 0.25f,
-                pawnObj =>
+            RimMindAPI.Context.ContextKeys.Register(new ContextProviderDef(
+                "personality_profile", ContextLayer.L3_State, 0.25f,
+                async (ctx, ct) =>
                 {
-                    if (RimMindAPI.Context.CurrentScenario != RimMindAPI.Context.ScenarioPersonality) return new List<ContextEntry>();
-                    var pawn = pawnObj as Pawn;
-                    if (pawn == null) return new List<ContextEntry>();
+                    if (ctx.Scenario != RimMindAPI.Context.ScenarioPersonality) return null;
+                    if (ctx.PawnId <= 0) return null;
+                    var pawn = Find.WorldPawns.AllPawnsAlive.FirstOrDefault(p => p.thingIDNumber == ctx.PawnId)
+                        ?? Find.CurrentMap?.mapPawns?.FreeColonists.FirstOrDefault(p => p.thingIDNumber == ctx.PawnId);
+                    if (pawn == null) return null;
                     var profile = AIPersonalityWorldComponent.Instance?.GetOrCreate(pawn);
-                    if (profile == null || profile.IsEmpty) return new List<ContextEntry>();
+                    if (profile == null || profile.IsEmpty) return null;
 
                     var sb = new System.Text.StringBuilder();
                     sb.AppendLine("RimMind.Personality.Context.ProfileHeader".Translate(pawn.Name?.ToStringShort ?? ""));
@@ -64,17 +66,20 @@ namespace RimMind.Personality
                         sb.AppendLine("RimMind.Personality.Context.SocialTendencies".Translate(profile.socialTendencies));
                     if (!profile.aiNarrative.NullOrEmpty())
                         sb.AppendLine("RimMind.Personality.Context.RecentState".Translate(profile.aiNarrative));
-                    return new List<ContextEntry> { new ContextEntry(sb.ToString().TrimEnd()) };
-                }, "RimMind.Personality");
+                    return sb.ToString().TrimEnd();
+                }, "RimMind.Personality", stalenessTicks: 750, invalidationTriggers: new[] { "PersonalityEvent" }));
 
-            RimMindAPI.Context.RegisterContextKey("personality_state", ContextLayer.L3_State, 0.2f,
-                pawnObj =>
+            RimMindAPI.Context.ContextKeys.Register(new ContextProviderDef(
+                "personality_state", ContextLayer.L3_State, 0.2f,
+                async (ctx, ct) =>
                 {
-                    if (RimMindAPI.Context.CurrentScenario != RimMindAPI.Context.ScenarioPersonality) return new List<ContextEntry>();
-                    var pawn = pawnObj as Pawn;
-                    if (pawn == null) return new List<ContextEntry>();
+                    if (ctx.Scenario != RimMindAPI.Context.ScenarioPersonality) return null;
+                    if (ctx.PawnId <= 0) return null;
+                    var pawn = Find.WorldPawns.AllPawnsAlive.FirstOrDefault(p => p.thingIDNumber == ctx.PawnId)
+                        ?? Find.CurrentMap?.mapPawns?.FreeColonists.FirstOrDefault(p => p.thingIDNumber == ctx.PawnId);
+                    if (pawn == null) return null;
                     var memories = pawn.needs?.mood?.thoughts?.memories?.Memories;
-                    if (memories == null) return new List<ContextEntry>();
+                    if (memories == null) return null;
 
                     var sb = new System.Text.StringBuilder("RimMind.Personality.Context.StateHeader".Translate() + "\n");
                     bool any = false;
@@ -87,18 +92,21 @@ namespace RimMind.Personality
                         sb.AppendLine("RimMind.Personality.Context.StateEntry".Translate(desc, $"{hours:F1}"));
                         any = true;
                     }
-                    return any ? new List<ContextEntry> { new ContextEntry(sb.ToString().TrimEnd()) } : new List<ContextEntry>();
-                }, "RimMind.Personality");
+                    return any ? sb.ToString().TrimEnd() : null;
+                }, "RimMind.Personality", stalenessTicks: 750, invalidationTriggers: new[] { "PersonalityEvent" }));
 
-            RimMindAPI.Context.RegisterContextKey("personality_shaping", ContextLayer.L3_State, 0.15f,
-                pawnObj =>
+            RimMindAPI.Context.ContextKeys.Register(new ContextProviderDef(
+                "personality_shaping", ContextLayer.L3_State, 0.15f,
+                async (ctx, ct) =>
                 {
-                    if (RimMindAPI.Context.CurrentScenario != RimMindAPI.Context.ScenarioPersonality) return new List<ContextEntry>();
-                    var pawn = pawnObj as Pawn;
-                    if (pawn == null) return new List<ContextEntry>();
+                    if (ctx.Scenario != RimMindAPI.Context.ScenarioPersonality) return null;
+                    if (ctx.PawnId <= 0) return null;
+                    var pawn = Find.WorldPawns.AllPawnsAlive.FirstOrDefault(p => p.thingIDNumber == ctx.PawnId)
+                        ?? Find.CurrentMap?.mapPawns?.FreeColonists.FirstOrDefault(p => p.thingIDNumber == ctx.PawnId);
+                    if (pawn == null) return null;
                     var profile = AIPersonalityWorldComponent.Instance?.GetOrCreate(pawn);
                     if (profile?.playerShapingHistory == null || profile.playerShapingHistory.Count == 0)
-                        return new List<ContextEntry>();
+                        return null;
 
                     int maxCount = Settings?.shapingHistoryMaxCount ?? 20;
                     var recent = profile.playerShapingHistory.Skip(System.Math.Max(0, profile.playerShapingHistory.Count - maxCount)).ToList();
@@ -113,20 +121,21 @@ namespace RimMind.Personality
                         };
                         sb.AppendLine($"- {r.label}: {actionLabel}");
                     }
-                    return new List<ContextEntry> { new ContextEntry(sb.ToString().TrimEnd()) };
-                }, "RimMind.Personality");
+                    return sb.ToString().TrimEnd();
+                }, "RimMind.Personality", stalenessTicks: 750, invalidationTriggers: new[] { "PersonalityEvent" }));
 
             var personalityTaskInstruction = RimMindAPI.Prompt.BuildTaskInstruction("RimMind.Personality.Prompt.TaskInstruction", null,
                 "Role", "Goal", "Process", "Constraint", "Example", "Output", "Fallback",
                 "EvalInstruction", "JsonFormatDirect", "LabelHint", "DescHint",
                 "NarrativeHint", "DurationHint", "DiversityHint", "TriggerReason");
 
-            RimMindAPI.Context.RegisterContextKey("personality_task", ContextLayer.L0_Static, 0.95f,
-                pawnObj =>
+            RimMindAPI.Context.ContextKeys.Register(new ContextProviderDef(
+                "personality_task", ContextLayer.L0_Static, 0.95f,
+                async (ctx, ct) =>
                 {
-                    if (RimMindAPI.Context.CurrentScenario != RimMindAPI.Context.ScenarioPersonality) return new List<ContextEntry>();
-                    return new List<ContextEntry> { new ContextEntry(personalityTaskInstruction) };
-                }, "RimMind.Personality");
+                    if (ctx.Scenario != RimMindAPI.Context.ScenarioPersonality) return null;
+                    return personalityTaskInstruction;
+                }, "RimMind.Personality", stalenessTicks: 0, invalidationTriggers: new[] { "PersonalityEvent" }));
         }
 
         public override string SettingsCategory() => "RimMind - Personality";
