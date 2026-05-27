@@ -95,10 +95,10 @@ namespace RimMind.Personality.Tests
         [Fact]
         public void ThoughtDurationMode_HasTwoValues()
         {
-            var values = Enum.GetValues(typeof(ThoughtDurationMode));
+            var values = Enum.GetValues<ThoughtDurationMode>();
             Assert.Equal(2, values.Length);
-            Assert.Contains(ThoughtDurationMode.Fixed, values);
-            Assert.Contains(ThoughtDurationMode.AIDecides, values);
+            Assert.Equal(ThoughtDurationMode.Fixed, values[0]);
+            Assert.Equal(ThoughtDurationMode.AIDecides, values[1]);
         }
     }
 }

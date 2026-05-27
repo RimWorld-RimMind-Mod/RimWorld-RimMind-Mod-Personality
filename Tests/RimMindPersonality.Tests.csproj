@@ -23,13 +23,4 @@
     <Compile Include="../../RimMind-Core/Source/Application/Features/Json/JsonTagExtractor.cs" LinkBase="Application/Json" />
   </ItemGroup>
 
-  <!-- 新增测试文件 -->
-  <ItemGroup>
-    <Compile Include="ShapingRecordEvictionTests.cs" />
-    <Compile Include="TriggerFilterPureTests.cs" />
-    <Compile Include="ThoughtAIPersonalityPureTests.cs" />
-    <Compile Include="PersonalityIdentityDtoTests.cs" />
-    <Compile Include="DurationCalcEdgeTests.cs" />
-  </ItemGroup>
-
 </Project>
