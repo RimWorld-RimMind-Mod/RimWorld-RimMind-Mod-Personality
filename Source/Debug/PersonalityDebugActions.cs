@@ -1,7 +1,7 @@
 using LudeonTK;
 using RimMind.Domain.Llm;
 using RimMind.Domain.ValueObjects;
-using RimMind.Presentation;
+using RimMind.Application.Api;
 using RimMind.Application.Common.Models.Context;
 using RimMind.Personality.Comps;
 using RimMind.Personality.Data;
