@@ -5,7 +5,7 @@ using RimMind.Domain.Llm;
 using RimMind.Domain.ValueObjects;
 using RimMind.Application.Common.Interfaces.UI;
 using RimMind.Application.Common.Models.UI;
-using RimMind.Application.Api;
+using RimMind.Presentation.Api;
 using RimMind.Application.Common.Interfaces.Extension;
 using RimMind.Application.Common.Models.Agent;
 using RimMind.Application.Common.Models.Context;
