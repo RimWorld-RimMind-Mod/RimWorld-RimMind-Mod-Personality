@@ -121,9 +121,6 @@ namespace RimMind.Personality.Data
             return profile;
         }
 
-        public bool TryGet(Pawn pawn, out PersonalityProfile? profile)
-            => _profiles.TryGetValue(pawn.thingIDNumber, out profile);
-
         public void Remove(Pawn pawn) => _profiles.Remove(pawn.thingIDNumber);
 
         public override void ExposeData()

@@ -19,16 +19,8 @@ namespace RimMind.Personality
     public static class PersonalityThoughtMapper
     {
         public static readonly string EvaluationSchema = RimMindAPI.Context.SchemaPersonalityOutput;
-        public const string DefaultExcludeKey = "personality_state";
         public const int DefaultMaxTokens = 600;
         public const float DefaultTemperature = 0.8f;
-
-        public static float GetPersonalityBudget()
-        {
-            var ctx = RimMindAPI.Settings.ContextSettings;
-            if (ctx == null) return 0.6f;
-            return ctx.ContextBudget;
-        }
 
         private static readonly string[] SlotDefNames = new[]
         {

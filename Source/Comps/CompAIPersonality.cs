@@ -119,9 +119,6 @@ namespace RimMind.Personality.Comps
             Pawn.Map != null &&
             Pawn.needs?.mood != null;
 
-        // ContextEngine 接管，不再手动构建 SystemPrompt
-
-        // �?ContextSettings 读取人格场景预算
         public override void PostExposeData()
         {
             base.PostExposeData();
