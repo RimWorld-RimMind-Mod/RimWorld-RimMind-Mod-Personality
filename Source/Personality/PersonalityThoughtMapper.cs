@@ -135,13 +135,11 @@ namespace RimMind.Personality
                         expireTicks = settings?.requestExpireTicks ?? 30000,
                         callback = choice =>
                         {
-                            string action = "ignored";
-                            if (choice == optReinforce)
-                                action = "reinforce";
-                            else if (choice == optSuppress)
-                                action = "suppress";
+                            var shapingAction = ShapingActionExtensions.FromString(
+                                choice == optReinforce ? "reinforce" :
+                                choice == optSuppress ? "suppress" : "ignored");
 
-                            if (action != "ignored")
+                            if (shapingAction != ShapingAction.Ignore)
                             {
                                 var profile = AIPersonalityWorldComponent.Instance?.GetOrCreate(pawn);
                                 if (profile != null)
@@ -149,7 +147,7 @@ namespace RimMind.Personality
                                     profile.AddShapingRecord(new ShapingRecord
                                     {
                                         label = capturedEntry.label,
-                                        action = action,
+                                        action = shapingAction.ToActionString(),
                                         tick = Find.TickManager.TicksGame,
                                     }, settings?.shapingHistoryMaxCount ?? 20);
                                 }

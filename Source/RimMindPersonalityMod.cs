@@ -113,10 +113,11 @@ namespace RimMind.Personality
                     var sb = new System.Text.StringBuilder("RimMind.Personality.Context.ShapingHistoryHeader".Translate());
                     foreach (var r in recent)
                     {
-                        string actionLabel = r.action switch
+                        var shapingAction = ShapingActionExtensions.FromString(r.action);
+                        string actionLabel = shapingAction switch
                         {
-                            "reinforce" => "RimMind.Personality.ShapingAction.Reinforce".Translate(),
-                            "suppress" => "RimMind.Personality.ShapingAction.Suppress".Translate(),
+                            ShapingAction.Reinforce => "RimMind.Personality.ShapingAction.Reinforce".Translate(),
+                            ShapingAction.Suppress => "RimMind.Personality.ShapingAction.Suppress".Translate(),
                             _ => "RimMind.Personality.ShapingAction.Ignore".Translate()
                         };
                         sb.AppendLine($"- {r.label}: {actionLabel}");
