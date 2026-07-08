@@ -49,9 +49,7 @@ namespace RimMind.Personality
                 async (ctx, ct) =>
                 {
                     if (ctx.Scenario != RimMindAPI.Context.ScenarioPersonality) return null;
-                    if (ctx.PawnId <= 0) return null;
-                    var pawn = Find.WorldPawns.AllPawnsAlive.FirstOrDefault(p => p.thingIDNumber == ctx.PawnId)
-                        ?? Find.CurrentMap?.mapPawns?.FreeColonists.FirstOrDefault(p => p.thingIDNumber == ctx.PawnId);
+                    var pawn = PawnResolver.TryFindPawn(ctx.PawnId);
                     if (pawn == null) return null;
                     var profile = AIPersonalityWorldComponent.Instance?.GetOrCreate(pawn);
                     if (profile == null || profile.IsEmpty) return null;
@@ -74,9 +72,7 @@ namespace RimMind.Personality
                 async (ctx, ct) =>
                 {
                     if (ctx.Scenario != RimMindAPI.Context.ScenarioPersonality) return null;
-                    if (ctx.PawnId <= 0) return null;
-                    var pawn = Find.WorldPawns.AllPawnsAlive.FirstOrDefault(p => p.thingIDNumber == ctx.PawnId)
-                        ?? Find.CurrentMap?.mapPawns?.FreeColonists.FirstOrDefault(p => p.thingIDNumber == ctx.PawnId);
+                    var pawn = PawnResolver.TryFindPawn(ctx.PawnId);
                     if (pawn == null) return null;
                     var memories = pawn.needs?.mood?.thoughts?.memories?.Memories;
                     if (memories == null) return null;
@@ -100,9 +96,7 @@ namespace RimMind.Personality
                 async (ctx, ct) =>
                 {
                     if (ctx.Scenario != RimMindAPI.Context.ScenarioPersonality) return null;
-                    if (ctx.PawnId <= 0) return null;
-                    var pawn = Find.WorldPawns.AllPawnsAlive.FirstOrDefault(p => p.thingIDNumber == ctx.PawnId)
-                        ?? Find.CurrentMap?.mapPawns?.FreeColonists.FirstOrDefault(p => p.thingIDNumber == ctx.PawnId);
+                    var pawn = PawnResolver.TryFindPawn(ctx.PawnId);
                     if (pawn == null) return null;
                     var profile = AIPersonalityWorldComponent.Instance?.GetOrCreate(pawn);
                     if (profile?.playerShapingHistory == null || profile.playerShapingHistory.Count == 0)
