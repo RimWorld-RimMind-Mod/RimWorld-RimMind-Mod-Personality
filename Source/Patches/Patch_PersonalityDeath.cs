@@ -12,22 +12,27 @@ namespace RimMind.Personality.Patches
         static void Postfix(Pawn __instance, DamageInfo? dinfo, Hediff exactCulprit)
         {
             if (!RimMindPersonalityMod.Settings.enableDeathTrigger) return;
-            if (__instance.Map == null) return;
 
+            // Iterate ALL maps, not just the killed pawn's current map: the killed
+            // pawn's Map may be null after death, and related colonists may be on
+            // other maps (caravans, multiple bases) and must still receive the trigger.
             var killedPawn = __instance;
-            foreach (var pawn in __instance.Map.mapPawns.FreeColonists)
+            foreach (var map in Find.Maps)
             {
-                if (pawn == killedPawn) continue;
-                var rel = pawn.relations?.DirectRelations;
-                if (rel == null) continue;
-                foreach (var dr in rel)
+                foreach (var pawn in map.mapPawns.FreeColonists)
                 {
-                    if (dr.otherPawn == killedPawn)
+                    if (pawn == killedPawn) continue;
+                    var rel = pawn.relations?.DirectRelations;
+                    if (rel == null) continue;
+                    foreach (var dr in rel)
                     {
-                        var comp = pawn.GetComp<CompAIPersonality>();
-                        if (comp != null)
-                            comp.TriggerEvent($"{"RimMind.Memory.Trigger.RelationDeath".Translate(dr.def.LabelCap, killedPawn.Name.ToStringShort)}", TriggerEventType.Death);
-                        break;
+                        if (dr.otherPawn == killedPawn)
+                        {
+                            PersonalityTriggerHelper.TriggerForPawn(pawn,
+                                $"{"RimMind.Memory.Trigger.RelationDeath".Translate(dr.def.LabelCap, killedPawn.Name.ToStringShort)}",
+                                TriggerEventType.Death);
+                            break;
+                        }
                     }
                 }
             }

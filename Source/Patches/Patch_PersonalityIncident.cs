@@ -19,12 +19,9 @@ namespace RimMind.Personality.Patches
             var catName = def.category.defName;
             if (catName != "ThreatBig" && catName != "ThreatSmall") return;
 
-            foreach (var pawn in map.mapPawns.FreeColonists)
-            {
-                var comp = pawn.GetComp<CompAIPersonality>();
-                if (comp != null)
-                    comp.TriggerEvent($"{"RimMind.Storyteller.Context.IncidentOccurred".Translate(def.LabelCap)}", TriggerEventType.Incident);
-            }
+            PersonalityTriggerHelper.TriggerForColonists(map,
+                $"{"RimMind.Storyteller.Context.IncidentOccurred".Translate(def.LabelCap)}",
+                TriggerEventType.Incident);
         }
     }
 }

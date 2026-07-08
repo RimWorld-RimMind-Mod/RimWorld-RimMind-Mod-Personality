@@ -17,9 +17,9 @@ namespace RimMind.Personality.Patches
             var pawn = __instance.pawn;
             if (pawn == null || !pawn.IsFreeNonSlaveColonist) return;
 
-            var comp = pawn.GetComp<CompAIPersonality>();
-            if (comp == null) return;
-            comp.TriggerEvent($"{"RimMind.Memory.Trigger.Contracted".Translate(hediff.LabelCap, "RimMind.Memory.Trigger.FullBody".Translate())}", TriggerEventType.Injury);
+            PersonalityTriggerHelper.TriggerForPawn(pawn,
+                $"{"RimMind.Memory.Trigger.Contracted".Translate(hediff.LabelCap, "RimMind.Memory.Trigger.FullBody".Translate())}",
+                TriggerEventType.Injury);
         }
     }
 }

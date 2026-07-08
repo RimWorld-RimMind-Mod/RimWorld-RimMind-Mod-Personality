@@ -35,9 +35,9 @@ namespace RimMind.Personality.Patches
                         if (skill == null) continue;
                         if (skill == __instance)
                         {
-                            var comp = pawn.GetComp<CompAIPersonality>();
-                            if (comp != null)
-                                comp.TriggerEvent($"{"RimMind.Memory.Trigger.SkillUp".Translate(__instance.def.LabelCap, preLevel, __instance.levelInt)}", TriggerEventType.Skill);
+                            PersonalityTriggerHelper.TriggerForPawn(pawn,
+                                $"{"RimMind.Memory.Trigger.SkillUp".Translate(__instance.def.LabelCap, preLevel, __instance.levelInt)}",
+                                TriggerEventType.Skill);
                             return;
                         }
                     }
