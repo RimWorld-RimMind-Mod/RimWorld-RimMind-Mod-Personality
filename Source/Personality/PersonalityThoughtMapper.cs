@@ -39,47 +39,58 @@ namespace RimMind.Personality
                 return;
             }
 
-            var response = result.Value;
-
-            PersonalityResultDto? dto;
-            try
-            {
-                string content = response.Content ?? "";
-                dto = JsonConvert.DeserializeObject<PersonalityResultDto>(content);
-            }
-            catch
-            {
-                dto = null;
-            }
-
+            var dto = ParseResponse(result.Value.Content);
             if (dto == null)
             {
-                string? trimmed = RimMindAPI.Json.TryRepairTruncatedJson(response.Content ?? "");
-                if (trimmed != null)
-                {
-                    try
-                    {
-                        dto = JsonConvert.DeserializeObject<PersonalityResultDto>(trimmed);
-                    }
-                    catch { }
-                }
-            }
-
-            if (dto == null)
-            {
-                RimMindErrors.Warn($"[RimMind-Personality] Response parse failed ({pawn.Name.ToStringShort}):\n{response.Content}");
+                RimMindErrors.Warn($"[RimMind-Personality] Response parse failed ({pawn.Name.ToStringShort}):\n{result.Value.Content}");
                 return;
             }
 
             var profile = AIPersonalityWorldComponent.Instance?.GetOrCreate(pawn);
+            if (profile != null)
+                UpdateProfile(profile, dto);
 
-            if (!dto.narrative.NullOrEmpty() && profile != null)
+            ApplyThoughts(pawn, dto, RimMindPersonalityMod.Settings);
+        }
+
+        /// <summary>
+        /// Parses the LLM response content into a PersonalityResultDto.
+        /// Attempts direct deserialization, then truncated-JSON repair as fallback.
+        /// Returns null if both attempts fail.
+        /// </summary>
+        private static PersonalityResultDto? ParseResponse(string? content)
+        {
+            if (string.IsNullOrEmpty(content)) return null;
+
+            try
+            {
+                var dto = JsonConvert.DeserializeObject<PersonalityResultDto>(content!);
+                if (dto != null) return dto;
+            }
+            catch { }
+
+            string? trimmed = RimMindAPI.Json.TryRepairTruncatedJson(content ?? "");
+            if (trimmed != null)
+            {
+                try { return JsonConvert.DeserializeObject<PersonalityResultDto>(trimmed); }
+                catch { }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Updates the PersonalityProfile's narrative and AgentIdentity from the DTO.
+        /// </summary>
+        private static void UpdateProfile(PersonalityProfile profile, PersonalityResultDto dto)
+        {
+            if (!dto.narrative.NullOrEmpty())
             {
                 profile.aiNarrative = dto.narrative;
                 profile.lastNarrativeUpdateTick = Find.TickManager.TicksGame;
             }
 
-            if (dto.identity != null && profile != null)
+            if (dto.identity != null)
             {
                 if (profile.agentIdentity == null)
                     profile.agentIdentity = new AgentIdentity();
@@ -90,11 +101,61 @@ namespace RimMind.Personality
                 if (dto.identity.core_values != null)
                     profile.agentIdentity.CoreValues = new List<string>(dto.identity.core_values);
             }
+        }
 
+        /// <summary>
+        /// Registers a pending shaping-vote request for a single thought entry.
+        /// </summary>
+        private static void RegisterShapingVote(Pawn pawn, ThoughtEntryDto entry, AIPersonalitySettings? settings)
+        {
+            if (RimMindPersonalityMod.Settings?.enableShapingVote != true) return;
+
+            string optReinforce = "RimMind.Personality.Shaping.Reinforce".Translate();
+            string optSuppress = "RimMind.Personality.Shaping.Suppress".Translate();
+            string optIgnore = "RimMind.Personality.Shaping.Ignore".Translate();
+
+            var capturedEntry = entry;
+
+            RimMindAPI.RegisterPendingRequest(new RequestEntry
+            {
+                source = "personality",
+                pawn = pawn,
+                title = "RimMind.Personality.Shaping.NewTrait".Translate(),
+                description = $"{capturedEntry.label}: {capturedEntry.description}",
+                options = new[] { optReinforce, optSuppress, optIgnore },
+                expireTicks = settings?.requestExpireTicks ?? 30000,
+                callback = choice =>
+                {
+                    var shapingAction = ShapingActionExtensions.FromString(
+                        choice == optReinforce ? "reinforce" :
+                        choice == optSuppress ? "suppress" : "ignored");
+
+                    if (shapingAction != ShapingAction.Ignore)
+                    {
+                        var profile = AIPersonalityWorldComponent.Instance?.GetOrCreate(pawn);
+                        if (profile != null)
+                        {
+                            profile.AddShapingRecord(new ShapingRecord
+                            {
+                                label = capturedEntry.label,
+                                action = shapingAction.ToActionString(),
+                                tick = Find.TickManager.TicksGame,
+                            }, settings?.shapingHistoryMaxCount ?? 20);
+                        }
+                    }
+                }
+            });
+        }
+
+        /// <summary>
+        /// Removes old thoughts and creates new ones from the DTO, registering shaping votes.
+        /// </summary>
+        private static void ApplyThoughts(Pawn pawn, PersonalityResultDto dto, AIPersonalitySettings? settings)
+        {
             RemoveAllAIPersonalityThoughts(pawn);
 
-            var settings = RimMindPersonalityMod.Settings;
             if (settings == null) return;
+
             bool showNotifications = settings.showNotifications;
             int slotIndex = 0;
             dto.thoughts ??= Array.Empty<ThoughtEntryDto>();
@@ -117,45 +178,7 @@ namespace RimMind.Personality
                 thought.customDurationTicks = CalcDurationTicks(entry, settings);
                 pawn.needs.mood.thoughts.memories.TryGainMemory(thought);
 
-                if (RimMindPersonalityMod.Settings?.enableShapingVote == true)
-                {
-                    var capturedEntry = entry;
-
-                    string optReinforce = "RimMind.Personality.Shaping.Reinforce".Translate();
-                    string optSuppress = "RimMind.Personality.Shaping.Suppress".Translate();
-                    string optIgnore = "RimMind.Personality.Shaping.Ignore".Translate();
-
-                    RimMindAPI.RegisterPendingRequest(new RequestEntry
-                    {
-                        source = "personality",
-                        pawn = pawn,
-                        title = "RimMind.Personality.Shaping.NewTrait".Translate(),
-                        description = $"{capturedEntry.label}: {capturedEntry.description}",
-                        options = new[] { optReinforce, optSuppress, optIgnore },
-                        expireTicks = settings?.requestExpireTicks ?? 30000,
-                        callback = choice =>
-                        {
-                            var shapingAction = ShapingActionExtensions.FromString(
-                                choice == optReinforce ? "reinforce" :
-                                choice == optSuppress ? "suppress" : "ignored");
-
-                            if (shapingAction != ShapingAction.Ignore)
-                            {
-                                var profile = AIPersonalityWorldComponent.Instance?.GetOrCreate(pawn);
-                                if (profile != null)
-                                {
-                                    profile.AddShapingRecord(new ShapingRecord
-                                    {
-                                        label = capturedEntry.label,
-                                        action = shapingAction.ToActionString(),
-                                        tick = Find.TickManager.TicksGame,
-                                    }, settings?.shapingHistoryMaxCount ?? 20);
-                                }
-                            }
-                        }
-                    });
-                }
-
+                RegisterShapingVote(pawn, entry, settings);
                 slotIndex++;
             }
 
