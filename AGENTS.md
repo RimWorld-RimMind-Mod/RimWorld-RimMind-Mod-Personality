@@ -27,7 +27,10 @@ Source/
 │   ├── PersonalityThoughtMapper.cs       核心: AI响应→Thought映射+塑造投票+EvaluationSchema
 │   ├── PersonalityResultDto.cs           JSON DTO(无RimWorld依赖)
 │   ├── Thought_AIPersonality.cs          自定义Thought(重写Label/MoodOffset/DurationTicks)
-│   └── MoodOffsetCalculator.cs           强度→心情偏移查表(-3~+3)
+│   ├── MoodOffsetCalculator.cs           强度→心情偏移查表(-3~+3)
+│   ├── ShapingAction.cs                  塑造投票枚举(替代字符串魔法值)
+│   ├── PersonalityRequestBuilder.cs      共享请求信封构建器
+│   └── PawnResolver.cs                   共享Pawn查找辅助(按thingIDNumber)
 ├── Settings/AIPersonalitySettings.cs     17项设置(含4项时间参数)
 ├── Data/
 │   ├── PersonalityProfile.cs             人格档案(IExposable) + AIPersonalityWorldComponent(含定期清理)
@@ -39,7 +42,8 @@ Source/
 │   ├── Patch_PersonalityInjury.cs        HediffSet.AddDirect Postfix(isBad+Severity>=0.2f+IsFreeNonSlaveColonist过滤)
 │   ├── Patch_PersonalityDeath.cs         Pawn.Kill Postfix(检查DirectRelations)
 │   ├── Patch_PersonalityIncident.cs      IncidentWorker.TryExecuteWorker Postfix(ThreatBig/ThreatSmall过滤)
-│   └── Patch_PersonalitySkill.cs         SkillRecord.Learn Prefix+Postfix(对象引用作键+GetSkill引用比较)
+│   ├── Patch_PersonalitySkill.cs         SkillRecord.Learn Prefix+Postfix(对象引用作键+GetSkill引用比较)
+│   └── PersonalityTriggerHelper.cs       共享Patch触发辅助(TriggerForPawn/TriggerForColonists)
 └── Debug/PersonalityDebugActions.cs      8个Debug动作
 ```
 
@@ -49,7 +53,7 @@ CompAIPersonality.CompTick: `DailyInterval` + `JitterRange`(基于thingIDNumber�
 
 TriggerEventType枚举: `Injury`(enableInjuryTrigger) / `Skill`(enableSkillTrigger) / `Incident`(enableIncidentTrigger) / `Death`(enableDeathTrigger)
 
-请求参数: `Scenario=Personality, ExcludeKeys=["personality_state"], MaxTokens=600, Temperature=0.8f`
+请求参数: `Scenario=Personality (ScenarioRegistry defaultExcludeKeys: "combat_status"), MaxTokens=600, Temperature=0.8f`
 
 ### 事件触发Patch过滤逻辑
 
@@ -103,11 +107,15 @@ identity?: {motivations[], traits[], core_values[]}
 - Skill Patch使用 `Dictionary<object, int>` 以对象引用为键，避免哈希碰撞
 - Skill Patch使用 try/finally 确保 PreLevels 条目在异常时也能清理
 - `_compat1` 字段仅消费旧存档 `rimTalkSynced` key，值不使用
+- ShapingAction 枚举替代 "reinforce"/"suppress"/"ignored" 字符串魔法值
+- PersonalityRequestBuilder 统一 CompAIPersonality 和 DebugActions 的请求构建
+- PawnResolver 统一 3 个 ContextProvider 的 Pawn 查找逻辑
+- PersonalityTriggerHelper 统一 4 个 Patch 的 "查Comp→TriggerEvent" 模式
 
 ## 操作边界
 
 ### ✅ 必须做
-- 新触发类型在 `TriggerEventType` 添加值 + `CompAIPersonality.TriggerEvent` 添加分支
+- 新触发类型在 `TriggerEventType` 添加值 + `TriggerEnabledMap` 添加映射条目
 - 新设置项在 `ExposeData` + UI + 翻译键三处同步
 
 ### ⚠️ 先询问
