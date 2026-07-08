@@ -32,6 +32,15 @@ namespace RimMind.Personality.Comps
         private string? _pendingEventContext;
         private int _dailyJitter = -1;
 
+        private static readonly System.Collections.Generic.Dictionary<TriggerEventType, System.Func<AIPersonalitySettings, bool>> TriggerEnabledMap
+            = new System.Collections.Generic.Dictionary<TriggerEventType, System.Func<AIPersonalitySettings, bool>>
+            {
+                { TriggerEventType.Injury, s => s.enableInjuryTrigger },
+                { TriggerEventType.Skill, s => s.enableSkillTrigger },
+                { TriggerEventType.Incident, s => s.enableIncidentTrigger },
+                { TriggerEventType.Death, s => s.enableDeathTrigger },
+            };
+
         private Pawn Pawn => (Pawn)parent;
         private AIPersonalitySettings Settings => RimMindPersonalityMod.Settings;
 
@@ -89,15 +98,8 @@ namespace RimMind.Personality.Comps
         {
             if (!Settings.enablePersonality) return;
 
-            bool enabled = eventType switch
-            {
-                TriggerEventType.Injury => Settings.enableInjuryTrigger,
-                TriggerEventType.Skill => Settings.enableSkillTrigger,
-                TriggerEventType.Incident => Settings.enableIncidentTrigger,
-                TriggerEventType.Death => Settings.enableDeathTrigger,
-                _ => true,
-            };
-            if (!enabled) return;
+            if (TriggerEnabledMap.TryGetValue(eventType, out var isEnabled) && !isEnabled(Settings))
+                return;
 
             _pendingEventContext = context;
         }
