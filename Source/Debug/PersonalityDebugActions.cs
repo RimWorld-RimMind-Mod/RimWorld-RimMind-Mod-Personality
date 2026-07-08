@@ -41,18 +41,7 @@ namespace RimMind.Personality.Debug
 
             Log.Message($"[RimMind-Personality] Sending evaluation request for {pawn.Name.ToStringShort}...");
 
-            var schema = PersonalityThoughtMapper.EvaluationSchema;
-
-            var npcId = $"NPC-{pawn.thingIDNumber}";
-            var envelope = LlmRequestEnvelopeBuilder
-                .ForScenario(ScenarioIds.Personality)
-                .WithModId("RimMind.Personality")
-                .WithNpcId(npcId)
-                .WithGameStateInfo("[Debug] Force evaluate")
-                .WithSchema(schema)
-                .WithMaxTokens(PersonalityThoughtMapper.DefaultMaxTokens)
-                .WithTemperature(PersonalityThoughtMapper.DefaultTemperature)
-                .Build();
+            var envelope = PersonalityRequestBuilder.BuildForPawn(pawn.thingIDNumber, "[Debug] Force evaluate");
 
             RimMindAPI.Request.Send(envelope, result =>
             {

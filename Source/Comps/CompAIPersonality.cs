@@ -73,18 +73,7 @@ namespace RimMind.Personality.Comps
             _hasPendingRequest = true;
             _pendingRequestTick = Find.TickManager.TicksGame;
 
-            var schema = PersonalityThoughtMapper.EvaluationSchema;
-
-            var npcId = $"NPC-{Pawn.thingIDNumber}";
-            var envelope = LlmRequestEnvelopeBuilder
-                .ForScenario(RimMindAPI.Context.ScenarioPersonality)
-                .WithModId("RimMind.Personality")
-                .WithNpcId(npcId)
-                .WithGameStateInfo(eventCtx)
-                .WithSchema(schema)
-                .WithMaxTokens(PersonalityThoughtMapper.DefaultMaxTokens)
-                .WithTemperature(PersonalityThoughtMapper.DefaultTemperature)
-                .Build();
+            var envelope = PersonalityRequestBuilder.BuildForPawn(Pawn.thingIDNumber, eventCtx);
 
             RimMindAPI.Request.Send(envelope, result =>
             {
