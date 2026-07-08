@@ -126,9 +126,9 @@ namespace RimMind.Personality
                 expireTicks = settings?.requestExpireTicks ?? 30000,
                 callback = choice =>
                 {
-                    var shapingAction = ShapingActionExtensions.FromString(
-                        choice == optReinforce ? "reinforce" :
-                        choice == optSuppress ? "suppress" : "ignored");
+                    var shapingAction = choice == optReinforce ? ShapingAction.Reinforce
+                        : choice == optSuppress ? ShapingAction.Suppress
+                        : ShapingAction.Ignore;
 
                     if (shapingAction != ShapingAction.Ignore)
                     {

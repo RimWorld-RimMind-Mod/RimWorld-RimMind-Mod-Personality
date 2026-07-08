@@ -14,8 +14,8 @@ namespace RimMind.Personality.Patches
             if (!RimMindPersonalityMod.Settings.enableDeathTrigger) return;
 
             // Iterate ALL maps, not just the killed pawn's current map: the killed
-            // pawn's Map may be null after death, and related colonists may be on
-            // other maps (caravans, multiple bases) and must still receive the trigger.
+            // pawn's Map may be null after death, and related colonists on other
+            // maps (multiple bases) must still receive the trigger.
             var killedPawn = __instance;
             foreach (var map in Find.Maps)
             {
