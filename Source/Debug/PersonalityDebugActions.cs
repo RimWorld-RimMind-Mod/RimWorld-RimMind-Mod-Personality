@@ -126,16 +126,12 @@ namespace RimMind.Personality.Debug
                 return;
             }
 
-            var memories = pawn.needs?.mood?.thoughts?.memories;
-            if (memories == null) return;
+            int before = pawn.needs?.mood?.thoughts?.memories?.Memories.Count(m =>
+                PersonalityThoughtMapper.IsAIPersonalityDef(m.def.defName)) ?? 0;
 
-            var toRemove = new System.Collections.Generic.List<Thought_Memory>();
-            foreach (var t in memories.Memories)
-                if (PersonalityThoughtMapper.IsAIPersonalityDef(t.def.defName))
-                    toRemove.Add(t);
-            foreach (var t in toRemove) memories.RemoveMemory(t);
+            PersonalityThoughtMapper.RemoveAllAIPersonalityThoughts(pawn);
 
-            Log.Message($"[RimMind-Personality] Cleared {toRemove.Count} personality thoughts for {pawn.Name.ToStringShort}.");
+            Log.Message($"[RimMind-Personality] Cleared {before} personality thoughts for {pawn.Name.ToStringShort}.");
         }
 
         [DebugAction("RimMind Personality", "List Personality-Enabled Pawns",
