@@ -16,8 +16,8 @@ namespace RimMind.Personality.Comps
     }
 
     /// <summary>
-    /// 挂载�?Pawn �?ThingComp，负责触�?AI 人格评估�?
-    /// 支持每日定时触发和事件驱动触发（外部 Patch 通过 TriggerEvent 注入）�?
+    /// 挂载于 Pawn 的 ThingComp，负责触发 AI 人格评估。
+    /// 支持每日定时触发和事件驱动触发（外部 Patch 通过 TriggerEvent 注入）。
     /// </summary>
     public class CompAIPersonality : ThingComp
     {
@@ -87,7 +87,7 @@ namespace RimMind.Personality.Comps
         }
 
         /// <summary>
-        /// 从外�?Patch（受伤、技能升级、事件等）触发一次人格评估�?
+        /// 从外部 Patch（受伤、技能升级、事件等）触发一次人格评估。
         /// </summary>
         public void TriggerEvent(string context, TriggerEventType eventType = TriggerEventType.Incident)
         {
