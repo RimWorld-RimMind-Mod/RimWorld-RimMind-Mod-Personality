@@ -22,6 +22,7 @@
     <Compile Include="../Source/Personality/PersonalityResultDto.cs" />
     <Compile Include="../Source/Personality/ShapingAction.cs" />
     <Compile Include="../Source/Personality/PersonalityRequestBuilder.cs" />
+    <Compile Include="../Source/Personality/PersonalityContextScenarioPolicy.cs" />
     <Compile Include="../../RimMind-Core/Source/Application/Features/Json/JsonTagExtractor.cs" LinkBase="Application/Json" />
   </ItemGroup>
 

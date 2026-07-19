@@ -48,7 +48,7 @@ namespace RimMind.Personality
                 "personality_profile", ContextLayer.L3_State, 0.25f,
                 async (ctx, ct) =>
                 {
-                    if (ctx.Scenario != RimMindAPI.Context.ScenarioPersonality) return null;
+                    if (!PersonalityContextScenarioPolicy.IncludesPersonalityContext(ctx.Scenario)) return null;
                     var pawn = PawnResolver.TryFindPawn(ctx.PawnId);
                     if (pawn == null) return null;
                     var profile = AIPersonalityWorldComponent.Instance?.GetOrCreate(pawn);
@@ -71,7 +71,7 @@ namespace RimMind.Personality
                 "personality_state", ContextLayer.L3_State, 0.2f,
                 async (ctx, ct) =>
                 {
-                    if (ctx.Scenario != RimMindAPI.Context.ScenarioPersonality) return null;
+                    if (!PersonalityContextScenarioPolicy.IncludesPersonalityContext(ctx.Scenario)) return null;
                     var pawn = PawnResolver.TryFindPawn(ctx.PawnId);
                     if (pawn == null) return null;
                     var memories = pawn.needs?.mood?.thoughts?.memories?.Memories;
@@ -95,7 +95,7 @@ namespace RimMind.Personality
                 "personality_shaping", ContextLayer.L3_State, 0.15f,
                 async (ctx, ct) =>
                 {
-                    if (ctx.Scenario != RimMindAPI.Context.ScenarioPersonality) return null;
+                    if (!PersonalityContextScenarioPolicy.IncludesPersonalityContext(ctx.Scenario)) return null;
                     var pawn = PawnResolver.TryFindPawn(ctx.PawnId);
                     if (pawn == null) return null;
                     var profile = AIPersonalityWorldComponent.Instance?.GetOrCreate(pawn);

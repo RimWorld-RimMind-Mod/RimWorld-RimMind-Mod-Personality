@@ -40,6 +40,8 @@ namespace RimMind.Presentation.Api
         public static class Context
         {
             public static string ScenarioPersonality => "Personality";
+            public static string ScenarioDecision => "Decision";
+            public static string ScenarioDialogue => "Dialogue";
         }
     }
 }

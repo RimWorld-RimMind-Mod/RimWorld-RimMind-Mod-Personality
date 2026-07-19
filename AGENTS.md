@@ -30,6 +30,7 @@ Source/
 │   ├── MoodOffsetCalculator.cs           强度→心情偏移查表(-3~+3)
 │   ├── ShapingAction.cs                  塑造投票枚举(替代字符串魔法值)
 │   ├── PersonalityRequestBuilder.cs      共享请求信封构建器
+│   ├── PersonalityContextScenarioPolicy.cs  人格上下文消费场景策略
 │   └── PawnResolver.cs                   共享Pawn查找辅助(按thingIDNumber)
 ├── Settings/AIPersonalitySettings.cs     17项设置(含4项时间参数)
 ├── Data/
@@ -82,13 +83,13 @@ identity?: {motivations[], traits[], core_values[]}
 
 ## 上下文注入
 
-| Provider | 层级 | 内容 |
-|----------|------|------|
-| personality_profile | L3_State(0.25) | 人格档案(描述+工作倾向+社交倾向+AI叙事) |
-| personality_state | L3_State(0.20) | 当前活跃Thought列表(Slot_0/1/2) |
-| personality_shaping | L3_State(0.15) | 玩家塑造历史记录 |
-| personality_task | L0_Static(0.95) | TaskInstruction(仅Personality场景) |
-| AgentIdentity | Core注册 | identity→motivations/traits/core_values |
+| Provider | 层级 | 场景 | 内容 |
+|----------|------|------|------|
+| personality_profile | L3_State(0.25) | Personality / Decision / Dialogue | 人格档案(描述+工作倾向+社交倾向+AI叙事) |
+| personality_state | L3_State(0.20) | Personality / Decision / Dialogue | 当前活跃Thought列表(Slot_0/1/2) |
+| personality_shaping | L3_State(0.15) | Personality / Decision / Dialogue | 玩家塑造历史记录 |
+| personality_task | L0_Static(0.95) | 仅 Personality | TaskInstruction |
+| AgentIdentity | Core注册 | 身份消费方 | identity→motivations/traits/core_values |
 
 ## Profile清理
 
@@ -110,6 +111,7 @@ identity?: {motivations[], traits[], core_values[]}
 - ShapingAction 枚举替代 "reinforce"/"suppress"/"ignored" 字符串魔法值
 - PersonalityRequestBuilder 统一 CompAIPersonality 和 DebugActions 的请求构建
 - PawnResolver 统一 3 个 ContextProvider 的 Pawn 查找逻辑
+- PersonalityContextScenarioPolicy 统一人格状态在 Personality / Decision / Dialogue 三类场景的注入边界
 - PersonalityTriggerHelper 统一 4 个 Patch 的 "查Comp→TriggerEvent" 模式
 
 ## 操作边界
