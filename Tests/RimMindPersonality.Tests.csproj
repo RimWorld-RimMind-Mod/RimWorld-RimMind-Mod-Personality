@@ -7,6 +7,7 @@
     <AssemblyName>RimMindPersonality.Tests</AssemblyName>
     <LangVersion>9.0</LangVersion>
     <Nullable>enable</Nullable>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,12 +19,29 @@
 
   <!-- 纯逻辑文件（无 RimWorld 依赖） -->
   <ItemGroup>
+    <Compile Include="VerseStubs.cs" />
+    <Compile Include="RimMindCoreStubs.cs" />
+    <Compile Include="Contracts\**\*.cs" />
+    <Compile Include="..\..\RimMind-Core\TestSupport\ContractCaseRunner.cs"
+             Link="Support\ContractCaseRunner.cs" />
     <Compile Include="../Source/Personality/MoodOffsetCalculator.cs" />
     <Compile Include="../Source/Personality/PersonalityResultDto.cs" />
     <Compile Include="../Source/Personality/ShapingAction.cs" />
     <Compile Include="../Source/Personality/PersonalityRequestBuilder.cs" />
+    <Compile Include="../Source/Personality/PersonalityRequestDefaults.cs" />
     <Compile Include="../Source/Personality/PersonalityContextScenarioPolicy.cs" />
+    <Compile Include="../Source/Personality/PersonalityThoughtPolicy.cs" />
+    <Compile Include="../Source/Personality/PersonalityTriggerPolicy.cs" />
+    <Compile Include="../Source/Personality/PersonalityThoughtPersistence.cs" />
+    <Compile Include="../Source/Data/PersonalityProfileState.cs" />
+    <Compile Include="../Source/Data/ShapingRecord.cs" />
+    <Compile Include="../Source/Settings/AIPersonalitySettings.cs" />
     <Compile Include="../../RimMind-Core/Source/Application/Features/Json/JsonTagExtractor.cs" LinkBase="Application/Json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../RimMind-Core/Source/Domain/RimMindCore.Domain.csproj" />
+    <ProjectReference Include="../../RimMind-Core/Source/Application/RimMindCore.Application.csproj" />
   </ItemGroup>
 
 </Project>

@@ -45,12 +45,11 @@ namespace RimMind.Personality
         public override void ExposeData()
         {
             base.ExposeData();
-#pragma warning disable CS8601
-            Scribe_Values.Look(ref aiLabel, "aiLabel", string.Empty);
-            Scribe_Values.Look(ref aiDescription, "aiDesc", string.Empty);
-#pragma warning restore CS8601
-            Scribe_Values.Look(ref aiIntensity, "aiIntensity", 0);
-            Scribe_Values.Look(ref customDurationTicks, "customDurationTicks", -1);
+            PersonalityThoughtPersistence.Look(
+                ref aiLabel,
+                ref aiDescription,
+                ref aiIntensity,
+                ref customDurationTicks);
         }
     }
 }

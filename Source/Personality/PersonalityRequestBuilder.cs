@@ -23,12 +23,12 @@ namespace RimMind.Personality
         {
             return LlmRequestEnvelopeBuilder
                 .ForScenario(RimMindAPI.Context.ScenarioPersonality)
-                .WithModId("RimMind.Personality")
+                .WithModId(PersonalityRequestDefaults.ModId)
                 .WithNpcId(npcId)
                 .WithGameStateInfo(gameStateInfo)
                 .WithSchema(PersonalityThoughtMapper.EvaluationSchema)
-                .WithMaxTokens(PersonalityThoughtMapper.DefaultMaxTokens)
-                .WithTemperature(PersonalityThoughtMapper.DefaultTemperature)
+                .WithMaxTokens(PersonalityRequestDefaults.MaxTokens)
+                .WithTemperature(PersonalityRequestDefaults.Temperature)
                 .Build();
         }
 

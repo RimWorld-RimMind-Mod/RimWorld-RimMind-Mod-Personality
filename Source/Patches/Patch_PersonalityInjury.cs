@@ -10,15 +10,19 @@ namespace RimMind.Personality.Patches
     {
         static void Postfix(HediffSet __instance, Hediff hediff)
         {
-            if (!RimMindPersonalityMod.Settings.enableInjuryTrigger) return;
-            if (hediff == null) return;
-            if (hediff.def.isBad == false) return;
-            if (hediff.Severity < 0.2f) return;
             var pawn = __instance.pawn;
-            if (pawn == null || !pawn.IsFreeNonSlaveColonist) return;
+            if (!PersonalityTriggerPolicy.ShouldTriggerInjury(
+                    RimMindPersonalityMod.Settings.enableInjuryTrigger,
+                    hediff != null,
+                    hediff?.def.isBad == true,
+                    hediff?.Severity ?? 0f,
+                    pawn?.IsFreeNonSlaveColonist == true))
+            {
+                return;
+            }
 
-            PersonalityTriggerHelper.TriggerForPawn(pawn,
-                $"{"RimMind.Memory.Trigger.Contracted".Translate(hediff.LabelCap, "RimMind.Memory.Trigger.FullBody".Translate())}",
+            PersonalityTriggerHelper.TriggerForPawn(pawn!,
+                $"{"RimMind.Memory.Trigger.Contracted".Translate(hediff!.LabelCap, "RimMind.Memory.Trigger.FullBody".Translate())}",
                 TriggerEventType.Injury);
         }
     }

@@ -21,11 +21,19 @@ namespace RimMind.Personality.Patches
         static void Postfix(SkillRecord __instance)
         {
             if (!RimMindPersonalityMod.Settings.enableSkillTrigger) return;
-            if (!PreLevels.TryGetValue(__instance, out int preLevel)) return;
+            bool captured = PreLevels.TryGetValue(__instance, out int preLevel);
+            if (!captured) return;
 
             try
             {
-                if (__instance.levelInt <= preLevel) return;
+                if (!PersonalityTriggerPolicy.ShouldTriggerSkill(
+                        RimMindPersonalityMod.Settings.enableSkillTrigger,
+                        captured,
+                        preLevel,
+                        __instance.levelInt))
+                {
+                    return;
+                }
 
                 foreach (var map in Find.Maps)
                 {

@@ -10,17 +10,19 @@ namespace RimMind.Personality.Patches
     {
         static void Postfix(IncidentWorker __instance, IncidentParms parms, bool __result)
         {
-            if (!__result) return;
-            if (!RimMindPersonalityMod.Settings.enableIncidentTrigger) return;
-            if (parms.target is not Map map) return;
-
             var def = __instance.def;
-            if (def == null || def.category == null) return;
-            var catName = def.category.defName;
-            if (catName != "ThreatBig" && catName != "ThreatSmall") return;
+            bool targetIsMap = parms.target is Map;
+            if (!PersonalityTriggerPolicy.ShouldTriggerIncident(
+                    __result,
+                    RimMindPersonalityMod.Settings.enableIncidentTrigger,
+                    targetIsMap,
+                    def?.category?.defName))
+            {
+                return;
+            }
 
-            PersonalityTriggerHelper.TriggerForColonists(map,
-                $"{"RimMind.Storyteller.Context.IncidentOccurred".Translate(def.LabelCap)}",
+            PersonalityTriggerHelper.TriggerForColonists((Map)parms.target,
+                $"{"RimMind.Storyteller.Context.IncidentOccurred".Translate(def!.LabelCap)}",
                 TriggerEventType.Incident);
         }
     }

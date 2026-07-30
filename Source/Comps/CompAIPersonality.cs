@@ -5,8 +5,6 @@ using Verse;
 
 namespace RimMind.Personality.Comps
 {
-    public enum TriggerEventType { Injury, Skill, Incident, Death }
-
     public class CompProperties_AIPersonality : CompProperties
     {
         public CompProperties_AIPersonality()
@@ -26,15 +24,6 @@ namespace RimMind.Personality.Comps
         private int _pendingRequestTick;
         private string? _pendingEventContext;
         private int _dailyJitter = -1;
-
-        private static readonly System.Collections.Generic.Dictionary<TriggerEventType, System.Func<AIPersonalitySettings, bool>> TriggerEnabledMap
-            = new System.Collections.Generic.Dictionary<TriggerEventType, System.Func<AIPersonalitySettings, bool>>
-            {
-                { TriggerEventType.Injury, s => s.enableInjuryTrigger },
-                { TriggerEventType.Skill, s => s.enableSkillTrigger },
-                { TriggerEventType.Incident, s => s.enableIncidentTrigger },
-                { TriggerEventType.Death, s => s.enableDeathTrigger },
-            };
 
         private Pawn Pawn => (Pawn)parent;
         private AIPersonalitySettings Settings => RimMindPersonalityMod.Settings;
@@ -93,17 +82,17 @@ namespace RimMind.Personality.Comps
         {
             if (!Settings.enablePersonality) return;
 
-            if (TriggerEnabledMap.TryGetValue(eventType, out var isEnabled) && !isEnabled(Settings))
+            if (!PersonalityTriggerPolicy.IsTriggerEnabled(eventType, Settings))
                 return;
 
             _pendingEventContext = context;
         }
 
-        private bool IsEligible() =>
-            Pawn.IsFreeNonSlaveColonist &&
-            !Pawn.Dead &&
-            Pawn.Map != null &&
-            Pawn.needs?.mood != null;
+        private bool IsEligible() => PersonalityTriggerPolicy.IsPawnEligible(
+            Pawn.IsFreeNonSlaveColonist,
+            Pawn.Dead,
+            Pawn.Map != null,
+            Pawn.needs?.mood != null);
 
         public override void PostExposeData()
         {
