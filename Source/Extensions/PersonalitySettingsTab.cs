@@ -6,11 +6,9 @@ namespace RimMind.Personality
 {
     internal sealed class PersonalitySettingsTab : ISettingsTab
     {
-        private readonly RimMindPersonalityMod _mod;
-        public PersonalitySettingsTab(RimMindPersonalityMod mod) { _mod = mod; }
         public string Id => "personality";
         public string OwnerModId => "RimMindPersonality";
         public string Label => "RimMind.Personality.Settings.TabLabel".Translate();
-        public void Draw(Rect rect) => RimMindPersonalityMod.DrawSettingsContent(rect);
+        public void Draw(Rect rect) => PersonalitySettingsDrawer.Draw(rect);
     }
 }
