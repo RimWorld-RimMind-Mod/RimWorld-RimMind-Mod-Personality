@@ -2,6 +2,10 @@
 
 人格系统，LLM评估小人状态 → 注入人格Thought(最多3槽位)影响心情与行为。
 
+## Start here
+
+先读 `Source/README.md`。通常只需继续打开请求 Comp、请求构建器、响应映射器、Profile、目标 Policy 或 Provider 注册器中的一条路径，不要从所有 Harmony Patch 开始搜索。
+
 ## 项目定位
 
 每日定时(含确定性抖动)或事件触发(受伤/技能/事件/死亡) → ContextEngine(RequestStructured, SchemaRegistry.PersonalityOutput) → AI评估 → `PersonalityThoughtMapper.Apply` 解析 → 写入 `PersonalityProfile`(narrative+identity) → 生成 `Thought_AIPersonality`(最多3槽位) → `MoodOffsetCalculator` 查表影响心情。含玩家塑造投票(强化/抑制/忽略)、AgentIdentity注册、Bio页人格按钮、WorldComponent定期清理无效Profile。
@@ -22,8 +26,10 @@
 
 ```
 Source/
-├── RimMindPersonalityMod.cs              Mod入口(注册Provider/Identity/SettingsTab/Cooldown)
+├── README.md                              入口到测试的运行时阅读地图
+├── RimMindPersonalityMod.cs              组合根与设置入口
 ├── Personality/
+│   ├── PersonalityProviderRegistrar.cs   Context 与 Agent Identity 注册
 │   ├── PersonalityThoughtMapper.cs       核心: AI响应→Thought映射+塑造投票+EvaluationSchema
 │   ├── PersonalityResultDto.cs           JSON DTO(无RimWorld依赖)
 │   ├── Thought_AIPersonality.cs          自定义Thought(重写Label/MoodOffset/DurationTicks)
@@ -32,7 +38,9 @@ Source/
 │   ├── PersonalityRequestBuilder.cs      共享请求信封构建器
 │   ├── PersonalityContextScenarioPolicy.cs  人格上下文消费场景策略
 │   └── PawnResolver.cs                   共享Pawn查找辅助(按thingIDNumber)
-├── Settings/AIPersonalitySettings.cs     17项设置(含4项时间参数)
+├── Settings/
+│   ├── AIPersonalitySettings.cs          17项设置(含4项时间参数)
+│   └── PersonalitySettingsDrawer.cs      原生/Core设置页共享绘制实现
 ├── Data/
 │   ├── PersonalityProfile.cs             人格档案(IExposable) + AIPersonalityWorldComponent(含定期清理)
 │   └── ShapingRecord.cs                  玩家塑造记录
@@ -99,6 +107,7 @@ identity?: {motivations[], traits[], core_values[]}
 
 ## 代码约定
 
+- Mod 入口只组合和转发；Provider 注册集中在 `PersonalityProviderRegistrar`，设置控件集中在 `PersonalitySettingsDrawer`
 - Thought槽位最多3个(`SlotDefNames[3]`)
 - `aiDescription` 存档key为 `"aiDesc"`(非 `"aiDescription"`，修改需向后兼容)
 - `AIDecides` 模式: `duration_hours` clamp到[1,24]
