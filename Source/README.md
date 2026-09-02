@@ -34,6 +34,7 @@ daily tick or event patch
 - `PersonalityThoughtMapper` owns response side effects; policy classes keep parsing and decision rules testable.
 - `AIPersonalityWorldComponent` owns persistent profiles and removes profiles for absent pawns.
 - Providers read Personality state and format Core context. They do not trigger evaluation or mutate Thoughts.
+- The registrar also publishes synchronous cross-mod pawn string providers for description, work tendencies, social tendencies, AI narrative, and shaping history; their Verse reads remain on the main thread.
 - Verse and Unity side effects stay on the main thread.
 
 ## Focused verification

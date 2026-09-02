@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using Newtonsoft.Json;
 using RimMind.Testing;
 using Xunit;
@@ -89,6 +90,20 @@ namespace RimMind.Personality.Tests.Contracts
                     Assert.True(PersonalityContextScenarioPolicy.IncludesPersonalityContext("Dialogue"));
                     Assert.False(PersonalityContextScenarioPolicy.IncludesPersonalityContext("Storyteller"));
                     Assert.False(PersonalityContextScenarioPolicy.IncludesPersonalityContext(null));
+                }),
+                ("public personality providers expose stable bridge data without RimTalk coupling", () =>
+                {
+                    string source = ReadSource("Personality", "PersonalityProviderRegistrar.cs");
+
+                    Assert.Contains("personality.description", source, StringComparison.Ordinal);
+                    Assert.Contains("personality.work_tendencies", source, StringComparison.Ordinal);
+                    Assert.Contains("personality.social_tendencies", source, StringComparison.Ordinal);
+                    Assert.Contains("personality.ai_narrative", source, StringComparison.Ordinal);
+                    Assert.Contains("personality.shaping_history", source, StringComparison.Ordinal);
+                    Assert.Contains("RimMindAPI.Providers.RegisterPawnProvider", source, StringComparison.Ordinal);
+                    Assert.Contains("Math.Max(0, history.Count - 5)", source, StringComparison.Ordinal);
+                    Assert.Contains("[RimMind Shaping]", source, StringComparison.Ordinal);
+                    Assert.DoesNotContain("RimTalk", source, StringComparison.Ordinal);
                 }));
         }
 
@@ -146,6 +161,23 @@ namespace RimMind.Personality.Tests.Contracts
                     Assert.False(repairCalled);
                     Assert.Equal("direct", parsed!.narrative);
                 }));
+        }
+
+        private static string ReadSource(params string[] relativeParts)
+        {
+            var directory = new DirectoryInfo(AppContext.BaseDirectory);
+            while (directory != null)
+            {
+                string sourceRoot = Path.Combine(directory.FullName, "Source");
+                string path = Path.Combine(sourceRoot, Path.Combine(relativeParts));
+                if (File.Exists(path))
+                    return File.ReadAllText(path);
+
+                directory = directory.Parent;
+            }
+
+            throw new FileNotFoundException(
+                $"Unable to locate Source/{string.Join("/", relativeParts)} from {AppContext.BaseDirectory}.");
         }
     }
 }

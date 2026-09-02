@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using RimMind.Application.Common.Interfaces.Context;
 using RimMind.Domain.ValueObjects;
@@ -9,10 +10,61 @@ namespace RimMind.Personality
 {
     internal static class PersonalityProviderRegistrar
     {
+        private const string PublicProviderOwner = "RimMind.Personality";
+        private const int PublicProviderPriority = 100;
+
         internal static void RegisterAll()
         {
             RegisterContextProviders();
+            RegisterPublicProviders();
             RegisterAgentIdentityProvider();
+        }
+
+        private static void RegisterPublicProviders()
+        {
+            RegisterProfileField("personality.description", profile => profile.description);
+            RegisterProfileField("personality.work_tendencies", profile => profile.workTendencies);
+            RegisterProfileField("personality.social_tendencies", profile => profile.socialTendencies);
+            RegisterProfileField("personality.ai_narrative", profile => profile.aiNarrative);
+
+            RimMindAPI.Providers.RegisterPawnProvider(
+                "personality.shaping_history",
+                PublicProviderOwner,
+                pawn =>
+                {
+                    if (pawn == null) return null;
+                    var profile = AIPersonalityWorldComponent.Instance?.GetOrCreate(pawn);
+                    var history = profile?.playerShapingHistory;
+                    if (history == null || history.Count == 0) return string.Empty;
+
+                    var sb = new System.Text.StringBuilder("[RimMind Shaping]");
+                    int start = Math.Max(0, history.Count - 5);
+                    for (int i = start; i < history.Count; i++)
+                    {
+                        var record = history[i];
+                        sb.AppendLine($"- [{record.action}] {record.label}");
+                    }
+                    return sb.ToString().TrimEnd();
+                },
+                PublicProviderPriority,
+                overrideExisting: true);
+        }
+
+        private static void RegisterProfileField(
+            string category,
+            Func<PersonalityProfile, string?> selector)
+        {
+            RimMindAPI.Providers.RegisterPawnProvider(
+                category,
+                PublicProviderOwner,
+                pawn =>
+                {
+                    if (pawn == null) return null;
+                    var profile = AIPersonalityWorldComponent.Instance?.GetOrCreate(pawn);
+                    return profile == null ? null : selector(profile);
+                },
+                PublicProviderPriority,
+                overrideExisting: true);
         }
 
         private static void RegisterAgentIdentityProvider()
