@@ -93,16 +93,54 @@ namespace RimMind.Personality.Tests.Contracts
                 }),
                 ("public personality providers expose stable bridge data without RimTalk coupling", () =>
                 {
-                    string source = ReadSource("Personality", "PersonalityProviderRegistrar.cs");
+                    string source = ReadSource("Personality", "PersonalityProviderRegistrar.cs")
+                        .Replace("\r\n", "\n");
 
-                    Assert.Contains("personality.description", source, StringComparison.Ordinal);
-                    Assert.Contains("personality.work_tendencies", source, StringComparison.Ordinal);
-                    Assert.Contains("personality.social_tendencies", source, StringComparison.Ordinal);
-                    Assert.Contains("personality.ai_narrative", source, StringComparison.Ordinal);
-                    Assert.Contains("personality.shaping_history", source, StringComparison.Ordinal);
-                    Assert.Contains("RimMindAPI.Providers.RegisterPawnProvider", source, StringComparison.Ordinal);
-                    Assert.Contains("Math.Max(0, history.Count - 5)", source, StringComparison.Ordinal);
-                    Assert.Contains("[RimMind Shaping]", source, StringComparison.Ordinal);
+                    Assert.Contains(
+                        "internal static void RegisterAll()\n" +
+                        "        {\n" +
+                        "            RegisterContextProviders();\n" +
+                        "            RegisterPublicProviders();\n" +
+                        "            RegisterAgentIdentityProvider();\n" +
+                        "        }",
+                        source,
+                        StringComparison.Ordinal);
+                    Assert.Contains(
+                        "private const string PublicProviderOwner = \"RimMind.Personality\";\n" +
+                        "        private const int PublicProviderPriority = 100;",
+                        source,
+                        StringComparison.Ordinal);
+                    Assert.Contains(
+                        "RegisterProfileField(\"personality.description\", profile => profile.description);\n" +
+                        "            RegisterProfileField(\"personality.work_tendencies\", profile => profile.workTendencies);\n" +
+                        "            RegisterProfileField(\"personality.social_tendencies\", profile => profile.socialTendencies);\n" +
+                        "            RegisterProfileField(\"personality.ai_narrative\", profile => profile.aiNarrative);",
+                        source,
+                        StringComparison.Ordinal);
+                    Assert.Contains(
+                        "RimMindAPI.Providers.RegisterPawnProvider(\n" +
+                        "                \"personality.shaping_history\",\n" +
+                        "                PublicProviderOwner,\n" +
+                        "                pawn =>\n" +
+                        "                {\n" +
+                        "                    if (pawn == null) return null;\n" +
+                        "                    var profile = AIPersonalityWorldComponent.Instance?.GetOrCreate(pawn);\n" +
+                        "                    var history = profile?.playerShapingHistory;\n" +
+                        "                    if (history == null || history.Count == 0) return string.Empty;\n" +
+                        "\n" +
+                        "                    var sb = new System.Text.StringBuilder(\"[RimMind Shaping]\");\n" +
+                        "                    int start = Math.Max(0, history.Count - 5);\n" +
+                        "                    for (int i = start; i < history.Count; i++)\n" +
+                        "                    {\n" +
+                        "                        var record = history[i];\n" +
+                        "                        sb.AppendLine($\"- [{record.action}] {record.label}\");\n" +
+                        "                    }\n" +
+                        "                    return sb.ToString().TrimEnd();\n" +
+                        "                },\n" +
+                        "                PublicProviderPriority,\n" +
+                        "                overrideExisting: true);",
+                        source,
+                        StringComparison.Ordinal);
                     Assert.DoesNotContain("RimTalk", source, StringComparison.Ordinal);
                 }));
         }
