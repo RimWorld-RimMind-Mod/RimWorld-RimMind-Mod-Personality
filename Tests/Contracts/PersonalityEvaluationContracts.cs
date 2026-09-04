@@ -141,6 +141,34 @@ namespace RimMind.Personality.Tests.Contracts
                         "                overrideExisting: true);",
                         source,
                         StringComparison.Ordinal);
+
+                    int profileFieldStart = source.IndexOf(
+                        "        private static void RegisterProfileField(",
+                        StringComparison.Ordinal);
+                    Assert.True(profileFieldStart >= 0, "RegisterProfileField method was not found.");
+                    int profileFieldEnd = source.IndexOf(
+                        "\n        private static void RegisterAgentIdentityProvider()",
+                        profileFieldStart,
+                        StringComparison.Ordinal);
+                    Assert.True(profileFieldEnd > profileFieldStart, "RegisterProfileField method boundary was not found.");
+                    string profileFieldSource = source.Substring(
+                        profileFieldStart,
+                        profileFieldEnd - profileFieldStart);
+
+                    Assert.Contains(
+                        "RimMindAPI.Providers.RegisterPawnProvider(\n" +
+                        "                category,\n" +
+                        "                PublicProviderOwner,\n" +
+                        "                pawn =>\n" +
+                        "                {\n" +
+                        "                    if (pawn == null) return null;\n" +
+                        "                    var profile = AIPersonalityWorldComponent.Instance?.GetOrCreate(pawn);\n" +
+                        "                    return profile == null ? null : selector(profile);\n" +
+                        "                },\n" +
+                        "                PublicProviderPriority,\n" +
+                        "                overrideExisting: true);",
+                        profileFieldSource,
+                        StringComparison.Ordinal);
                     Assert.DoesNotContain("RimTalk", source, StringComparison.Ordinal);
                 }));
         }
