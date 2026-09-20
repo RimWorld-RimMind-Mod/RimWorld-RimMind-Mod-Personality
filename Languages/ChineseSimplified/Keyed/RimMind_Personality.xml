@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
   <!-- RimMindPersonalityMod.cs -->
+  <RimMind.Personality.SettingsTitle>RimMind - 人格</RimMind.Personality.SettingsTitle>
   <RimMind.Personality.Settings.TabLabel>人格</RimMind.Personality.Settings.TabLabel>
   <RimMind.Personality.Settings.EnablePersonality>启用 AI 人格系统</RimMind.Personality.Settings.EnablePersonality>
   <RimMind.Personality.Settings.EnablePersonality.Desc>开启后，AI 会根据游戏事件和殖民者状态动态生成心理状态（Thought）。</RimMind.Personality.Settings.EnablePersonality.Desc>

@@ -99,7 +99,7 @@ namespace RimMind.Personality
                     if (!profile.aiNarrative.NullOrEmpty())
                         sb.AppendLine("RimMind.Personality.Context.RecentState".Translate(profile.aiNarrative));
                     return sb.ToString().TrimEnd();
-                }, "RimMind.Personality", stalenessTicks: 750, invalidationTriggers: new[] { "PersonalityEvent" }));
+                }, PublicProviderOwner, stalenessTicks: 750, invalidationTriggers: new[] { "PersonalityEvent" }));
 
             RimMindAPI.Context.ContextKeys.Register(new ContextProviderDef(
                 "personality_state", ContextLayer.L3_State, 0.2f,
@@ -118,12 +118,12 @@ namespace RimMind.Personality
                         if (!Personality.PersonalityThoughtMapper.IsAIPersonalityDef(t.def.defName)) continue;
 
                         string desc = (t as Thought_AIPersonality)?.aiDescription ?? t.def.label;
-                        float hours = t.DurationTicks / 2500f;
+                        float hours = t.DurationTicks / (float)RimMind.Domain.Common.RimMindTime.TicksPerHour;
                         sb.AppendLine("RimMind.Personality.Context.StateEntry".Translate(desc, $"{hours:F1}"));
                         any = true;
                     }
                     return any ? sb.ToString().TrimEnd() : null;
-                }, "RimMind.Personality", stalenessTicks: 750, invalidationTriggers: new[] { "PersonalityEvent" }));
+                }, PublicProviderOwner, stalenessTicks: 750, invalidationTriggers: new[] { "PersonalityEvent" }));
 
             RimMindAPI.Context.ContextKeys.Register(new ContextProviderDef(
                 "personality_shaping", ContextLayer.L3_State, 0.15f,
@@ -151,7 +151,7 @@ namespace RimMind.Personality
                         sb.AppendLine($"- {r.label}: {actionLabel}");
                     }
                     return sb.ToString().TrimEnd();
-                }, "RimMind.Personality", stalenessTicks: 750, invalidationTriggers: new[] { "PersonalityEvent" }));
+                }, PublicProviderOwner, stalenessTicks: 750, invalidationTriggers: new[] { "PersonalityEvent" }));
 
             var personalityTaskInstruction = RimMindAPI.Prompt.BuildTaskInstruction("RimMind.Personality.Prompt.TaskInstruction", null,
                 "Role", "Goal", "Process", "Constraint", "Example", "Output", "Fallback",
@@ -164,7 +164,7 @@ namespace RimMind.Personality
                 {
                     if (ctx.Scenario != RimMindAPI.Context.ScenarioPersonality) return null;
                     return personalityTaskInstruction;
-                }, "RimMind.Personality", stalenessTicks: 0, invalidationTriggers: new[] { "PersonalityEvent" }));
+                }, PublicProviderOwner, stalenessTicks: 0, invalidationTriggers: new[] { "PersonalityEvent" }));
         }
     }
 }

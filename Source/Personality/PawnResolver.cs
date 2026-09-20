@@ -13,13 +13,11 @@ namespace RimMind.Personality
     {
         /// <summary>
         /// Tries to find a pawn by thingIDNumber.
-        /// Searches world pawns first, then current map free colonists.
+        /// Delegates to the unified RimMindPawnLookup.
         /// </summary>
         public static Pawn? TryFindPawn(int pawnId)
         {
-            if (pawnId <= 0) return null;
-            return Find.WorldPawns.AllPawnsAlive.FirstOrDefault(p => p.thingIDNumber == pawnId)
-                ?? Find.CurrentMap?.mapPawns?.FreeColonists.FirstOrDefault(p => p.thingIDNumber == pawnId);
+            return RimMind.Presentation.Api.RimMindPawnLookup.FindPawnByNumber(pawnId);
         }
     }
 }

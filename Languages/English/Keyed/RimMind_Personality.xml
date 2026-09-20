@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
   <!-- RimMindPersonalityMod.cs -->
+  <RimMind.Personality.SettingsTitle>RimMind - Personality</RimMind.Personality.SettingsTitle>
   <RimMind.Personality.Settings.TabLabel>Personality</RimMind.Personality.Settings.TabLabel>
   <RimMind.Personality.Settings.EnablePersonality>Enable AI Personality System</RimMind.Personality.Settings.EnablePersonality>
   <RimMind.Personality.Settings.EnablePersonality.Desc>When enabled, AI dynamically generates psychological states (Thoughts) based on game events and colonist conditions.</RimMind.Personality.Settings.EnablePersonality.Desc>

@@ -25,7 +25,7 @@ namespace RimMind.Personality.Data
         {
             base.WorldComponentTick();
             int now = Find.TickManager.TicksGame;
-            if (now - _lastCleanupTick < 60000) return;
+            if (now - _lastCleanupTick < RimMind.Domain.Common.RimMindTime.TicksPerDay) return;
             _lastCleanupTick = now;
 
             var aliveIds = new HashSet<int>();

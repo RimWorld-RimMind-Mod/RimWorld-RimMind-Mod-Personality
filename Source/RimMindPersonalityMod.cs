@@ -1,5 +1,6 @@
 using HarmonyLib;
 using RimMind.Application.Common.Interfaces.Extension;
+using RimMind.Presentation;
 using RimMind.Presentation.Api;
 using RimMind.Presentation.Settings;
 using UnityEngine;
@@ -7,14 +8,14 @@ using Verse;
 
 namespace RimMind.Personality
 {
-    public class RimMindPersonalityMod : Mod
+    public class RimMindPersonalityMod : RimMindSubmodBase<AIPersonalitySettings>
     {
-        public static AIPersonalitySettings Settings = null!;
+        public static new AIPersonalitySettings Settings = null!;
 
         public RimMindPersonalityMod(ModContentPack content) : base(content)
         {
-            Settings = GetSettings<AIPersonalitySettings>();
-            new Harmony("mcocdaa.RimMindPersonality").PatchAll();
+            Settings = base.Settings;
+            InitializeHarmony();
 
             PersonalityProviderRegistrar.RegisterAll();
             RimMindAPI.Extensions<ISettingsTab>().Register(new PersonalitySettingsTab());
@@ -23,8 +24,6 @@ namespace RimMind.Personality
             RimMindAPI.Extensions<ISkipCheck>().Register(new PersonalityActionSkipCheck());
             Log.Message("[RimMind-Personality] Initialized.");
         }
-
-        public override string SettingsCategory() => "RimMind - Personality";
 
         public override void DoSettingsWindowContents(Rect rect) =>
             PersonalitySettingsDrawer.Draw(rect);
