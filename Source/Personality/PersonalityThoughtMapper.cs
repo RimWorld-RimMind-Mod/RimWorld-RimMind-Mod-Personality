@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using RimMind.Domain.Llm;
 using RimMind.Domain.ValueObjects;
 using RimMind.Application.Common.Interfaces.UI;
@@ -143,8 +144,13 @@ namespace RimMind.Personality
                 thought.aiIntensity = (int)entry.intensity;
                 thought.customDurationTicks = projection.DurationTicks;
                 pawn.needs.mood.thoughts.memories.TryGainMemory(thought);
+            }
 
-                RegisterShapingVote(pawn, entry, settings);
+            var shapingCandidate = PersonalityThoughtPolicy.SelectSignificantShapingCandidate(
+                projections.Select(p => p.Source));
+            if (shapingCandidate != null)
+            {
+                RegisterShapingVote(pawn, shapingCandidate, settings);
             }
 
             if (showNotifications && projections.Count > 0)

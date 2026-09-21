@@ -126,5 +126,56 @@ namespace RimMind.Personality
 
         public static bool ShouldRecordShapingAction(ShapingAction action)
             => action != ShapingAction.Ignore;
+
+        /// <summary>
+        /// Selects the single most significant thought entry eligible for player shaping vote,
+        /// filtering out low-intensity background thoughts to prevent notification fatigue.
+        /// </summary>
+        public static ThoughtEntryDto? SelectSignificantShapingCandidate(
+            IEnumerable<ThoughtEntryDto>? entries,
+            float minIntensity = 2.0f)
+        {
+            if (entries == null) return null;
+
+            ThoughtEntryDto? bestCandidate = null;
+            float maxIntensity = minIntensity - 0.001f;
+
+            foreach (var entry in entries)
+            {
+                if (entry == null || string.IsNullOrWhiteSpace(entry.label))
+                    continue;
+
+                if (float.IsNaN(entry.intensity) || float.IsInfinity(entry.intensity))
+                    continue;
+
+                float absIntensity = Math.Abs(entry.intensity);
+                if (absIntensity >= minIntensity)
+                {
+                    if (absIntensity > maxIntensity)
+                    {
+                        maxIntensity = absIntensity;
+                        bestCandidate = entry;
+                    }
+                    else if (Math.Abs(absIntensity - maxIntensity) < 0.001f && bestCandidate != null)
+                    {
+                        // Deterministic tie-breaker: negative thoughts prioritize intervention, then alphabetical
+                        if (entry.intensity < 0 && bestCandidate.intensity >= 0)
+                        bool entryIsNeg = entry.intensity < 0;
+                        bool bestIsNeg = bestCandidate.intensity < 0;
+                        if (entryIsNeg && !bestIsNeg)
+                        {
+                            bestCandidate = entry;
+                        }
+                        else if (string.Compare(entry.label, bestCandidate.label, StringComparison.Ordinal) < 0)
+                        else if (entryIsNeg == bestIsNeg && string.Compare(entry.label, bestCandidate.label, StringComparison.Ordinal) < 0)
+                        {
+                            bestCandidate = entry;
+                        }
+                    }
+                }
+            }
+
+            return bestCandidate;
+        }
     }
 }

@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using RimMind.Personality.Comps;
 using RimMind.Personality.Data;
@@ -139,6 +141,49 @@ namespace RimMind.Personality.Tests.Contracts
                 {
                     Assert.False(PersonalityThoughtPolicy.ShouldRecordShapingAction(ShapingAction.Ignore));
                     Assert.True(PersonalityThoughtPolicy.ShouldRecordShapingAction(ShapingAction.Suppress));
+                }));
+        }
+
+        [Fact]
+        public void Shaping_candidate_selection_filters_minor_thoughts_and_picks_peak_intensity()
+        {
+            ContractCaseRunner.Run(
+                ("low intensity thoughts are ignored to avoid player fatigue", () =>
+                {
+                    var entries = new[]
+                    {
+                        new ThoughtEntryDto { label = "minor mood", intensity = 1 },
+                        new ThoughtEntryDto { label = "casual thought", intensity = -1 },
+                    };
+                    var candidate = PersonalityThoughtPolicy.SelectSignificantShapingCandidate(entries, minIntensity: 2);
+                    Assert.Null(candidate);
+                }),
+                ("single pivotal thought is selected", () =>
+                {
+                    var entries = new[]
+                    {
+                        new ThoughtEntryDto { label = "casual thought", intensity = 1 },
+                        new ThoughtEntryDto { label = "profound realization", intensity = 2 },
+                    };
+                    var candidate = PersonalityThoughtPolicy.SelectSignificantShapingCandidate(entries, minIntensity: 2);
+                    Assert.NotNull(candidate);
+                    Assert.Equal("profound realization", candidate!.label);
+                }),
+                ("peaks with greatest absolute intensity among multiple pivotal thoughts", () =>
+                {
+                    var entries = new[]
+                    {
+                        new ThoughtEntryDto { label = "strong trauma", intensity = -3 },
+                        new ThoughtEntryDto { label = "notable joy", intensity = 2 },
+                    };
+                    var candidate = PersonalityThoughtPolicy.SelectSignificantShapingCandidate(entries, minIntensity: 2);
+                    Assert.NotNull(candidate);
+                    Assert.Equal("strong trauma", candidate!.label);
+                }),
+                ("null or empty inputs safely evaluate to null", () =>
+                {
+                    Assert.Null(PersonalityThoughtPolicy.SelectSignificantShapingCandidate((IEnumerable<ThoughtEntryDto>?)null));
+                    Assert.Null(PersonalityThoughtPolicy.SelectSignificantShapingCandidate(Array.Empty<ThoughtEntryDto>()));
                 }));
         }
     }
