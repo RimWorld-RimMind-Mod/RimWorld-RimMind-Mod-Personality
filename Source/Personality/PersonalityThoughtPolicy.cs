@@ -159,14 +159,12 @@ namespace RimMind.Personality
                     else if (Math.Abs(absIntensity - maxIntensity) < 0.001f && bestCandidate != null)
                     {
                         // Deterministic tie-breaker: negative thoughts prioritize intervention, then alphabetical
-                        if (entry.intensity < 0 && bestCandidate.intensity >= 0)
                         bool entryIsNeg = entry.intensity < 0;
                         bool bestIsNeg = bestCandidate.intensity < 0;
                         if (entryIsNeg && !bestIsNeg)
                         {
                             bestCandidate = entry;
                         }
-                        else if (string.Compare(entry.label, bestCandidate.label, StringComparison.Ordinal) < 0)
                         else if (entryIsNeg == bestIsNeg && string.Compare(entry.label, bestCandidate.label, StringComparison.Ordinal) < 0)
                         {
                             bestCandidate = entry;
