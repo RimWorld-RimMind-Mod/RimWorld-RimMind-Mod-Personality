@@ -65,7 +65,6 @@ namespace RimMind.Personality.Tests.Contracts
         public void Trigger_filters_and_shaping_actions_preserve_eligibility_boundaries()
         {
             ContractCaseRunner.Run(
-                ("all four trigger types have a settings gate", () =>
                 ("all trigger types have a settings gate", () =>
                 {
                     var settings = new AIPersonalitySettings

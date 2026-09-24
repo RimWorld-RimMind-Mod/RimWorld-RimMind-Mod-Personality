@@ -98,7 +98,6 @@ namespace RimMind.Personality.Comps
             if (map == null) return;
 
             int currentTick = Find.TickManager.TicksGame;
-            bool canQueue = !_hasPendingRequest && (currentTick - _lastEventTick) >= Settings.eventCooldownTicks && _pendingEventContext == null;
             float activityScale = RimMindAPI.Settings.ActivityFrequencyScale;
             float cooldownMultiplier = activityScale > 0.01f ? (1.0f / activityScale) : 1.0f;
             int effectiveCooldown = Mathf.RoundToInt(Settings.eventCooldownTicks * Mathf.Clamp(cooldownMultiplier, 0.35f, 3.5f));
@@ -115,7 +114,6 @@ namespace RimMind.Personality.Comps
             if (justWokeUp && canQueue && Settings.enableSunriseTrigger)
             {
                 float jitter = Rand.Range(0.85f, 1.15f);
-                float dynamicChance = PersonalityTriggerPolicy.CalculateDynamicPersonalityChance(Settings.sunriseTriggerChance, currentMood, jitter);
                 float dynamicChance = PersonalityTriggerPolicy.CalculateDynamicPersonalityChance(Settings.sunriseTriggerChance, currentMood, jitter, activityScale);
                 if (PersonalityTriggerPolicy.ShouldTriggerAwakening(true, dynamicChance, Rand.Value, justWokeUp))
                 {
@@ -128,19 +126,11 @@ namespace RimMind.Personality.Comps
             if (Pawn.IsHashIntervalTick(250))
             {
                 int currentHour = GenLocalDate.HourInteger(map);
-                if (_lastHour != -1 && currentHour == 6 && _lastHour != 6)
                 if (_lastHour != -1 && currentHour != _lastHour)
                 {
-                    if (canQueue && PersonalityTriggerPolicy.ShouldTriggerSunrise(
-                        Settings.enableSunriseTrigger,
-                        Settings.sunriseTriggerChance,
-                        Rand.Value,
-                        Pawn.Awake()))
                     if ((currentHour == 18 || currentHour == 19) && canQueue && Settings.enableSunriseTrigger)
                     {
-                        _pendingEventContext = "Sunrise: The dawn breaks over the colony. A new day begins with fresh morning thoughts.";
                         float jitter = Rand.Range(0.85f, 1.15f);
-                        float dynamicChance = PersonalityTriggerPolicy.CalculateDynamicPersonalityChance(Settings.sunriseTriggerChance * 0.8f, currentMood, jitter);
                         float dynamicChance = PersonalityTriggerPolicy.CalculateDynamicPersonalityChance(Settings.sunriseTriggerChance * 0.8f, currentMood, jitter, activityScale);
                         if (PersonalityTriggerPolicy.ShouldTriggerDusk(true, dynamicChance, Rand.Value, isAwake))
                         {
@@ -159,7 +149,6 @@ namespace RimMind.Personality.Comps
                 if (isIdle)
                 {
                     float jitter = Rand.Range(0.85f, 1.15f);
-                    float dynamicChance = PersonalityTriggerPolicy.CalculateDynamicPersonalityChance(0.20f, currentMood, jitter);
                     float dynamicChance = PersonalityTriggerPolicy.CalculateDynamicPersonalityChance(0.20f, currentMood, jitter, activityScale);
                     if (PersonalityTriggerPolicy.ShouldTriggerContemplationPulse(true, dynamicChance, Rand.Value, isAwake, isIdle))
                     {
@@ -179,7 +168,6 @@ namespace RimMind.Personality.Comps
                     // Skygazing / Meditating / Praying
                     if (curJobName == "Skygaze" || curJobName == "Meditate" || curJobName == "Pray")
                     {
-                        float dynamicChance = PersonalityTriggerPolicy.CalculateDynamicPersonalityChance(Settings.skygazeTriggerChance, currentMood, jitter);
                         float dynamicChance = PersonalityTriggerPolicy.CalculateDynamicPersonalityChance(Settings.skygazeTriggerChance, currentMood, jitter, activityScale);
                         if (canQueue && PersonalityTriggerPolicy.ShouldTriggerSkygaze(
                             Settings.enableSkygazeTrigger,
@@ -192,7 +180,6 @@ namespace RimMind.Personality.Comps
                     // Joy / Recreation
                     else if (curJob.joyKind != null)
                     {
-                        float dynamicChance = PersonalityTriggerPolicy.CalculateDynamicPersonalityChance(Settings.recreationTriggerChance, currentMood, jitter);
                         float dynamicChance = PersonalityTriggerPolicy.CalculateDynamicPersonalityChance(Settings.recreationTriggerChance, currentMood, jitter, activityScale);
                         if (canQueue && PersonalityTriggerPolicy.ShouldTriggerRecreation(
                             Settings.enableRecreationTrigger,
@@ -221,7 +208,6 @@ namespace RimMind.Personality.Comps
                     {
                         if (canQueue && PersonalityTriggerPolicy.ShouldTriggerMoodSwing(
                             Settings.enableMoodSwingTrigger,
-                            Settings.moodSwingTriggerChance,
                             Settings.moodSwingTriggerChance * activityScale,
                             Rand.Value,
                             moodDelta))

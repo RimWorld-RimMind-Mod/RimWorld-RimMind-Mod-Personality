@@ -90,15 +90,12 @@ namespace RimMind.Personality.Comps
             bool isIdleOrWalking)
             => triggerEnabled && isAwake && isIdleOrWalking && roll < triggerChance;
 
-        public static float CalculateDynamicPersonalityChance(float baseChance, float moodLevel, float jitter = 1.0f)
         public static float CalculateDynamicPersonalityChance(float baseChance, float moodLevel, float jitter = 1.0f, float activityScale = 1.0f)
         {
-            float chance = baseChance;
             float chance = baseChance * activityScale;
             if (moodLevel <= 0.30f) chance *= 1.4f;
             else if (moodLevel >= 0.85f) chance *= 1.2f;
             chance *= jitter;
-            return (float)System.Math.Clamp(chance, 0.05f, 0.95f);
             return (float)System.Math.Clamp(chance, 0.01f, 0.98f);
         }
 

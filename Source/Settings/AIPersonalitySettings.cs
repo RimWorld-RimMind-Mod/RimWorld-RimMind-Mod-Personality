@@ -75,7 +75,6 @@ namespace RimMind.Personality
             Scribe_Values.Look(ref shapingHistoryMaxCount, "shapingHistoryMaxCount", 20);
             Scribe_Values.Look(ref dailyIntervalTicks, "dailyIntervalTicks", 60000);
             Scribe_Values.Look(ref jitterRangeTicks, "jitterRangeTicks", 3000);
-            Scribe_Values.Look(ref eventCooldownTicks, "eventCooldownTicks", 2500);
             Scribe_Values.Look(ref eventCooldownTicks, "eventCooldownTicks", 1200);
             Scribe_Values.Look(ref requestTimeoutTicks, "requestTimeoutTicks", 60000);
         }

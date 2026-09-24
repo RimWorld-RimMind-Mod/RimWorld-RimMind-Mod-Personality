@@ -8,7 +8,6 @@ namespace RimMind.Personality
     {
         public string Id => "Personality";
         public string OwnerModId => "RimMind.Personality";
-        public int CooldownTicks => 1200;
         public int CooldownTicks
         {
             get
