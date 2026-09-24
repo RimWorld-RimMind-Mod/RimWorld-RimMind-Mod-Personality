@@ -1,28 +1,51 @@
 [h1]RimMind - Personality[/h1]
 让殖民者拥有内心世界。
+[h1]RimMind - Personality (动态人格与心流)[/h1]
 
 [h2] 他们不只是数据 [/h2]
 RimWorld 的殖民者有背景、有技能、有特质——但他们没有[b]真正的情绪[/b]。受伤了不会沮丧，交到朋友不会开心，日复一日挖矿也不会厌倦。
+[i]让每个小人都拥有独特的内心世界——大五人格、情绪波澜与动态性格塑造。[/i]
+[i]Give your colonists complex inner lives — Big Five profiles, situational thoughts, and character growth.[/i]
 
 RimMind-Personality 改变了这一点。AI 会审视每个殖民者的处境，生成[b]只有这个人在这个时刻才会有的想法[/b]。长期卧床的殖民者可能"对康复失去信心"；刚交到朋友的殖民者可能"对新伙伴充满期待"。AI 阅读了殖民者的完整状态后，给出真正符合情境的心理反应。
+[hr]
+[h2]📖 中文介绍 / Chinese Overview[/h2]
 
 [h2] 事情发生时，他们会反应 [/h2]
 殖民者不只是每天被评估一次。当[b]真正重要的事情发生[/b]时，AI 会立即介入：
+[b]RimMind-Personality[/b] 让殖民者告别同质化的数据白板。AI 会依据小人的原生特质、过往经历与处境，推导出立体的大五人格模型，并在面临突发事件时触发真正有血有肉的心态变化。
 
+[h3]🌟 核心特性[/h3]
 [list]
 [*] [b]受伤或患病[/b] — 恐惧、痛苦、或者咬牙坚持
 [*] [b]技能突破[/b] — 自豪、新的志向、或者压力
 [*] [b]袭击来袭[/b] — 恐慌、勇气、或者绝望
 [*] [b]亲近者死亡[/b] — 悲痛，这是最强烈的心理冲击
+[*] [b]真实大五人格画像[/b]：为每个殖民者建立开放性、尽责性、外向性、宜人性与神经质等多维性格剖析。
+[*] [b]状态跃迁心理感知[/b]：在负伤、重病、丧友、仰望星空、技能突破或心情急跌时，智能投骰触发符合当事人性格的独创心理 Thought。
+[*] [b]心境直接驱动游戏数值[/b]：AI 生成的想法直接提供正向或负向心情加成，切实影响精神崩溃风险与工作效率。
+[*] [b]性格塑造投票机制 (Trait Shaping)[/b]：当 AI 提议新的性格特质演进时，玩家可选择“强化”、“抑制”或“顺其自然”，陪伴殖民者共同成长。
+[*] [b]殖民者人格卡片[/b]：在小人面板中清晰查阅 AI 生成的心态总结与工作/社交倾向。
 [/list]
 
 每种触发都可以独立开关。你可以只保留每日评估，也可以全部开启，让殖民者对每一个重要时刻都有心理反应。
+[hr]
+[h2]🌐 English Overview[/h2]
 
 [h2] 心情真的会变 [/h2]
 AI 生成的心理状态[b]直接影响心情值[/b]。经历了袭击、失去了朋友的殖民者，心情会真的跌入谷底。这不是装饰——它会[b]影响你的游戏决策[/b]。心情低落的殖民者精神崩溃风险更高，你需要认真对待他们的心理状态。
+[b]RimMind-Personality[/b] gives your colonists intricate psychological depth. Powered by the Big Five personality framework, pawns react emotionally and intellectually to triumphs, crises, and everyday life in the rim.
 
 [h2] 你可以塑造他们的人格 [/h2]
 AI 提出新的人格特质时，你可以投票：[b]强化[/b]让特质更根深蒂固，[b]抑制[/b]让殖民者逐渐摆脱，[b]忽略[/b]则不干预。你的投票历史会被 AI 记住，久而久之生成更符合你期望的人格发展。
+[h3]🌟 Key Highlights[/h3]
+[list]
+[*] [b]Deep Personality Profiles[/b]: Generates nuanced Big Five psychological profiles based on traits, backstories, and environment.
+[*] [b]State Transition Thought Generation[/b]: Triggered dynamically during injuries, losses, skill milestones, or dramatic mood swings to yield highly personalized thoughts.
+[*] [b]Direct Gameplay Mood Impacts[/b]: Custom thoughts actively influence colonist mood meters and mental break thresholds.
+[*] [b]Character Shaping & Voting[/b]: Guide your colonists' growth when new traits emerge by reinforcing or suppressing them.
+[*] [b]Dedicated Personality Dossier[/b]: Inspect pawns' core values, motivations, and behavioral tendencies directly from their bio tab.
+[/list]
 
 你也可以直接编辑每个殖民者的人格描述、工作倾向和社交倾向——就像给演员一份角色设定，AI 评估时会参考你写的内容。
 
@@ -35,11 +58,15 @@ AI 提出新的人格特质时，你可以投票：[b]强化[/b]让特质更根�
 [b]+ Dialogue[/b] — 对话风格受人格影响，内向者和外向者说话方式不同
 
 [h2] 灵活可调 [/h2]
+[hr]
+[h2]⚙️ 依赖与推荐 / Requirements & Recommendations[/h2]
 [list]
 [*] 每种触发方式独立开关（每日/受伤/技能/事件/死亡）
 [*] Thought 持续时长：AI 根据情境决定，或统一固定时长
 [*] 塑造投票：开启/关闭，自定义过期时间和历史保留数量
 [*] 通知和标签前缀：按你的喜好调整显示方式
+[*] [b]必需前置 (Required)[/b]: Harmony, [b]RimMind-Core[/b]
+[*] [b]推荐搭配 (Recommended)[/b]: [b]RimMind-Memory[/b]、[b]RimMind-Dialogue[/b]、[b]RimMind-Advisor[/b]
 [/list]
 
 [h2] 快速开始 [/h2]
