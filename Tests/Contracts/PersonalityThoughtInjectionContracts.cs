@@ -66,6 +66,7 @@ namespace RimMind.Personality.Tests.Contracts
         {
             ContractCaseRunner.Run(
                 ("all four trigger types have a settings gate", () =>
+                ("all trigger types have a settings gate", () =>
                 {
                     var settings = new AIPersonalitySettings
                     {
@@ -73,12 +74,34 @@ namespace RimMind.Personality.Tests.Contracts
                         enableSkillTrigger = false,
                         enableIncidentTrigger = false,
                         enableDeathTrigger = false,
+                        enableSunriseTrigger = false,
+                        enableRecreationTrigger = false,
+                        enableSkygazeTrigger = false,
+                        enableMoodSwingTrigger = false,
                     };
                     foreach (TriggerEventType eventType in System.Enum.GetValues(typeof(TriggerEventType)))
                         Assert.False(PersonalityTriggerPolicy.IsTriggerEnabled(eventType, settings));
 
                     settings.enableDeathTrigger = true;
                     Assert.True(PersonalityTriggerPolicy.IsTriggerEnabled(TriggerEventType.Death, settings));
+                    settings.enableDeathTrigger = false;
+
+                    settings.enableSunriseTrigger = true;
+                    Assert.True(PersonalityTriggerPolicy.IsTriggerEnabled(TriggerEventType.Sunrise, settings));
+
+                    // Verify state-transition probability policies
+                    Assert.True(PersonalityTriggerPolicy.ShouldTriggerSunrise(true, 0.30f, 0.20f, true));
+                    Assert.False(PersonalityTriggerPolicy.ShouldTriggerSunrise(true, 0.30f, 0.50f, true));
+                    Assert.False(PersonalityTriggerPolicy.ShouldTriggerSunrise(true, 0.30f, 0.10f, false));
+
+                    Assert.True(PersonalityTriggerPolicy.ShouldTriggerRecreation(true, 0.25f, 0.15f));
+                    Assert.False(PersonalityTriggerPolicy.ShouldTriggerRecreation(true, 0.25f, 0.35f));
+
+                    Assert.True(PersonalityTriggerPolicy.ShouldTriggerSkygaze(true, 0.40f, 0.20f));
+                    Assert.False(PersonalityTriggerPolicy.ShouldTriggerSkygaze(false, 0.40f, 0.20f));
+
+                    Assert.True(PersonalityTriggerPolicy.ShouldTriggerMoodSwing(true, 0.50f, 0.25f, -0.20f));
+                    Assert.False(PersonalityTriggerPolicy.ShouldTriggerMoodSwing(true, 0.50f, 0.25f, 0.05f));
                 }),
                 ("eligible pawns are living free colonists with map and mood", () =>
                 {

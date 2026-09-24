@@ -9,19 +9,32 @@ namespace RimMind.Personality
         public bool enablePersonality = true;
         public bool showNotifications = true;
 
-        // 触发来源开�?
+        // Trigger sources
         public bool enableDailyEval = true;
         public bool enableInjuryTrigger = true;
         public bool enableSkillTrigger = true;
         public bool enableIncidentTrigger = true;
         public bool enableDeathTrigger = true;
 
+        // State-transition triggers & probabilities
+        public bool enableSunriseTrigger = true;
+        public float sunriseTriggerChance = 0.30f;
+
+        public bool enableRecreationTrigger = true;
+        public float recreationTriggerChance = 0.25f;
+
+        public bool enableSkygazeTrigger = true;
+        public float skygazeTriggerChance = 0.40f;
+
+        public bool enableMoodSwingTrigger = true;
+        public float moodSwingTriggerChance = 0.50f;
+
         public float thoughtDurationHours = 24f;
 
-        /// <summary>Fixed = 使用 thoughtDurationHours；AIDecides = �?AI �?JSON 中决�?duration_hours�?/summary>
+        /// <summary>Fixed = Use thoughtDurationHours; AIDecides = Determined by AI in response.</summary>
         public ThoughtDurationMode durationMode = ThoughtDurationMode.AIDecides;
 
-        /// <summary>在心情面板的 Thought 标签前显�?[RimMind] 前缀�?/summary>
+        /// <summary>Show [RimMind] prefix in thought label.</summary>
         public bool showLabelPrefix = true;
 
         public bool enableShapingVote = true;
@@ -44,6 +57,16 @@ namespace RimMind.Personality
             Scribe_Values.Look(ref enableSkillTrigger, "enableSkillTrigger", true);
             Scribe_Values.Look(ref enableIncidentTrigger, "enableIncidentTrigger", true);
             Scribe_Values.Look(ref enableDeathTrigger, "enableDeathTrigger", true);
+
+            Scribe_Values.Look(ref enableSunriseTrigger, "enableSunriseTrigger", true);
+            Scribe_Values.Look(ref sunriseTriggerChance, "sunriseTriggerChance", 0.30f);
+            Scribe_Values.Look(ref enableRecreationTrigger, "enableRecreationTrigger", true);
+            Scribe_Values.Look(ref recreationTriggerChance, "recreationTriggerChance", 0.25f);
+            Scribe_Values.Look(ref enableSkygazeTrigger, "enableSkygazeTrigger", true);
+            Scribe_Values.Look(ref skygazeTriggerChance, "skygazeTriggerChance", 0.40f);
+            Scribe_Values.Look(ref enableMoodSwingTrigger, "enableMoodSwingTrigger", true);
+            Scribe_Values.Look(ref moodSwingTriggerChance, "moodSwingTriggerChance", 0.50f);
+
             Scribe_Values.Look(ref thoughtDurationHours, "thoughtDurationHours", 24f);
             Scribe_Values.Look(ref durationMode, "durationMode", ThoughtDurationMode.AIDecides);
             Scribe_Values.Look(ref showLabelPrefix, "showLabelPrefix", true);
@@ -52,6 +75,7 @@ namespace RimMind.Personality
             Scribe_Values.Look(ref shapingHistoryMaxCount, "shapingHistoryMaxCount", 20);
             Scribe_Values.Look(ref dailyIntervalTicks, "dailyIntervalTicks", 60000);
             Scribe_Values.Look(ref jitterRangeTicks, "jitterRangeTicks", 3000);
+            Scribe_Values.Look(ref eventCooldownTicks, "eventCooldownTicks", 2500);
             Scribe_Values.Look(ref eventCooldownTicks, "eventCooldownTicks", 1200);
             Scribe_Values.Look(ref requestTimeoutTicks, "requestTimeoutTicks", 60000);
         }
