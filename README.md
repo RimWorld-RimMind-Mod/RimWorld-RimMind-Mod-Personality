@@ -35,6 +35,13 @@ graph TD
     Core --> BridgeRimTalk["Bridge-RimTalk"]
 ```
 
+## 🎮 实机特性展示 / In-Game Showcase
+
+![RimMind-Personality In-Game Showcase](docs/images/showcase.jpg)
+
+- **概率型状态跃迁触发 (State Transitions)**：彻底告别呆板的固定时间轮询，结合晨曦清醒、娱乐就餐、仰望星空或情绪急跌等自然生活跃迁概率投骰触发。
+- **大五人格档案与沉浸式破晓心境**：在角色卡与 Hub 智能体管理中直观展示大五人格特质，清晨自发生成破晓心境与个性化 Thought 想法加成。
+
 ## 安装步骤
 
 ### 从源码安装
@@ -204,6 +211,13 @@ RimMind is an AI-driven RimWorld mod suite that connects to Large Language Model
 | RimMind-Bridge-RimChat | Coordination & mutual exclusion layer with RimChat mod | Core, RimChat | [Link](https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Bridge-RimChat) |
 | RimMind-Bridge-RimTalk | Dialogue bubbles & context bridge with RimTalk mod | Core, RimTalk | [Link](https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Bridge-RimTalk) |
 | RimMind-Extension-ModelService | Extended model gateway, OpenCode Go subscription & multi-endpoint load balancing | Core | [Link](https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Extension-ModelService) |
+
+## 🎮 In-Game Showcase / Feature Demonstration
+
+![RimMind-Personality In-Game Showcase](docs/images/showcase.jpg)
+
+- **Probabilistic State-Transition Engine**: Replaced rigid fixed timer polling with realistic life transitions (dawn waking, dining, stargazing, mood swings) governed by probabilistic dice rolls.
+- **Big Five Personality Profiles & Dawn Reflection**: Complete Big Five trait visualization in character bios and the Hub agent tab, producing organic dawn soliloquies and dynamic Thought mood modifiers.
 
 ## Installation
 
