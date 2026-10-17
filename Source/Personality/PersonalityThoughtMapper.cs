@@ -24,6 +24,8 @@ namespace RimMind.Personality
 
         public static void Apply(Result<LlmResponse, RimMindError> result, Pawn pawn)
         {
+            if (pawn == null || pawn.Dead || pawn.Destroyed || pawn.needs?.mood == null) return;
+
             if (result.IsErr)
             {
                 RimMindErrors.Warn($"[RimMind-Personality] Request failed ({pawn.Name.ToStringShort}): {result.Error}");
@@ -119,6 +121,7 @@ namespace RimMind.Personality
         /// </summary>
         private static void ApplyThoughts(Pawn pawn, PersonalityResultDto dto, AIPersonalitySettings? settings)
         {
+            if (pawn == null || pawn.Dead || pawn.Destroyed) return;
             RemoveAllAIPersonalityThoughts(pawn);
 
             if (settings == null) return;
@@ -143,7 +146,7 @@ namespace RimMind.Personality
                 thought.aiDescription = entry.description;
                 thought.aiIntensity = (int)entry.intensity;
                 thought.customDurationTicks = projection.DurationTicks;
-                pawn.needs.mood.thoughts.memories.TryGainMemory(thought);
+                pawn.needs?.mood?.thoughts?.memories?.TryGainMemory(thought);
             }
 
             var shapingCandidate = PersonalityThoughtPolicy.SelectSignificantShapingCandidate(
@@ -153,7 +156,7 @@ namespace RimMind.Personality
                 RegisterShapingVote(pawn, shapingCandidate, settings);
             }
 
-            if (showNotifications && projections.Count > 0)
+            if (showNotifications && projections.Count > 0 && pawn.Spawned && pawn.Map != null)
             {
                 Messages.Message(
                     "RimMind.Personality.UI.PersonalityUpdated".Translate(pawn.Name.ToStringShort),

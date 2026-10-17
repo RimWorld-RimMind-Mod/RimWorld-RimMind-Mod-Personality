@@ -44,7 +44,7 @@ namespace RimMind.Personality.Patches
                         if (skill == __instance)
                         {
                             PersonalityTriggerHelper.TriggerForPawn(pawn,
-                                $"{"RimMind.Memory.Trigger.SkillUp".Translate(__instance.def.LabelCap, preLevel, __instance.levelInt)}",
+                                $"{"RimMind.Personality.Trigger.SkillUp".Translate(__instance.def.LabelCap, __instance.levelInt, preLevel, __instance.levelInt)}",
                                 TriggerEventType.Skill);
                             return;
                         }

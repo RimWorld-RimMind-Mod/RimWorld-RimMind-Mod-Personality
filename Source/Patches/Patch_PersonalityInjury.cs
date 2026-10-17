@@ -22,7 +22,7 @@ namespace RimMind.Personality.Patches
             }
 
             PersonalityTriggerHelper.TriggerForPawn(pawn!,
-                $"{"RimMind.Memory.Trigger.Contracted".Translate(hediff!.LabelCap, "RimMind.Memory.Trigger.FullBody".Translate())}",
+                $"{"RimMind.Personality.Trigger.Contracted".Translate(hediff!.LabelCap, "RimMind.Personality.Trigger.FullBody".Translate())}",
                 TriggerEventType.Injury);
         }
     }

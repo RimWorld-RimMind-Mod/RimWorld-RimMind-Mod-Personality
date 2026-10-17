@@ -67,7 +67,7 @@ namespace RimMind.Personality.Comps
             int currentTick = Find.TickManager.TicksGame;
             bool cooldownExpired = (currentTick - _lastEventTick) >= Settings.eventCooldownTicks;
 
-            bool dailyFire = Settings.enableDailyEval && Pawn.IsHashIntervalTick(Settings.dailyIntervalTicks + GetDailyJitter());
+            bool dailyFire = Settings.enableDailyEval && Pawn.Awake() && Pawn.IsHashIntervalTick(Settings.dailyIntervalTicks + GetDailyJitter());
             bool eventFire = _pendingEventContext != null && cooldownExpired;
 
             if (!dailyFire && !eventFire) return;
@@ -118,7 +118,11 @@ namespace RimMind.Personality.Comps
                 if (PersonalityTriggerPolicy.ShouldTriggerAwakening(true, dynamicChance, Rand.Value, justWokeUp))
                 {
                     int hour = GenLocalDate.HourInteger(map);
-                    _pendingEventContext = $"Awakening (Hour {hour:D2}:00): Just woke up, clearing morning thoughts and preparing for the hours ahead.";
+                    bool isNight = hour >= 19 || hour < 6;
+                    string shiftDesc = isNight ? "Night shift / nocturnal schedule" : "Day shift / morning schedule";
+                    _pendingEventContext = isNight
+                        ? $"Awakening (Hour {hour:D2}:00, {shiftDesc}): Just woke up into dusk/night, starting nocturnal work shift."
+                        : $"Awakening (Hour {hour:D2}:00, {shiftDesc}): Just woke up, clearing morning thoughts and preparing for daylight hours ahead.";
                 }
             }
 
