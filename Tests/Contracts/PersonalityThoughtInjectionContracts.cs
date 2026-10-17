@@ -109,6 +109,15 @@ namespace RimMind.Personality.Tests.Contracts
                     Assert.False(PersonalityTriggerPolicy.IsPawnEligible(true, true, true, true));
                     Assert.False(PersonalityTriggerPolicy.IsPawnEligible(true, false, false, true));
                     Assert.False(PersonalityTriggerPolicy.IsPawnEligible(true, false, true, false));
+                    Assert.False(PersonalityTriggerPolicy.IsPawnEligible(true, false, true, true, isDowned: true));
+                    Assert.False(PersonalityTriggerPolicy.IsPawnEligible(true, false, true, true, isInMentalState: true));
+                    var eligiblePawn = new Verse.Pawn();
+                    Assert.True(PersonalityTriggerPolicy.IsEligible(eligiblePawn));
+                    var downedPawn = new Verse.Pawn { Downed = true };
+                    Assert.False(PersonalityTriggerPolicy.IsEligible(downedPawn));
+                    var mentalPawn = new Verse.Pawn { MentalState = new object() };
+                    Assert.False(PersonalityTriggerPolicy.IsEligible(mentalPawn));
+                    Assert.False(PersonalityTriggerPolicy.IsEligible(null));
                 }),
                 ("injury incident and skill patches retain their event filters", () =>
                 {

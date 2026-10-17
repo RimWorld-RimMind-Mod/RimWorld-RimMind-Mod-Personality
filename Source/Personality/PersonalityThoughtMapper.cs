@@ -95,6 +95,8 @@ namespace RimMind.Personality
                 expireTicks = settings?.requestExpireTicks ?? 30000,
                 callback = choice =>
                 {
+                    if (!RimMindPawnLookup.IsActiveSpawnedColonist(pawn)) return;
+
                     var shapingAction = choice == optReinforce ? ShapingAction.Reinforce
                         : choice == optSuppress ? ShapingAction.Suppress
                         : ShapingAction.Ignore;

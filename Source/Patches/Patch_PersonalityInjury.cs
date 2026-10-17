@@ -16,7 +16,7 @@ namespace RimMind.Personality.Patches
                     hediff != null,
                     hediff?.def.isBad == true,
                     hediff?.Severity ?? 0f,
-                    pawn?.IsFreeNonSlaveColonist == true))
+                    PersonalityTriggerPolicy.IsEligible(pawn)))
             {
                 return;
             }

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using HarmonyLib;
 using RimMind.Personality.Comps;
+using RimMind.Presentation.Api;
 using RimWorld;
 using Verse;
 
@@ -37,7 +38,7 @@ namespace RimMind.Personality.Patches
 
                 foreach (var map in Find.Maps)
                 {
-                    foreach (var pawn in map.mapPawns.FreeColonists)
+                    foreach (var pawn in RimMindPawnLookup.GetSpawnedColonistsSafe(map))
                     {
                         var skill = pawn.skills?.GetSkill(__instance.def);
                         if (skill == null) continue;

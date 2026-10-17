@@ -237,11 +237,7 @@ namespace RimMind.Personality.Comps
             _pendingEventContext = context;
         }
 
-        private bool IsEligible() => PersonalityTriggerPolicy.IsPawnEligible(
-            Pawn.IsFreeNonSlaveColonist,
-            Pawn.Dead,
-            Pawn.Map != null,
-            Pawn.needs?.mood != null);
+        private bool IsEligible() => PersonalityTriggerPolicy.IsEligible(Pawn);
 
         public override void PostExposeData()
         {

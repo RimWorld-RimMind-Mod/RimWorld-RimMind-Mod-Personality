@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using HarmonyLib;
 using RimMind.Personality.Comps;
+using RimMind.Presentation.Api;
 using RimWorld;
 using Verse;
 
@@ -17,9 +18,10 @@ namespace RimMind.Personality.Patches
             // pawn's Map may be null after death, and related colonists on other
             // maps (multiple bases) must still receive the trigger.
             var killedPawn = __instance;
+            string killedName = killedPawn?.Name != null ? killedPawn.Name.ToStringShort : (killedPawn?.LabelShort ?? "Colonist");
             foreach (var map in Find.Maps)
             {
-                foreach (var pawn in map.mapPawns.FreeColonists)
+                foreach (var pawn in RimMindPawnLookup.GetEligibleColonists(map))
                 {
                     if (pawn == killedPawn) continue;
                     var rel = pawn.relations?.DirectRelations;
@@ -29,7 +31,7 @@ namespace RimMind.Personality.Patches
                         if (dr.otherPawn == killedPawn)
                         {
                             PersonalityTriggerHelper.TriggerForPawn(pawn,
-                                $"{"RimMind.Personality.Trigger.RelationDeath".Translate(dr.def.LabelCap, killedPawn.Name.ToStringShort)}",
+                                $"{"RimMind.Personality.Trigger.RelationDeath".Translate(dr.def.LabelCap, killedName)}",
                                 TriggerEventType.Death);
                             break;
                         }
