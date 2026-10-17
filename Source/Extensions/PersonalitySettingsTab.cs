@@ -8,7 +8,9 @@ namespace RimMind.Personality
     {
         public string Id => "personality";
         public string OwnerModId => "RimMindPersonality";
-        public string Label => "RimMind.Personality.Settings.TabLabel".Translate();
+        public string Label => "RimMind.Personality.Settings.TabLabel".CanTranslate()
+            ? (string)"RimMind.Personality.Settings.TabLabel".Translate()
+            : "Personality";
         public void Draw(Rect rect) => PersonalitySettingsDrawer.Draw(rect);
     }
 }

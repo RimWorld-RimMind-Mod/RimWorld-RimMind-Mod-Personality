@@ -80,14 +80,16 @@
   <RimMind.Personality.ShapingAction.Ignore>忽略</RimMind.Personality.ShapingAction.Ignore>
   <!-- TaskInstruction sub-keys (extensible list) -->
   <RimMind.Personality.Prompt.TaskInstruction.Role>你是 RimWorld 殖民者的人格评估师，负责根据游戏状态生成小人的心理状态。</RimMind.Personality.Prompt.TaskInstruction.Role>
-  <RimMind.Personality.Prompt.TaskInstruction.Goal>根据小人的当前状态、人格档案和触发原因，生成符合角色心理的 Thought 和叙事。</RimMind.Personality.Prompt.TaskInstruction.Goal>
+  <RimMind.Personality.Prompt.TaskInstruction.Goal>根据小人的当前状态（气温、生理需求、健康状况、衣物）、人格档案和触发原因，生成符合残酷废土生存心理的 Thought 和叙事。清晨心智与心理叙事必须如实反映角色所承受的身体苦难或心理怨气。</RimMind.Personality.Prompt.TaskInstruction.Goal>
   <RimMind.Personality.Prompt.TaskInstruction.Process>1. 阅读小人的完整状态（心情、健康、技能、特性、背景）
 2. 参考人格档案和玩家塑造历史
 3. 如果有触发原因，优先反映该事件的心理影响
 4. 生成 Thought（type + label + description + intensity）
 5. 生成叙事（描述小人近期心理状态变化）</RimMind.Personality.Prompt.TaskInstruction.Process>
-  <RimMind.Personality.Prompt.TaskInstruction.Constraint>label ≤8字，description ≤20字（第三人称）；intensity 范围 -3~+3；Thought 应反映小人的真实状态，不要凭空创造；叙事 ≤50字；不要打破第四面墙</RimMind.Personality.Prompt.TaskInstruction.Constraint>
-  <RimMind.Personality.Prompt.TaskInstruction.Example>输入：小人心情35%，刚在战斗中受重伤，特性：坚韧
+  <RimMind.Personality.Prompt.TaskInstruction.Constraint>label ≤8字，description ≤20字（第三人称）；intensity 范围 -3~+3；Thought 应反映小人的真实状态，不要凭空创造；叙事 ≤50字；不要打破第四面墙。清晨心智（Morning Thought）与心理叙事（Narrative）必须如实反映角色承受的身体苦难（低温受冻、失眠、病痛、衣不蔽体、极度饥饿）或心理怨气，严禁在处于严重负面状态时生成脱离现实的阳光乐观描述（如“阳光照在木墙上一切安好”）。</RimMind.Personality.Prompt.TaskInstruction.Constraint>
+  <RimMind.Personality.Prompt.TaskInstruction.Example>示例1（受冻与怨气）：输入：小人心情25%，严冬-15°C，轻度冻伤，衣衫褴褛，无娱乐
+输出：{"thoughts":[{"type":"state","label":"刺骨寒怨","description":"寒冷刺骨且衣衫褴褛，满腹怨气","intensity":-2}],"narrative":"他在严寒中冻得瑟瑟发抖，破烂的衣角挡不住寒风，对恶劣的生存境遇充满了暴躁与怨气。"}
+示例2（坚韧负重）：输入：小人心情35%，刚在战斗中受重伤，特性：坚韧
 输出：{"thoughts":[{"type":"state","label":"忍痛坚持","description":"虽然受了重伤，但意志坚定","intensity":2}],"narrative":"尽管伤痛难忍，他依然咬牙坚持，不愿让同伴担心。"}</RimMind.Personality.Prompt.TaskInstruction.Example>
   <RimMind.Personality.Prompt.TaskInstruction.Output>只返回以下 JSON 格式，不要输出其他内容：
 {"thoughts":[{"type":"state","label":"...","description":"...","intensity":0}],"narrative":"..."}</RimMind.Personality.Prompt.TaskInstruction.Output>
@@ -100,4 +102,9 @@
   <RimMind.Personality.Prompt.TaskInstruction.DurationHint>duration_hours 设置建议：轻微情绪（intensity ±1）设为 1-4 小时；中等情绪（intensity ±2）设为 5-12 小时；强烈/深层心理状态（intensity ±3）设为 13-24 小时。</RimMind.Personality.Prompt.TaskInstruction.DurationHint>
   <RimMind.Personality.Prompt.TaskInstruction.DiversityHint>多样化提示：尽量保证多样化的人格特质，避免重复生成相同类型的心理状态。如果近期已有类似的心理状态，请尝试生成不同维度的 Thought。</RimMind.Personality.Prompt.TaskInstruction.DiversityHint>
   <RimMind.Personality.Prompt.TaskInstruction.TriggerReason>[触发原因] {0}</RimMind.Personality.Prompt.TaskInstruction.TriggerReason>
+  <RimMind.Personality.Trigger.SkillUp>{0}技能提升至{1}级（{2}→{3}）</RimMind.Personality.Trigger.SkillUp>
+  <RimMind.Personality.Trigger.RelationDeath>{0} {1} 阵亡</RimMind.Personality.Trigger.RelationDeath>
+  <RimMind.Personality.Trigger.Contracted>遭受{0}（{1}）</RimMind.Personality.Trigger.Contracted>
+  <RimMind.Personality.Trigger.FullBody>全身</RimMind.Personality.Trigger.FullBody>
+  <RimMind.Personality.Trigger.IncidentOccurred>发生事件：{0}</RimMind.Personality.Trigger.IncidentOccurred>
 </LanguageData>

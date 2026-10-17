@@ -101,6 +101,10 @@ namespace Verse
     public static class Extensions
     {
         public static bool NullOrEmpty(this string? s) => string.IsNullOrEmpty(s);
+        public static bool CanTranslate(this string s) => !string.IsNullOrEmpty(s);
+        public static TaggedString Translate(this string s) => new TaggedString { Value = s };
+        public static TaggedString Translate(this string s, params object[] args)
+            => new TaggedString { Value = args == null || args.Length == 0 ? s : $"{s}:{string.Join(",", args)}" };
     }
 }
 

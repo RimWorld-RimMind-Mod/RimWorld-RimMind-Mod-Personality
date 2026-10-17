@@ -29,7 +29,7 @@ namespace RimMind.Personality.Patches
                         if (dr.otherPawn == killedPawn)
                         {
                             PersonalityTriggerHelper.TriggerForPawn(pawn,
-                                $"{"RimMind.Memory.Trigger.RelationDeath".Translate(dr.def.LabelCap, killedPawn.Name.ToStringShort)}",
+                                $"{"RimMind.Personality.Trigger.RelationDeath".Translate(dr.def.LabelCap, killedPawn.Name.ToStringShort)}",
                                 TriggerEventType.Death);
                             break;
                         }

@@ -22,7 +22,7 @@ namespace RimMind.Personality.Patches
             }
 
             PersonalityTriggerHelper.TriggerForColonists((Map)parms.target,
-                $"{"RimMind.Storyteller.Context.IncidentOccurred".Translate(def!.LabelCap)}",
+                $"{"RimMind.Personality.Trigger.IncidentOccurred".Translate(def!.LabelCap)}",
                 TriggerEventType.Incident);
         }
     }
