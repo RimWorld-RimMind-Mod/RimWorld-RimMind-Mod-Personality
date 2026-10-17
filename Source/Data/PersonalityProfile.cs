@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using RimMind.Presentation.Api;
+using RimWorld;
 using RimWorld.Planet;
 using Verse;
 
@@ -24,29 +26,67 @@ namespace RimMind.Personality.Data
         public override void WorldComponentTick()
         {
             base.WorldComponentTick();
-            int now = Find.TickManager.TicksGame;
-            if (now - _lastCleanupTick < RimMind.Domain.Common.RimMindTime.TicksPerDay) return;
-            _lastCleanupTick = now;
-
-            var aliveIds = new HashSet<int>();
-            foreach (var map in Find.Maps)
+            int ticksGame = Find.TickManager.TicksGame;
+            if (_lastCleanupTick == 0)
             {
-                foreach (var pawn in map.mapPawns.AllPawns)
+                _lastCleanupTick = ticksGame;
+                return;
+            }
+            if (ticksGame - _lastCleanupTick < RimMind.Domain.Common.RimMindTime.TicksPerDay) return;
+            _lastCleanupTick = ticksGame;
+
+            var activeLivingColonistIds = new HashSet<int>();
+
+            var allAliveColonists = PawnsFinder.AllMapsCaravansAndTravellingTransporters_Alive_Colonists;
+            if (allAliveColonists != null)
+            {
+                foreach (var pawn in allAliveColonists)
                 {
-                    if (pawn.thingIDNumber > 0)
-                        aliveIds.Add(pawn.thingIDNumber);
+                    if (pawn != null && pawn.thingIDNumber > 0)
+                        activeLivingColonistIds.Add(pawn.thingIDNumber);
                 }
             }
-            foreach (var wp in Find.WorldPawns.AllPawnsAliveOrDead)
+
+            if (Find.Maps != null)
             {
-                if (wp.thingIDNumber > 0)
-                    aliveIds.Add(wp.thingIDNumber);
+                foreach (var map in Find.Maps)
+                {
+                    var allMapPawns = map?.mapPawns?.AllPawns;
+                    if (allMapPawns != null)
+                    {
+                        foreach (var p in allMapPawns)
+                        {
+                            if (p != null && p.thingIDNumber > 0 && !p.Destroyed && (p.IsColonist || p.IsPrisonerOfColony || p.IsSlaveOfColony))
+                                activeLivingColonistIds.Add(p.thingIDNumber);
+                        }
+                    }
+
+                    var corpses = map?.listerThings?.ThingsInGroup(ThingRequestGroup.Corpse);
+                    if (corpses != null)
+                    {
+                        foreach (var thing in corpses)
+                        {
+                            if (thing is Corpse corpse && corpse.InnerPawn is Pawn inner && inner.thingIDNumber > 0 && !inner.Destroyed && (inner.IsColonist || inner.IsPrisonerOfColony || inner.IsSlaveOfColony))
+                                activeLivingColonistIds.Add(inner.thingIDNumber);
+                        }
+                    }
+                }
+            }
+
+            var worldPawnsAlive = Find.WorldPawns?.AllPawnsAlive;
+            if (worldPawnsAlive != null)
+            {
+                foreach (var p in worldPawnsAlive)
+                {
+                    if (p != null && p.thingIDNumber > 0 && !p.Destroyed && p.IsColonist)
+                        activeLivingColonistIds.Add(p.thingIDNumber);
+                }
             }
 
             var toRemove = new List<int>();
             foreach (var id in _profiles.Keys)
             {
-                if (!aliveIds.Contains(id))
+                if (!activeLivingColonistIds.Contains(id))
                     toRemove.Add(id);
             }
             foreach (var id in toRemove)

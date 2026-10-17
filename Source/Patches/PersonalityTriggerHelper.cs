@@ -1,4 +1,5 @@
 using RimMind.Personality.Comps;
+using RimMind.Presentation.Api;
 using RimWorld;
 using Verse;
 
@@ -22,11 +23,11 @@ namespace RimMind.Personality.Patches
         }
 
         /// <summary>
-        /// Triggers a personality evaluation for all free colonists on a map.
+        /// Triggers a personality evaluation for all eligible colonists on a map.
         /// </summary>
         public static void TriggerForColonists(Map map, string context, TriggerEventType eventType)
         {
-            foreach (var pawn in map.mapPawns.FreeColonists)
+            foreach (var pawn in RimMindPawnLookup.GetEligibleColonists(map))
             {
                 TriggerForPawn(pawn, context, eventType);
             }

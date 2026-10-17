@@ -9,6 +9,19 @@ namespace RimMind.Presentation.Api
             public static string ScenarioDialogue => "Dialogue";
         }
     }
+
+    public static class RimMindPawnLookup
+    {
+        public static bool IsEligibleColonist(Verse.Pawn? pawn)
+        {
+            if (pawn == null) return false;
+            if (pawn.Dead || pawn.Destroyed) return false;
+            if (!pawn.Spawned || pawn.Map == null) return false;
+            if (!pawn.IsColonist || pawn.IsPrisoner || pawn.IsSlave) return false;
+            if (pawn.Downed || pawn.MentalState != null) return false;
+            return true;
+        }
+    }
 }
 
 namespace RimMind.Personality

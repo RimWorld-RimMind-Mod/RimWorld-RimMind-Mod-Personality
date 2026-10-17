@@ -106,6 +106,25 @@ namespace Verse
         public static TaggedString Translate(this string s, params object[] args)
             => new TaggedString { Value = args == null || args.Length == 0 ? s : $"{s}:{string.Join(",", args)}" };
     }
+    public class Pawn
+    {
+        public int thingIDNumber { get; set; }
+        public bool Downed { get; set; }
+        public object? MentalState { get; set; }
+        public bool Destroyed { get; set; }
+        public bool Dead { get; set; }
+        public bool Spawned { get; set; } = true;
+        public object? Map { get; set; } = new object();
+        public bool IsColonist { get; set; } = true;
+        public bool IsPrisoner { get; set; }
+        public bool IsSlave { get; set; }
+        public PawnNeedsTracker? needs { get; set; } = new PawnNeedsTracker();
+    }
+
+    public class PawnNeedsTracker
+    {
+        public object? mood { get; set; } = new object();
+    }
 }
 
 namespace RimWorld.Planet

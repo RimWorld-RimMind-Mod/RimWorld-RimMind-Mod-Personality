@@ -58,9 +58,9 @@ Source/
 
 ## 触发机制
 
-CompAIPersonality.CompTick: `DailyInterval` + `JitterRange`(基于thingIDNumber确定性抖动) + 事件触发(eventCooldownTicks冷却)。
+CompAIPersonality.CompTick: 基于概率的状态跃迁触发(`Sunrise`/`Recreation`/`Skygaze`/`MoodSwing`) + `DailyInterval`/`JitterRange`(基于thingIDNumber确定性抖动兜底) + 事件触发(`eventCooldownTicks`冷却)。
 
-TriggerEventType枚举: `Injury`(enableInjuryTrigger) / `Skill`(enableSkillTrigger) / `Incident`(enableIncidentTrigger) / `Death`(enableDeathTrigger)
+TriggerEventType枚举: `Injury` / `Skill` / `Incident` / `Death` / `Sunrise` / `Recreation` / `Skygaze` / `MoodSwing`
 
 请求参数: `Scenario=Personality (ScenarioRegistry defaultExcludeKeys: "combat_status"), MaxTokens=600, Temperature=0.8f`
 
@@ -68,8 +68,8 @@ TriggerEventType枚举: `Injury`(enableInjuryTrigger) / `Skill`(enableSkillTrigg
 
 | Patch | 过滤条件 |
 |-------|---------|
-| Injury | `hediff.def.isBad != false` + `hediff.Severity >= 0.2f` + `pawn.IsFreeNonSlaveColonist` |
-| Skill | `__instance.levelInt > preLevel`(通过GetSkill引用比较找Pawn) |
+| Injury | `hediff.def.isBad != false` + `hediff.Severity >= 0.2f` + `PersonalityTriggerPolicy.IsEligible(pawn)` |
+| Skill | `__instance.levelInt > preLevel`(通过 `RimMindPawnLookup.GetSpawnedColonistsSafe(map)` 与 `GetSkill` 引用比较找Pawn) |
 | Incident | `def.category.defName == "ThreatBig" \|\| "ThreatSmall"` |
 | Death | `pawn.relations.DirectRelations` 包含 killedPawn |
 
@@ -101,9 +101,9 @@ identity?: {motivations[], traits[], core_values[]}
 
 ## Profile清理
 
-`AIPersonalityWorldComponent.WorldComponentTick()` 每60000 tick执行：
-1. 收集所有地图+WorldPawns的存活Pawn ID
-2. 移除_profiles中不存在于存活集合的条目
+`AIPersonalityWorldComponent.WorldComponentTick()` 读档首帧初始化 `_lastCleanupTick = ticksGame`，此后每60000 tick执行：
+1. 收集所有存活/远行队/地图内(含倒地、囚犯与待复活尸体 `Corpse.InnerPawn`)及 `WorldPawns.AllPawnsAlive` 的 Pawn ID
+2. 移除 `_profiles` 中已彻底销毁且不存在于上述集合的条目
 
 ## 代码约定
 
@@ -113,8 +113,8 @@ identity?: {motivations[], traits[], core_values[]}
 - `AIDecides` 模式: `duration_hours` clamp到[1,24]
 - 翻译键前缀: `RimMind.Personality.*`
 - 事件触发翻译key虽含 `RimMind.Memory.*` / `RimMind.Storyteller.*` 命名空间，但已定义在自身语言文件中
-- Injury Patch使用 `IsFreeNonSlaveColonist`，与CompAIPersonality.IsEligible()一致
-- Skill Patch使用 `Dictionary<object, int>` 以对象引用为键，避免哈希碰撞
+- Injury Patch 与 ShapingVote 回调均校验 `PersonalityTriggerPolicy.IsEligible` / `RimMindPawnLookup.IsActiveSpawnedColonist`
+- Skill Patch使用 `Dictionary<object, int>` 以对象引用为键，避免哈希碰撞，并通过 `RimMindPawnLookup.GetSpawnedColonistsSafe` 遍历地图殖民者
 - Skill Patch使用 try/finally 确保 PreLevels 条目在异常时也能清理
 - `_compat1` 字段仅消费旧存档 `rimTalkSynced` key，值不使用
 - ShapingAction 枚举替代 "reinforce"/"suppress"/"ignored" 字符串魔法值

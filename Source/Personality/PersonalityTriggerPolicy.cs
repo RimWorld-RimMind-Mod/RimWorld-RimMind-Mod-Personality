@@ -1,3 +1,6 @@
+using RimMind.Presentation.Api;
+using Verse;
+
 namespace RimMind.Personality.Comps
 {
     public enum TriggerEventType { Injury, Skill, Incident, Death, Sunrise, Recreation, Skygaze, MoodSwing }
@@ -7,6 +10,12 @@ namespace RimMind.Personality.Comps
     /// </summary>
     public static class PersonalityTriggerPolicy
     {
+        public static bool IsEligible(Pawn? pawn)
+        {
+            if (pawn == null) return false;
+            return RimMindPawnLookup.IsEligibleColonist(pawn) && pawn.needs?.mood != null;
+        }
+
         public static bool IsTriggerEnabled(
             TriggerEventType eventType,
             AIPersonalitySettings settings)
@@ -29,8 +38,10 @@ namespace RimMind.Personality.Comps
             bool isFreeNonSlaveColonist,
             bool isDead,
             bool hasMap,
-            bool hasMood)
-            => isFreeNonSlaveColonist && !isDead && hasMap && hasMood;
+            bool hasMood,
+            bool isDowned = false,
+            bool isInMentalState = false)
+            => isFreeNonSlaveColonist && !isDead && hasMap && hasMood && !isDowned && !isInMentalState;
 
         public static bool ShouldTriggerInjury(
             bool triggerEnabled,
