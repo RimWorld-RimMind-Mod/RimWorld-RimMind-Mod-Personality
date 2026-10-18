@@ -36,7 +36,7 @@
 ## 🎮 实机特性展示
 
 ![RimMind-Personality 实机展示](docs/images/showcase.jpg)
-*晨曦心境独白实机：清晨时分，殖民者在阳光下自发产生反映其大五人格特质的心境独白与气泡。*
+*智能体状态监控与晨曦独白实机：在 F8 `Agents` 面板实时追踪 `Bongo`、`June`、`Rhod` 的活跃认知状态、单击 `Force Think` 强制思考，并检视破晓晨曦触发的内省独白记录。*
 
 ---
 
