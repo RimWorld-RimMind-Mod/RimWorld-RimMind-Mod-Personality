@@ -36,7 +36,7 @@
 ## 🎮 In-Game Showcase
 
 ![RimMind-Personality Showcase](docs/images/showcase.jpg)
-*Dawn soliloquy in action: A colonist standing in the morning light triggers an introspective thought bubble reflecting their Big-Five traits.*
+*Live Agent State Monitor & Dawn 06:00 Soliloquy: Tracking active colonist agents (`Bongo`, `June`, `Rhod`), one-click `Force Think` diagnostics, and introspective morning soliloquy traces alongside the active colony lodge.*
 
 ---
 
