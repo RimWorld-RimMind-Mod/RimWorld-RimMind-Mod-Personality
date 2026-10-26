@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using HarmonyLib;
 using RimMind.Personality.Comps;
 using RimMind.Presentation.Api;
@@ -11,51 +9,32 @@ namespace RimMind.Personality.Patches
     [HarmonyPatch(typeof(SkillRecord), "Learn")]
     static class Patch_PersonalitySkill
     {
-        internal static readonly Dictionary<object, int> PreLevels = new Dictionary<object, int>();
-
-        static void Prefix(SkillRecord __instance)
+        static void Prefix(SkillRecord __instance, float xp, out int __state)
         {
-            if (!RimMindPersonalityMod.Settings.enableSkillTrigger) return;
-            PreLevels[__instance] = __instance.levelInt;
+            __state = xp > 0f && !__instance.TotallyDisabled ? __instance.Level : -1;
         }
 
-        static void Postfix(SkillRecord __instance)
+        static void Postfix(SkillRecord __instance, float xp, int __state)
         {
-            if (!RimMindPersonalityMod.Settings.enableSkillTrigger) return;
-            bool captured = PreLevels.TryGetValue(__instance, out int preLevel);
-            if (!captured) return;
+            if (__state < 0) return;
 
-            try
+            int currentLevel = __instance.Level;
+            if (!PersonalityTriggerPolicy.ShouldTriggerSkill(
+                    RimMindPersonalityMod.Settings.enableSkillTrigger,
+                    preLevelWasCaptured: true,
+                    __state,
+                    currentLevel))
             {
-                if (!PersonalityTriggerPolicy.ShouldTriggerSkill(
-                        RimMindPersonalityMod.Settings.enableSkillTrigger,
-                        captured,
-                        preLevel,
-                        __instance.levelInt))
-                {
-                    return;
-                }
+                return;
+            }
 
-                foreach (var map in Find.Maps)
-                {
-                    foreach (var pawn in RimMindPawnLookup.GetSpawnedColonistsSafe(map))
-                    {
-                        var skill = pawn.skills?.GetSkill(__instance.def);
-                        if (skill == null) continue;
-                        if (skill == __instance)
-                        {
-                            PersonalityTriggerHelper.TriggerForPawn(pawn,
-                                $"{"RimMind.Personality.Trigger.SkillUp".Translate(__instance.def.LabelCap, __instance.levelInt, preLevel, __instance.levelInt)}",
-                                TriggerEventType.Skill);
-                            return;
-                        }
-                    }
-                }
-            }
-            finally
-            {
-                PreLevels.Remove(__instance);
-            }
+            Pawn pawn = __instance.Pawn;
+            if (!RimMindPawnLookup.IsActiveSpawnedColonist(pawn)) return;
+
+            PersonalityTriggerHelper.TriggerForPawn(
+                pawn,
+                $"{"RimMind.Personality.Trigger.SkillUp".Translate(__instance.def.LabelCap, currentLevel, __state, currentLevel)}",
+                TriggerEventType.Skill);
         }
     }
 }

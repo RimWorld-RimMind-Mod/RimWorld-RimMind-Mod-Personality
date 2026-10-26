@@ -37,6 +37,7 @@ Source/
 │   ├── ShapingAction.cs                  塑造投票枚举(替代字符串魔法值)
 │   ├── PersonalityRequestBuilder.cs      共享请求信封构建器
 │   ├── PersonalityContextScenarioPolicy.cs  人格上下文消费场景策略
+│   ├── PersonalityContextText.cs         人格上下文格式化与截取纯函数
 │   └── PawnResolver.cs                   共享Pawn查找辅助(按thingIDNumber)
 ├── Settings/
 │   ├── AIPersonalitySettings.cs          17项设置(含4项时间参数)
@@ -51,7 +52,7 @@ Source/
 │   ├── Patch_PersonalityInjury.cs        HediffSet.AddDirect Postfix(isBad+Severity>=0.2f+IsFreeNonSlaveColonist过滤)
 │   ├── Patch_PersonalityDeath.cs         Pawn.Kill Postfix(检查DirectRelations)
 │   ├── Patch_PersonalityIncident.cs      IncidentWorker.TryExecuteWorker Postfix(ThreatBig/ThreatSmall过滤)
-│   ├── Patch_PersonalitySkill.cs         SkillRecord.Learn Prefix+Postfix(对象引用作键+GetSkill引用比较)
+│   ├── Patch_PersonalitySkill.cs         SkillRecord.Learn Prefix+Postfix(Harmony out int __state 捕获升级前等级 + __instance.Pawn)
 │   └── PersonalityTriggerHelper.cs       共享Patch触发辅助(TriggerForPawn/TriggerForColonists)
 └── Debug/PersonalityDebugActions.cs      8个Debug动作
 ```
@@ -69,7 +70,7 @@ TriggerEventType枚举: `Injury` / `Skill` / `Incident` / `Death` / `Sunrise` / 
 | Patch | 过滤条件 |
 |-------|---------|
 | Injury | `hediff.def.isBad != false` + `hediff.Severity >= 0.2f` + `PersonalityTriggerPolicy.IsEligible(pawn)` |
-| Skill | `__instance.levelInt > preLevel`(通过 `RimMindPawnLookup.GetSpawnedColonistsSafe(map)` 与 `GetSkill` 引用比较找Pawn) |
+| Skill | `__instance.Level > __state`(Harmony Prefix `out int __state` 捕获升级前等级，通过 `__instance.Pawn` 与 `RimMindPawnLookup.IsActiveSpawnedColonist` 校验) |
 | Incident | `def.category.defName == "ThreatBig" \|\| "ThreatSmall"` |
 | Death | `pawn.relations.DirectRelations` 包含 killedPawn |
 
@@ -99,11 +100,13 @@ identity?: {motivations[], traits[], core_values[]}
 | personality_task | L0_Static(0.95) | 仅 Personality | TaskInstruction |
 | AgentIdentity | Core注册 | 身份消费方 | identity→motivations/traits/core_values |
 
+`personality_profile` / `personality_state` / `personality_shaping` / `personality_task` 均通过 `RimMindAPI.MainThreadSnapshot.GetAsync` 在主线程读取 Verse 状态与翻译，并通过 `AIPersonalityWorldComponent.TryGet` 只读查询 Profile（不在后台线程调用 `GetOrCreate`）。公开 Pawn Provider（`personality.description`、`personality.work_tendencies`、`personality.social_tendencies`、`personality.ai_narrative`、`personality.shaping_history`）同样使用 `TryGet` 与 `PersonalityContextText.FormatHeaderedLines`。
+
 ## Profile清理
 
-`AIPersonalityWorldComponent.WorldComponentTick()` 读档首帧初始化 `_lastCleanupTick = ticksGame`，此后每60000 tick执行：
-1. 收集所有存活/远行队/地图内(含倒地、囚犯与待复活尸体 `Corpse.InnerPawn`)及 `WorldPawns.AllPawnsAlive` 的 Pawn ID
-2. 移除 `_profiles` 中已彻底销毁且不存在于上述集合的条目
+`AIPersonalityWorldComponent.WorldComponentTick()` 读档首帧初始化 `_lastCleanupTick = ticksGame`，此后每60000 tick（1游戏日）通过 `CollectRetainedPawnIds()` 与 `PruneProfiles(_profiles, retainedIds)` 执行：
+1. 收集所有存活殖民者(地图/远行队/运输舱)、地图内本派系殖民者/囚犯/奴隶、地图内未复活尸体 `Corpse.InnerPawn`，以及各派系被绑架列表 `KidnappedPawnsListForReading` 中仍存活的 Pawn ID（严禁遍历 `WorldPawns.AllPawnsAlive`）
+2. 在 `_sync` 锁保护下移除 `_profiles` 中不在保留集合内的条目
 
 ## 代码约定
 
@@ -112,10 +115,9 @@ identity?: {motivations[], traits[], core_values[]}
 - `aiDescription` 存档key为 `"aiDesc"`(非 `"aiDescription"`，修改需向后兼容)
 - `AIDecides` 模式: `duration_hours` clamp到[1,24]
 - 翻译键前缀: `RimMind.Personality.*`
-- 事件触发翻译key虽含 `RimMind.Memory.*` / `RimMind.Storyteller.*` 命名空间，但已定义在自身语言文件中
+- `CompAIPersonality` 状态跃迁描述（`AwakeningDay`/`AwakeningNight`/`Dusk`/`ContemplationIdle`/`ContemplationSkygaze`/`Recreation`/`MoodShift`）与 `TriggerReason` 包装均使用 `RimMind.Personality.*` 翻译键，带 `.CanTranslate()` 守卫与英文回退
 - Injury Patch 与 ShapingVote 回调均校验 `PersonalityTriggerPolicy.IsEligible` / `RimMindPawnLookup.IsActiveSpawnedColonist`
-- Skill Patch使用 `Dictionary<object, int>` 以对象引用为键，避免哈希碰撞，并通过 `RimMindPawnLookup.GetSpawnedColonistsSafe` 遍历地图殖民者
-- Skill Patch使用 try/finally 确保 PreLevels 条目在异常时也能清理
+- Skill Patch 使用 Harmony `out int __state` 传递升级前等级并直接读取 `__instance.Pawn`，无需静态字典或全图扫描
 - `_compat1` 字段仅消费旧存档 `rimTalkSynced` key，值不使用
 - ShapingAction 枚举替代 "reinforce"/"suppress"/"ignored" 字符串魔法值
 - PersonalityRequestBuilder 统一 CompAIPersonality 和 DebugActions 的请求构建
@@ -139,4 +141,5 @@ identity?: {motivations[], traits[], core_values[]}
 - 后台线程调用 `ThoughtMaker.MakeThought`/`TryGainMemory`
 - 修改 `"aiDesc"` 存档key(破坏向后兼容)
 - 向Core注册Provider用旧API(用 `ContextKeyRegistry.Register`)
-- Skill Patch 中用 `GetHashCode()` 作字典键(已改用对象引用)
+- Skill Patch 中维护静态字典或全图扫描找 Pawn(已改用 Harmony `__state` 与 `__instance.Pawn`)
+- Context Provider 在主线程快照外直接读取 Verse/Pawn 状态或调用 `GetOrCreate`

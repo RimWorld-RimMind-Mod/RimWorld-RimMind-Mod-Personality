@@ -120,56 +120,50 @@ namespace RimMind.Personality.Tests.Contracts
                     Assert.Contains(
                         "RimMindAPI.Providers.RegisterPawnProvider(\n" +
                         "                \"personality.shaping_history\",\n" +
-                        "                PublicProviderOwner,\n" +
-                        "                pawn =>\n" +
-                        "                {\n" +
-                        "                    if (pawn == null) return null;\n" +
-                        "                    var profile = AIPersonalityWorldComponent.Instance?.GetOrCreate(pawn);\n" +
-                        "                    var history = profile?.playerShapingHistory;\n" +
-                        "                    if (history == null || history.Count == 0) return string.Empty;\n" +
-                        "\n" +
-                        "                    var sb = new System.Text.StringBuilder(\"[RimMind Shaping]\");\n" +
-                        "                    int start = Math.Max(0, history.Count - 5);\n" +
-                        "                    for (int i = start; i < history.Count; i++)\n" +
-                        "                    {\n" +
-                        "                        var record = history[i];\n" +
-                        "                        sb.AppendLine($\"- [{record.action}] {record.label}\");\n" +
-                        "                    }\n" +
-                        "                    return sb.ToString().TrimEnd();\n" +
-                        "                },\n" +
-                        "                PublicProviderPriority,\n" +
-                        "                overrideExisting: true);",
+                        "                PublicProviderOwner,",
                         source,
                         StringComparison.Ordinal);
 
-                    int profileFieldStart = source.IndexOf(
-                        "        private static void RegisterProfileField(",
-                        StringComparison.Ordinal);
-                    Assert.True(profileFieldStart >= 0, "RegisterProfileField method was not found.");
-                    int profileFieldEnd = source.IndexOf(
-                        "\n        private static void RegisterAgentIdentityProvider()",
-                        profileFieldStart,
-                        StringComparison.Ordinal);
-                    Assert.True(profileFieldEnd > profileFieldStart, "RegisterProfileField method boundary was not found.");
-                    string profileFieldSource = source.Substring(
-                        profileFieldStart,
-                        profileFieldEnd - profileFieldStart);
-
-                    Assert.Contains(
-                        "RimMindAPI.Providers.RegisterPawnProvider(\n" +
-                        "                category,\n" +
-                        "                PublicProviderOwner,\n" +
-                        "                pawn =>\n" +
-                        "                {\n" +
-                        "                    if (pawn == null) return null;\n" +
-                        "                    var profile = AIPersonalityWorldComponent.Instance?.GetOrCreate(pawn);\n" +
-                        "                    return profile == null ? null : selector(profile);\n" +
-                        "                },\n" +
-                        "                PublicProviderPriority,\n" +
-                        "                overrideExisting: true);",
-                        profileFieldSource,
-                        StringComparison.Ordinal);
+                    // Providers must never create profiles (GetOrCreate is main-thread only) and every
+                    // context provider body must read Verse state through the main-thread snapshot.
+                    Assert.DoesNotContain("GetOrCreate(", source, StringComparison.Ordinal);
+                    Assert.Contains("AIPersonalityWorldComponent.Instance?.TryGet(pawn)", source, StringComparison.Ordinal);
+                    Assert.Contains("RimMindAPI.MainThreadSnapshot.GetAsync(", source, StringComparison.Ordinal);
+                    Assert.DoesNotContain("async (ctx, ct)", source, StringComparison.Ordinal);
                     Assert.DoesNotContain("RimTalk", source, StringComparison.Ordinal);
+                }),
+                ("thought mapper checks IsActiveSpawnedColonist and profile cleanup avoids WorldPawns.AllPawnsAlive", () =>
+                {
+                    string mapperSource = ReadSource("Personality", "PersonalityThoughtMapper.cs");
+                    string profileSource = ReadSource("Data", "PersonalityProfile.cs");
+
+                    Assert.Contains("!RimMindPawnLookup.IsActiveSpawnedColonist(pawn)", mapperSource, StringComparison.Ordinal);
+                    Assert.DoesNotContain("AllPawnsAlive", profileSource, StringComparison.Ordinal);
+                    Assert.Contains("RimMindPawnLookup.IsEligibleColonist(p)", profileSource, StringComparison.Ordinal);
+                    Assert.Contains("KidnappedPawnsListForReading", profileSource, StringComparison.Ordinal);
+                }),
+                ("comp state transition contexts use guarded translation keys with English fallbacks", () =>
+                {
+                    string compSource = ReadSource("Comps", "CompAIPersonality.cs");
+                    string[] expectedKeys = new[]
+                    {
+                        "RimMind.Personality.Prompt.TaskInstruction.TriggerReason",
+                        "RimMind.Personality.Trigger.ShiftNight",
+                        "RimMind.Personality.Trigger.ShiftDay",
+                        "RimMind.Personality.Trigger.AwakeningNight",
+                        "RimMind.Personality.Trigger.AwakeningDay",
+                        "RimMind.Personality.Trigger.Dusk",
+                        "RimMind.Personality.Trigger.Wandering",
+                        "RimMind.Personality.Trigger.ContemplationIdle",
+                        "RimMind.Personality.Trigger.ContemplationSkygaze",
+                        "RimMind.Personality.Trigger.Recreation",
+                        "RimMind.Personality.Trigger.MoodShift"
+                    };
+                    foreach (string key in expectedKeys)
+                    {
+                        Assert.Contains(key, compSource, StringComparison.Ordinal);
+                    }
+                    Assert.Contains("key.CanTranslate()", compSource, StringComparison.Ordinal);
                 }));
         }
 
