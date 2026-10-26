@@ -33,6 +33,7 @@
     <Compile Include="../Source/Personality/PersonalityThoughtPolicy.cs" />
     <Compile Include="../Source/Personality/PersonalityTriggerPolicy.cs" />
     <Compile Include="../Source/Personality/PersonalityThoughtPersistence.cs" />
+    <Compile Include="../Source/Personality/PersonalityContextText.cs" />
     <Compile Include="../Source/Data/PersonalityProfileState.cs" />
     <Compile Include="../Source/Data/ShapingRecord.cs" />
     <Compile Include="../Source/Settings/AIPersonalitySettings.cs" />

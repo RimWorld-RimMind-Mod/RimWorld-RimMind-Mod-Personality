@@ -22,9 +22,12 @@ namespace RimMind.Personality.Comps
     {
         private bool _hasPendingRequest;
         private int _lastEventTick = -1200;
+        private int _lastDailyDecayTick = -1;
         private int _pendingRequestTick;
         private string? _pendingEventContext;
         private int _dailyJitter = -1;
+        private string? _cachedThingId;
+        private int _cachedThingIdNumber = -1;
 
         private int _lastHour = -1;
         private string? _lastJobDefName;
@@ -41,16 +44,28 @@ namespace RimMind.Personality.Comps
             return _dailyJitter;
         }
 
+        private string GetCachedThingId(Pawn pawn)
+        {
+            if (_cachedThingId == null || _cachedThingIdNumber != pawn.thingIDNumber)
+            {
+                _cachedThingIdNumber = pawn.thingIDNumber;
+                _cachedThingId = pawn.ThingID;
+            }
+            return _cachedThingId;
+        }
+
         public override void CompTick()
         {
+            if (parent == null || !parent.IsHashIntervalTick(60)) return;
             if (!Settings.enablePersonality) return;
+            if (!(parent is Pawn pawn) || !RimMindPawnLookup.IsActiveSpawnedColonist(pawn)) return;
             if (RimMindAPI.IsConfigured() == false) return;
-            if (RimMindAPI.IsAgentActive(Pawn.ThingID)) return;
+            if (RimMindAPI.IsAgentActive(GetCachedThingId(pawn))) return;
             if (_hasPendingRequest)
             {
                 if (Find.TickManager.TicksGame - _pendingRequestTick > Settings.requestTimeoutTicks)
                 {
-                    RimMindErrors.Warn($"[RimMind-Personality] Pending request timeout for {Pawn.Name.ToStringShort}, resetting.");
+                    RimMindErrors.Warn($"[RimMind-Personality] Pending request timeout for {pawn.Name.ToStringShort}, resetting.");
                     _hasPendingRequest = false;
                 }
                 else
@@ -64,26 +79,43 @@ namespace RimMind.Personality.Comps
             ObserveStateTransitions();
 
             // 2. Evaluation admission: Event/Transition + Cooldown Guardrail
-            int currentTick = Find.TickManager.TicksGame;
-            bool cooldownExpired = (currentTick - _lastEventTick) >= Settings.eventCooldownTicks;
+            int ticksGame = Find.TickManager.TicksGame;
+            if (_lastDailyDecayTick < 0)
+            {
+                _lastDailyDecayTick = ticksGame;
+            }
 
-            bool dailyFire = Settings.enableDailyEval && Pawn.Awake() && Pawn.IsHashIntervalTick(Settings.dailyIntervalTicks + GetDailyJitter());
+            bool cooldownExpired = (ticksGame - _lastEventTick) >= Settings.eventCooldownTicks;
+            int dailyInterval = System.Math.Max(60, Settings.dailyIntervalTicks + GetDailyJitter());
+            bool dailyFire = Settings.enableDailyEval && pawn.Awake() && (ticksGame - _lastDailyDecayTick >= 60000 || ticksGame - _lastDailyDecayTick >= dailyInterval);
             bool eventFire = _pendingEventContext != null && cooldownExpired;
 
             if (!dailyFire && !eventFire) return;
 
             string? eventCtx = _pendingEventContext;
             _pendingEventContext = null;
-            _lastEventTick = currentTick;
+            _lastEventTick = ticksGame;
+            if (dailyFire)
+            {
+                _lastDailyDecayTick = ticksGame;
+            }
             _hasPendingRequest = true;
-            _pendingRequestTick = currentTick;
+            _pendingRequestTick = ticksGame;
 
-            var envelope = PersonalityRequestBuilder.BuildForPawn(Pawn.thingIDNumber, eventCtx);
+            if (!string.IsNullOrEmpty(eventCtx))
+            {
+                eventCtx = TranslateOrFallback(
+                    "RimMind.Personality.Prompt.TaskInstruction.TriggerReason",
+                    "[Trigger Reason] {0}",
+                    eventCtx!);
+            }
+
+            var envelope = PersonalityRequestBuilder.BuildForPawn(pawn.thingIDNumber, eventCtx);
 
             RimMindAPI.Request.Send(envelope, result =>
             {
                 _hasPendingRequest = false;
-                PersonalityThoughtMapper.Apply(result, Pawn);
+                PersonalityThoughtMapper.Apply(result, pawn);
             });
         }
 
@@ -119,15 +151,26 @@ namespace RimMind.Personality.Comps
                 {
                     int hour = GenLocalDate.HourInteger(map);
                     bool isNight = hour >= 19 || hour < 6;
-                    string shiftDesc = isNight ? "Night shift / nocturnal schedule" : "Day shift / morning schedule";
+                    string shiftDesc = isNight
+                        ? TranslateOrFallback("RimMind.Personality.Trigger.ShiftNight", "Night shift / nocturnal schedule")
+                        : TranslateOrFallback("RimMind.Personality.Trigger.ShiftDay", "Day shift / morning schedule");
+                    string hourStr = hour.ToString("D2");
                     _pendingEventContext = isNight
-                        ? $"Awakening (Hour {hour:D2}:00, {shiftDesc}): Just woke up into dusk/night, starting nocturnal work shift."
-                        : $"Awakening (Hour {hour:D2}:00, {shiftDesc}): Just woke up, clearing morning thoughts and preparing for daylight hours ahead.";
+                        ? TranslateOrFallback(
+                            "RimMind.Personality.Trigger.AwakeningNight",
+                            "Awakening (Hour {0}:00, {1}): Just woke up into dusk/night, starting nocturnal work shift.",
+                            hourStr,
+                            shiftDesc)
+                        : TranslateOrFallback(
+                            "RimMind.Personality.Trigger.AwakeningDay",
+                            "Awakening (Hour {0}:00, {1}): Just woke up, clearing morning thoughts and preparing for daylight hours ahead.",
+                            hourStr,
+                            shiftDesc);
                 }
             }
 
-            // Check A2: Dusk / Sunset transition (sampled every 250 ticks ≈ 4 seconds)
-            if (Pawn.IsHashIntervalTick(250))
+            // Check A2: Dusk / Sunset transition (sampled every ~250 ticks ≈ 4 seconds)
+            if (Pawn.IsHashIntervalTick(250, 60))
             {
                 int currentHour = GenLocalDate.HourInteger(map);
                 if (_lastHour != -1 && currentHour != _lastHour)
@@ -138,15 +181,17 @@ namespace RimMind.Personality.Comps
                         float dynamicChance = PersonalityTriggerPolicy.CalculateDynamicPersonalityChance(Settings.sunriseTriggerChance * 0.8f, currentMood, jitter, activityScale);
                         if (PersonalityTriggerPolicy.ShouldTriggerDusk(true, dynamicChance, Rand.Value, isAwake))
                         {
-                            _pendingEventContext = "Dusk: Dusk falls across the settlement, bringing an evening pause for reflection.";
+                            _pendingEventContext = TranslateOrFallback(
+                                "RimMind.Personality.Trigger.Dusk",
+                                "Dusk: Dusk falls across the settlement, bringing an evening pause for reflection.");
                         }
                     }
                 }
                 _lastHour = currentHour;
             }
 
-            // Check A3: Daytime Idle Wandering Contemplation Pulse (sampled every 2500 ticks ≈ 40 seconds)
-            if (Pawn.IsHashIntervalTick(2500) && canQueue && isAwake)
+            // Check A3: Daytime Idle Wandering Contemplation Pulse (sampled every ~2500 ticks ≈ 40 seconds)
+            if (Pawn.IsHashIntervalTick(2500, 60) && canQueue && isAwake)
             {
                 JobDef? activeJob = Pawn.CurJobDef;
                 bool isIdle = activeJob == JobDefOf.Wait_Wander || activeJob == JobDefOf.GotoWander || activeJob == JobDefOf.Wait;
@@ -156,7 +201,11 @@ namespace RimMind.Personality.Comps
                     float dynamicChance = PersonalityTriggerPolicy.CalculateDynamicPersonalityChance(0.20f, currentMood, jitter, activityScale);
                     if (PersonalityTriggerPolicy.ShouldTriggerContemplationPulse(true, dynamicChance, Rand.Value, isAwake, isIdle))
                     {
-                        _pendingEventContext = $"Contemplation: A quiet pause while {activeJob?.label ?? "wandering"}, pondering the colony's fortunes.";
+                        string jobLabel = activeJob?.label ?? TranslateOrFallback("RimMind.Personality.Trigger.Wandering", "wandering");
+                        _pendingEventContext = TranslateOrFallback(
+                            "RimMind.Personality.Trigger.ContemplationIdle",
+                            "Contemplation: A quiet pause while {0}, pondering the colony's fortunes.",
+                            jobLabel);
                     }
                 }
             }
@@ -178,7 +227,10 @@ namespace RimMind.Personality.Comps
                             dynamicChance,
                             Rand.Value))
                         {
-                            _pendingEventContext = $"Contemplation: Solitary moments of quiet reflection during {curJob.label ?? curJobName}.";
+                            _pendingEventContext = TranslateOrFallback(
+                                "RimMind.Personality.Trigger.ContemplationSkygaze",
+                                "Contemplation: Solitary moments of quiet reflection during {0}.",
+                                curJob.label ?? curJobName);
                         }
                     }
                     // Joy / Recreation
@@ -190,15 +242,18 @@ namespace RimMind.Personality.Comps
                             dynamicChance,
                             Rand.Value))
                         {
-                            _pendingEventContext = $"Recreation: Relaxing and enjoying leisure time ({curJob.label ?? curJobName}).";
+                            _pendingEventContext = TranslateOrFallback(
+                                "RimMind.Personality.Trigger.Recreation",
+                                "Recreation: Relaxing and enjoying leisure time ({0}).",
+                                curJob.label ?? curJobName);
                         }
                     }
                 }
                 _lastJobDefName = curJobName;
             }
 
-            // Check C: Mood Swing (sampled every 500 ticks ≈ 8 seconds)
-            if (Pawn.IsHashIntervalTick(500) && Pawn.needs?.mood != null)
+            // Check C: Mood Swing (sampled every ~500 ticks ≈ 8 seconds)
+            if (Pawn.IsHashIntervalTick(500, 60) && Pawn.needs?.mood != null)
             {
                 float curMood = Pawn.needs.mood.CurLevel;
                 if (_lastMood < 0f)
@@ -216,7 +271,10 @@ namespace RimMind.Personality.Comps
                             Rand.Value,
                             moodDelta))
                         {
-                            _pendingEventContext = $"MoodShift: Experiencing a noticeable emotional shift ({moodDelta:+0.00;-0.00}).";
+                            _pendingEventContext = TranslateOrFallback(
+                                "RimMind.Personality.Trigger.MoodShift",
+                                "MoodShift: Experiencing a noticeable emotional shift ({0}).",
+                                moodDelta.ToString("+0.00;-0.00"));
                         }
                         _lastMood = curMood;
                     }
@@ -239,10 +297,26 @@ namespace RimMind.Personality.Comps
 
         private bool IsEligible() => PersonalityTriggerPolicy.IsEligible(Pawn);
 
+        private static string TranslateOrFallback(string key, string fallback, params object[] args)
+        {
+            try
+            {
+                string template = !string.IsNullOrEmpty(key) && key.CanTranslate()
+                    ? key.TranslateSimple()
+                    : fallback;
+                return args == null || args.Length == 0 ? template : string.Format(template, args);
+            }
+            catch
+            {
+                return args == null || args.Length == 0 ? fallback : string.Format(fallback, args);
+            }
+        }
+
         public override void PostExposeData()
         {
             base.PostExposeData();
             Scribe_Values.Look(ref _lastEventTick, "lastEventTick", -1200);
+            Scribe_Values.Look(ref _lastDailyDecayTick, "lastDailyDecayTick", -1);
             Scribe_Values.Look(ref _dailyJitter, "dailyJitter", -1);
             Scribe_Values.Look(ref _lastHour, "lastHour", -1);
             Scribe_Values.Look(ref _lastJobDefName, "lastJobDefName", null);

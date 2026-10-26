@@ -47,7 +47,7 @@ namespace RimMind.Personality.Debug
             {
                 if (result.IsErr)
                 {
-                    RimMindErrors.Warn($"[RimMind-Personality] Evaluation failed ({pawn.Name.ToStringShort}): {result.Error}");
+                    if (result.Error.Code != RimMindErrorCode.Cancelled) RimMindErrors.Warn($"[RimMind-Personality] Evaluation failed ({pawn.Name.ToStringShort}): {result.Error}");
                     return;
                 }
 

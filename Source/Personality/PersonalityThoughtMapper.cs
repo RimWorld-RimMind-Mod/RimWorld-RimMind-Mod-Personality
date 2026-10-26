@@ -24,11 +24,11 @@ namespace RimMind.Personality
 
         public static void Apply(Result<LlmResponse, RimMindError> result, Pawn pawn)
         {
-            if (pawn == null || pawn.Dead || pawn.Destroyed || pawn.needs?.mood == null) return;
+            if (pawn == null || !RimMindPawnLookup.IsActiveSpawnedColonist(pawn) || pawn.needs?.mood == null) return;
 
             if (result.IsErr)
             {
-                RimMindErrors.Warn($"[RimMind-Personality] Request failed ({pawn.Name.ToStringShort}): {result.Error}");
+                if (result.Error.Code != RimMindErrorCode.Cancelled) RimMindErrors.Warn($"[RimMind-Personality] Request failed ({pawn.Name.ToStringShort}): {result.Error}");
                 return;
             }
 
@@ -79,9 +79,18 @@ namespace RimMind.Personality
         {
             if (RimMindPersonalityMod.Settings?.enableShapingVote != true) return;
 
-            string optReinforce = "RimMind.Personality.Shaping.Reinforce".Translate();
-            string optSuppress = "RimMind.Personality.Shaping.Suppress".Translate();
-            string optIgnore = "RimMind.Personality.Shaping.Ignore".Translate();
+            string optReinforce = "RimMind.Personality.Shaping.Reinforce".CanTranslate()
+                ? "RimMind.Personality.Shaping.Reinforce".Translate().ToString()
+                : "Reinforce";
+            string optSuppress = "RimMind.Personality.Shaping.Suppress".CanTranslate()
+                ? "RimMind.Personality.Shaping.Suppress".Translate().ToString()
+                : "Suppress";
+            string optIgnore = "RimMind.Personality.Shaping.Ignore".CanTranslate()
+                ? "RimMind.Personality.Shaping.Ignore".Translate().ToString()
+                : "Ignore";
+            string titleText = "RimMind.Personality.Shaping.NewTrait".CanTranslate()
+                ? "RimMind.Personality.Shaping.NewTrait".Translate().ToString()
+                : "New Personality Trait";
 
             var capturedEntry = entry;
 
@@ -89,7 +98,7 @@ namespace RimMind.Personality
             {
                 source = "personality",
                 pawn = pawn,
-                title = "RimMind.Personality.Shaping.NewTrait".Translate(),
+                title = titleText,
                 description = $"{capturedEntry.label}: {capturedEntry.description}",
                 options = new[] { optReinforce, optSuppress, optIgnore },
                 expireTicks = settings?.requestExpireTicks ?? 30000,
@@ -123,7 +132,7 @@ namespace RimMind.Personality
         /// </summary>
         private static void ApplyThoughts(Pawn pawn, PersonalityResultDto dto, AIPersonalitySettings? settings)
         {
-            if (pawn == null || pawn.Dead || pawn.Destroyed) return;
+            if (pawn == null || !RimMindPawnLookup.IsActiveSpawnedColonist(pawn)) return;
             RemoveAllAIPersonalityThoughts(pawn);
 
             if (settings == null) return;

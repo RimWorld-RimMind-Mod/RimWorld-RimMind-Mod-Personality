@@ -107,4 +107,14 @@
   <RimMind.Personality.Trigger.Contracted>遭受{0}（{1}）</RimMind.Personality.Trigger.Contracted>
   <RimMind.Personality.Trigger.FullBody>全身</RimMind.Personality.Trigger.FullBody>
   <RimMind.Personality.Trigger.IncidentOccurred>发生事件：{0}</RimMind.Personality.Trigger.IncidentOccurred>
+  <RimMind.Personality.Trigger.ShiftNight>夜班 / 夜间作息</RimMind.Personality.Trigger.ShiftNight>
+  <RimMind.Personality.Trigger.ShiftDay>白班 / 清晨作息</RimMind.Personality.Trigger.ShiftDay>
+  <RimMind.Personality.Trigger.AwakeningNight>苏醒（{0}:00，{1}）：刚在黄昏或夜晚醒来，开始夜间工作班次。</RimMind.Personality.Trigger.AwakeningNight>
+  <RimMind.Personality.Trigger.AwakeningDay>苏醒（{0}:00，{1}）：刚刚醒来，整理清晨思绪并准备迎接白天的劳作。</RimMind.Personality.Trigger.AwakeningDay>
+  <RimMind.Personality.Trigger.Dusk>黄昏：暮色笼罩定居点，带来傍晚片刻的沉思。</RimMind.Personality.Trigger.Dusk>
+  <RimMind.Personality.Trigger.Wandering>闲逛</RimMind.Personality.Trigger.Wandering>
+  <RimMind.Personality.Trigger.ContemplationIdle>沉思：在{0}时静心驻足，思索殖民地的前途与境遇。</RimMind.Personality.Trigger.ContemplationIdle>
+  <RimMind.Personality.Trigger.ContemplationSkygaze>沉思：在{0}期间独享宁静的自我省思。</RimMind.Personality.Trigger.ContemplationSkygaze>
+  <RimMind.Personality.Trigger.Recreation>娱乐：放松身心，享受闲暇时光（{0}）。</RimMind.Personality.Trigger.Recreation>
+  <RimMind.Personality.Trigger.MoodShift>情绪波动：经历了明显的情绪起伏（{0}）。</RimMind.Personality.Trigger.MoodShift>
 </LanguageData>

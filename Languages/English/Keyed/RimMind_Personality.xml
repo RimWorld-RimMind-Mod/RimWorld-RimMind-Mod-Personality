@@ -107,4 +107,14 @@ Output: {"thoughts":[{"type":"state","label":"Enduring Pain","description":"Seri
   <RimMind.Personality.Trigger.Contracted>Suffered {0} ({1})</RimMind.Personality.Trigger.Contracted>
   <RimMind.Personality.Trigger.FullBody>full body</RimMind.Personality.Trigger.FullBody>
   <RimMind.Personality.Trigger.IncidentOccurred>Incident occurred: {0}</RimMind.Personality.Trigger.IncidentOccurred>
+  <RimMind.Personality.Trigger.ShiftNight>Night shift / nocturnal schedule</RimMind.Personality.Trigger.ShiftNight>
+  <RimMind.Personality.Trigger.ShiftDay>Day shift / morning schedule</RimMind.Personality.Trigger.ShiftDay>
+  <RimMind.Personality.Trigger.AwakeningNight>Awakening (Hour {0}:00, {1}): Just woke up into dusk/night, starting nocturnal work shift.</RimMind.Personality.Trigger.AwakeningNight>
+  <RimMind.Personality.Trigger.AwakeningDay>Awakening (Hour {0}:00, {1}): Just woke up, clearing morning thoughts and preparing for daylight hours ahead.</RimMind.Personality.Trigger.AwakeningDay>
+  <RimMind.Personality.Trigger.Dusk>Dusk: Dusk falls across the settlement, bringing an evening pause for reflection.</RimMind.Personality.Trigger.Dusk>
+  <RimMind.Personality.Trigger.Wandering>wandering</RimMind.Personality.Trigger.Wandering>
+  <RimMind.Personality.Trigger.ContemplationIdle>Contemplation: A quiet pause while {0}, pondering the colony's fortunes.</RimMind.Personality.Trigger.ContemplationIdle>
+  <RimMind.Personality.Trigger.ContemplationSkygaze>Contemplation: Solitary moments of quiet reflection during {0}.</RimMind.Personality.Trigger.ContemplationSkygaze>
+  <RimMind.Personality.Trigger.Recreation>Recreation: Relaxing and enjoying leisure time ({0}).</RimMind.Personality.Trigger.Recreation>
+  <RimMind.Personality.Trigger.MoodShift>MoodShift: Experiencing a noticeable emotional shift ({0}).</RimMind.Personality.Trigger.MoodShift>
 </LanguageData>
