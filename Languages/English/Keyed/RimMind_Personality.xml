@@ -50,6 +50,8 @@
   <RimMind.Personality.UI.SocialTendencies>Social tendencies</RimMind.Personality.UI.SocialTendencies>
   <RimMind.Personality.UI.AINarrative>AI recent narrative (read-only, updated daily by AI)</RimMind.Personality.UI.AINarrative>
   <RimMind.Personality.UI.NarrativeEmpty>(Not yet evaluated - AI will fill in automatically after running for a while)</RimMind.Personality.UI.NarrativeEmpty>
+  <RimMind.Personality.UI.EnableShapingVoteToggle>Enable personality shaping vote popups</RimMind.Personality.UI.EnableShapingVoteToggle>
+  <RimMind.Personality.UI.EnableShapingVoteToggle.Tip>When unchecked, new personality traits will not trigger shaping vote popups in the request overlay.</RimMind.Personality.UI.EnableShapingVoteToggle.Tip>
   <RimMind.Personality.UI.Save>Save</RimMind.Personality.UI.Save>
   <RimMind.Personality.UI.Cancel>Cancel</RimMind.Personality.UI.Cancel>
   <RimMind.Personality.UI.ProfileSaved>[RimMind] {0}'s personality profile saved.</RimMind.Personality.UI.ProfileSaved>
@@ -73,6 +75,8 @@
   <RimMind.Personality.Shaping.Reinforce>Reinforce</RimMind.Personality.Shaping.Reinforce>
   <RimMind.Personality.Shaping.Suppress>Suppress</RimMind.Personality.Shaping.Suppress>
   <RimMind.Personality.Shaping.Ignore>Ignore</RimMind.Personality.Shaping.Ignore>
+  <RimMind.Personality.Shaping.MuteVote>Mute</RimMind.Personality.Shaping.MuteVote>
+  <RimMind.Personality.Shaping.MuteVote.Tip>Disable future personality shaping vote popups (can be re-enabled in Personality settings or the colonist's Personality window).</RimMind.Personality.Shaping.MuteVote.Tip>
   <!-- RimMindPersonalityMod.cs - Shaping Action Labels (context provider) -->
   <RimMind.Personality.Context.ShapingHistoryHeader>[Player Shaping History]</RimMind.Personality.Context.ShapingHistoryHeader>
   <RimMind.Personality.ShapingAction.Reinforce>Reinforce</RimMind.Personality.ShapingAction.Reinforce>

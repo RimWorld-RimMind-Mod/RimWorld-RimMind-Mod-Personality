@@ -8,7 +8,71 @@
     <li>1.6</li>
     <li>1.7</li>
   </supportedVersions>
-  <description>AI-driven personality system for colonists. Each day, an LLM evaluates colonist state and injects personality Thoughts that influence mood and behavior. [v2.0 BREAKING CHANGES]</description>
+  <description>[h1]RimMind - Personality (v2.0)[/h1]
+Big-Five psychological profiling and probabilistic state-transition reflection system for RimWorld colonists. Endows every colonist with a persistent inner world, generating dynamic personality Thoughts and introspective soliloquies that influence mood, behavior, and advisor decisions.
+
+[b]v2.0 Clean Architecture &amp; RimWorld 1.6 / 1.7 Dual-Version Support:[/b]
+[list]
+[*][b]RimWorld 1.6 &amp; 1.7 (Waylith / .NET 10) Ready[/b]: Native multi-target compilation supporting both RimWorld 1.6 (.NET Framework 4.8) and RimWorld 1.7 (.NET 10 / Harmony 2.x &amp; 3.x).
+[*][b]v2.0 Big-Five Psychometric &amp; Probabilistic State Engine[/b]: Replaces rigid timers with organic environmental triggers (06:00 Dawn Sunrise, Skygazing, Shared Recreation, Traumatic Mood Swings). Note: v1.x saves are not compatible with v2.0.
+[*][b]Loose-Coupled Thought Event Bus[/b]: Broadcasts psychological shifts to [code]RimMind-Advisor[/code] and [code]RimMind-Core[/code] Zone 2 context without direct cross-mod coupling.
+[/list]
+
+[h2]What Is RimMind[/h2]
+RimMind is an enterprise-grade, AI-powered RimWorld mod suite. Integrated with Large Language Models (LLM), it transforms colonists into self-reflecting agents with distinct personalities, three-tier memories, natural spoken dialogues, autonomous mechanisms, and dynamic storytelling.
+
+[h2]Sub-mod List &amp; Dependency Relationships[/h2]
+[table]
+[tr][th]Mod[/th][th]Responsibility[/th][th]Dependencies[/th][th]GitHub[/th][/tr]
+[tr][td]RimMind-Core[/td][td]LLM runtime, 4-Zone context engine, async queue, ToolCall registry &amp; F8 Hub[/td][td]Harmony[/td][td][url=https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Core]Link[/url][/td][/tr]
+[tr][td]RimMind-Actions[/td][td]Composite ToolCall mechanisms, battlefield triage &amp; autonomous construction[/td][td]Core[/td][td][url=https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Actions]Link[/url][/td][/tr]
+[tr][td]RimMind-Advisor[/td][td]Colonist self-reflective advice cards, 5-domain autonomy &amp; player approval[/td][td]Core, Actions[/td][td][url=https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Advisor]Link[/url][/td][/tr]
+[tr][td]RimMind-Dialogue[/td][td]Contextual spoken dialogue via express_dialogue ToolCall &amp; speech bubbles[/td][td]Core[/td][td][url=https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Dialogue]Link[/url][/td][/tr]
+[tr][td]RimMind-Memory[/td][td]3-Tier cognitive memory hierarchy, work aggregation &amp; temporal decay[/td][td]Core[/td][td][url=https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Memory]Link[/url][/td][/tr]
+[tr][td][b]RimMind-Personality[/b][/td][td]Big-Five psychological profiles, dawn monologues &amp; dynamic mood thoughts[/td][td]Core[/td][td][url=https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Personality]Link[/url][/td][/tr]
+[tr][td]RimMind-Storyteller[/td][td]AI Story Director, dramatic tension curve, chained arcs &amp; Storyteller Altar[/td][td]Core, Memory[/td][td][url=https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Storyteller]Link[/url][/td][/tr]
+[tr][td]RimMind-Extension-ModelService[/td][td]Multi-provider routing, Anthropic KV cache, local gateways &amp; load balancing[/td][td]Core[/td][td][url=https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Extension-ModelService]Link[/url][/td][/tr]
+[tr][td]RimMind-Bridge-RimChat[/td][td]RimChat compatibility bridge: dialogue/action mutual exclusion &amp; context sync[/td][td]Core, RimChat[/td][td][url=https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Bridge-RimChat]Link[/url][/td][/tr]
+[tr][td]RimMind-Bridge-RimTalk[/td][td]RimTalk compatibility bridge: bubble harmonization &amp; bidirectional context[/td][td]Core, RimTalk[/td][td][url=https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Bridge-RimTalk]Link[/url][/td][/tr]
+[/table]
+[code]Core ──┬── Actions ── Advisor
+       ├── Dialogue
+       ├── Memory ── Storyteller
+       ├── Personality
+       ├── Extension-ModelService
+       ├── Bridge-RimChat
+       └── Bridge-RimTalk[/code]
+
+[h2]Core Features[/h2]
+[list]
+[*][b]Big-Five Cognitive Profiling[/b] - Maps vanilla RimWorld traits (e.g., Bloodlust, Optimist, Neurotic) onto continuous psychometric axes ([i]Openness, Conscientiousness, Extraversion, Agreeableness, Neuroticism[/i]).
+[*][b]Probabilistic State-Transition Reflections[/b] - Colonists reflect naturally during 06:00 Dawn Sunrise (30% chance), Skygazing/Solitude (40% chance), Shared Recreation (25% chance), and Traumatic Mood Swings (50% chance).
+[*][b]Dynamic Mood Thought Injection[/b] - Generates 1 to 3 contextual Personality Thoughts (intensity -3 to +3, mapping to -10 to +10 mood offset) injected into independent mood slots without overwriting one another.
+[*][b]Bio Personality Tab &amp; Player Editing[/b] - View AI psychological narratives directly in the pawn Bio tab, customize personality descriptions, work preferences, and social tendencies, and use [b]Shape Voting[/b] to guide future AI evaluations.
+[/list]
+
+[h2]Trigger Conditions &amp; Mood Scaling[/h2]
+[table]
+[tr][th]Trigger Type[/th][th]Description[/th][/tr]
+[tr][td]06:00 Dawn &amp; Daily Cycle[/td][td]Morning reflection as daylight returns, with staggered offset to avoid simultaneous bursts[/td][/tr]
+[tr][td]Injury &amp; Illness[/td][td]Reacts to severe combat wounds or chronic health conditions[/td][/tr]
+[tr][td]Skill Milestones[/td][td]Reflects on personal growth when skill levels advance[/td][/tr]
+[tr][td]Major Colony Events &amp; Bereavement[/td][td]Reacts to raids, harvests, or the loss of bonded companions[/td][/tr]
+[/table]
+
+[table]
+[tr][th]AI Intensity[/th][th]Mood Offset[/th][th]Psychological State[/th][/tr]
+[tr][td]+3 / +2 / +1[/td][td]+10 / +3 / +1[/td][td]Inspired, hopeful, or quietly content[/td][/tr]
+[tr][td]0[/td][td]0[/td][td]Emotionally balanced observation[/td][/tr]
+[tr][td]-1 / -2 / -3[/td][td]-1 / -3 / -10[/td][td]Troubled, anxious, or deeply distressed[/td][/tr]
+[/table]
+
+[h2]Frequently Asked Questions[/h2]
+[b]Q: Can I customize a colonist's personality manually?[/b]
+A: Yes! Open the Personality panel in the pawn's Bio tab to edit traits, work habits, and social tendencies, or upvote/downvote AI assessments via Shape Voting.
+
+[b]Q: How does Personality interact with Advisor and Dialogue?[/b]
+A: Active Personality profiles and Thoughts are injected into Core's Zone 2 context and broadcast to [code]RimMind-Advisor[/code], ensuring dialogues and action proposals reflect each colonist's true inner state.</description>
   <modDependencies>
     <li>
       <packageId>brrainz.harmony</packageId>

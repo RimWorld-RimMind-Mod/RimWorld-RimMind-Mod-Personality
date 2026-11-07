@@ -88,6 +88,12 @@ namespace RimMind.Personality
             string optIgnore = "RimMind.Personality.Shaping.Ignore".CanTranslate()
                 ? "RimMind.Personality.Shaping.Ignore".Translate().ToString()
                 : "Ignore";
+            string optMuteVote = "RimMind.Personality.Shaping.MuteVote".CanTranslate()
+                ? "RimMind.Personality.Shaping.MuteVote".Translate().ToString()
+                : "Mute";
+            string optMuteVoteTip = "RimMind.Personality.Shaping.MuteVote.Tip".CanTranslate()
+                ? "RimMind.Personality.Shaping.MuteVote.Tip".Translate().ToString()
+                : "Disable future personality shaping vote popups (can be re-enabled in Personality settings or the colonist's Personality window).";
             string titleText = "RimMind.Personality.Shaping.NewTrait".CanTranslate()
                 ? "RimMind.Personality.Shaping.NewTrait".Translate().ToString()
                 : "New Personality Trait";
@@ -100,10 +106,21 @@ namespace RimMind.Personality
                 pawn = pawn,
                 title = titleText,
                 description = $"{capturedEntry.label}: {capturedEntry.description}",
-                options = new[] { optReinforce, optSuppress, optIgnore },
+                options = new[] { optReinforce, optSuppress, optIgnore, optMuteVote },
+                optionTooltips = new[] { string.Empty, string.Empty, string.Empty, optMuteVoteTip },
                 expireTicks = settings?.requestExpireTicks ?? 30000,
                 callback = choice =>
                 {
+                    if (choice == optMuteVote)
+                    {
+                        if (RimMindPersonalityMod.Settings != null)
+                        {
+                            RimMindPersonalityMod.Settings.enableShapingVote = false;
+                            RimMindPersonalityMod.Settings.Write();
+                        }
+                        return;
+                    }
+
                     if (!RimMindPawnLookup.IsActiveSpawnedColonist(pawn)) return;
 
                     var shapingAction = choice == optReinforce ? ShapingAction.Reinforce
