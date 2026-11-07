@@ -131,8 +131,7 @@ namespace RimMind.Personality.Comps
 
             int currentTick = Find.TickManager.TicksGame;
             float activityScale = RimMindAPI.Settings.ActivityFrequencyScale;
-            float cooldownMultiplier = activityScale > 0.01f ? (1.0f / activityScale) : 1.0f;
-            int effectiveCooldown = Mathf.RoundToInt(Settings.eventCooldownTicks * Mathf.Clamp(cooldownMultiplier, 0.35f, 3.5f));
+            int effectiveCooldown = RimMind.Application.Common.Helpers.ActivityCooldownScaler.Scale(Settings.eventCooldownTicks, activityScale);
             bool canQueue = !_hasPendingRequest && (currentTick - _lastEventTick) >= effectiveCooldown && _pendingEventContext == null;
 
             // Check A: Sunrise / Dawn transition (sampled every 250 ticks ≈ 4 seconds)
@@ -297,20 +296,9 @@ namespace RimMind.Personality.Comps
 
         private bool IsEligible() => PersonalityTriggerPolicy.IsEligible(Pawn);
 
+        // Delegates to RimMindText.TrOr (guards key.CanTranslate() on the main thread).
         private static string TranslateOrFallback(string key, string fallback, params object[] args)
-        {
-            try
-            {
-                string template = !string.IsNullOrEmpty(key) && key.CanTranslate()
-                    ? key.TranslateSimple()
-                    : fallback;
-                return args == null || args.Length == 0 ? template : string.Format(template, args);
-            }
-            catch
-            {
-                return args == null || args.Length == 0 ? fallback : string.Format(fallback, args);
-            }
-        }
+            => RimMindText.TrOr(key, fallback, args);
 
         public override void PostExposeData()
         {
