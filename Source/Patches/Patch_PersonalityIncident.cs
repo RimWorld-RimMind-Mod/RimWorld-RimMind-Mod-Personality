@@ -5,9 +5,13 @@ using Verse;
 
 namespace RimMind.Personality.Patches
 {
-    [HarmonyPatch(typeof(IncidentWorker), "TryExecuteWorker")]
+    // Patch the public, non-virtual entry point. TryExecuteWorker is protected virtual and is
+    // overridden by concrete workers (raids, etc.), so a base-method patch almost never fires.
+    [HarmonyPatch(typeof(IncidentWorker), nameof(IncidentWorker.TryExecute))]
     static class Patch_PersonalityIncident
     {
+        private const string IncidentOccurredKey = "RimMind.Personality.Trigger.IncidentOccurred";
+
         static void Postfix(IncidentWorker __instance, IncidentParms parms, bool __result)
         {
             var def = __instance.def;
@@ -21,9 +25,10 @@ namespace RimMind.Personality.Patches
                 return;
             }
 
-            PersonalityTriggerHelper.TriggerForColonists((Map)parms.target,
-                $"{"RimMind.Personality.Trigger.IncidentOccurred".Translate(def!.LabelCap)}",
-                TriggerEventType.Incident);
+            string context = IncidentOccurredKey.CanTranslate()
+                ? IncidentOccurredKey.Translate(def!.LabelCap).ToString()
+                : $"Incident occurred: {def!.LabelCap}";
+            PersonalityTriggerHelper.TriggerForColonists((Map)parms.target, context, TriggerEventType.Incident);
         }
     }
 }

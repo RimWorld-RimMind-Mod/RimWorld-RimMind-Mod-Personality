@@ -1,4 +1,5 @@
 using HarmonyLib;
+using RimMind.Application.Features.GameEvents;
 using RimMind.Personality.Comps;
 using RimMind.Presentation.Api;
 using RimWorld;
@@ -30,6 +31,12 @@ namespace RimMind.Personality.Patches
 
             Pawn pawn = __instance.Pawn;
             if (!RimMindPawnLookup.IsActiveSpawnedColonist(pawn)) return;
+
+            RimMindAPI.GameEvents.Publish(new SkillLevelUpGameEvent(
+                pawn.thingIDNumber,
+                __instance.def.defName ?? string.Empty,
+                __state,
+                currentLevel));
 
             PersonalityTriggerHelper.TriggerForPawn(
                 pawn,
