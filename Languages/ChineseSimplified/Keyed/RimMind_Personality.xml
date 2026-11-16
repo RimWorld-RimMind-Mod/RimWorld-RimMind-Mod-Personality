@@ -50,6 +50,8 @@
   <RimMind.Personality.UI.SocialTendencies>社交倾向</RimMind.Personality.UI.SocialTendencies>
   <RimMind.Personality.UI.AINarrative>AI 近期叙事（只读，每日 AI 更新）</RimMind.Personality.UI.AINarrative>
   <RimMind.Personality.UI.NarrativeEmpty>（尚未评估——运行一段时间后 AI 会自动填写）</RimMind.Personality.UI.NarrativeEmpty>
+  <RimMind.Personality.UI.EnableShapingVoteToggle>启用人格塑造投票弹窗</RimMind.Personality.UI.EnableShapingVoteToggle>
+  <RimMind.Personality.UI.EnableShapingVoteToggle.Tip>取消勾选后，生成新人格特质时将不再在悬浮请求栏弹出投票提示。</RimMind.Personality.UI.EnableShapingVoteToggle.Tip>
   <RimMind.Personality.UI.Save>保存</RimMind.Personality.UI.Save>
   <RimMind.Personality.UI.Cancel>取消</RimMind.Personality.UI.Cancel>
   <RimMind.Personality.UI.ProfileSaved>[RimMind] {0} 的人格档案已保存。</RimMind.Personality.UI.ProfileSaved>
@@ -73,6 +75,8 @@
   <RimMind.Personality.Shaping.Reinforce>强化</RimMind.Personality.Shaping.Reinforce>
   <RimMind.Personality.Shaping.Suppress>抑制</RimMind.Personality.Shaping.Suppress>
   <RimMind.Personality.Shaping.Ignore>忽略</RimMind.Personality.Shaping.Ignore>
+  <RimMind.Personality.Shaping.MuteVote>不再弹出</RimMind.Personality.Shaping.MuteVote>
+  <RimMind.Personality.Shaping.MuteVote.Tip>关闭后续的人格塑造投票弹窗（可在人格设置或角色人格档案窗口中重新开启）。</RimMind.Personality.Shaping.MuteVote.Tip>
   <!-- RimMindPersonalityMod.cs - Shaping Action Labels (context provider) -->
   <RimMind.Personality.Context.ShapingHistoryHeader>[玩家塑造历史]</RimMind.Personality.Context.ShapingHistoryHeader>
   <RimMind.Personality.ShapingAction.Reinforce>强化</RimMind.Personality.ShapingAction.Reinforce>

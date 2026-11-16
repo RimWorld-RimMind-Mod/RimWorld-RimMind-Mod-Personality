@@ -14,10 +14,6 @@ namespace RimMind.Personality.Comps
         }
     }
 
-    /// <summary>
-    /// 挂载于 Pawn 的 ThingComp，负责触发 AI 人格评估。
-    /// 支持每日定时触发和事件驱动触发（外部 Patch 通过 TriggerEvent 注入）。
-    /// </summary>
     public class CompAIPersonality : ThingComp
     {
         private bool _hasPendingRequest;
@@ -34,13 +30,15 @@ namespace RimMind.Personality.Comps
         private float _lastMood = -1f;
         private bool _wasAwake = true;
 
-        private Pawn Pawn => (Pawn)parent;
+        private Pawn? PawnOrNull => parent as Pawn;
+        private Pawn? Pawn => parent as Pawn;
         private AIPersonalitySettings Settings => RimMindPersonalityMod.Settings;
 
         private int GetDailyJitter()
         {
+            if (PawnOrNull is not Pawn pawn) return 0;
             if (_dailyJitter < 0)
-                _dailyJitter = new System.Random(Pawn.thingIDNumber ^ 0x3C3C3C3C).Next(-Settings.jitterRangeTicks, Settings.jitterRangeTicks + 1);
+                _dailyJitter = new System.Random(pawn.thingIDNumber ^ 0x3C3C3C3C).Next(-Settings.jitterRangeTicks, Settings.jitterRangeTicks + 1);
             return _dailyJitter;
         }
 
@@ -119,14 +117,10 @@ namespace RimMind.Personality.Comps
             });
         }
 
-        /// <summary>
-        /// Detects natural behavioral transitions and queues probabilistic personality evaluations.
-        /// Colonist thoughts are not locked to 6:00 AM; they emerge dynamically at natural awakening (any hour),
-        /// dusk/sunset, idle wandering pulses, job shifts, and mood swings.
-        /// </summary>
         private void ObserveStateTransitions()
         {
-            Map? map = Pawn.Map;
+            if (PawnOrNull is not Pawn pawn) return;
+            Map? map = pawn.Map;
             if (map == null) return;
 
             int currentTick = Find.TickManager.TicksGame;
@@ -134,14 +128,12 @@ namespace RimMind.Personality.Comps
             int effectiveCooldown = RimMind.Application.Common.Helpers.ActivityCooldownScaler.Scale(Settings.eventCooldownTicks, activityScale);
             bool canQueue = !_hasPendingRequest && (currentTick - _lastEventTick) >= effectiveCooldown && _pendingEventContext == null;
 
-            // Check A: Sunrise / Dawn transition (sampled every 250 ticks ≈ 4 seconds)
-            bool isAwake = Pawn.Awake();
+            bool isAwake = pawn.Awake();
             bool justWokeUp = !_wasAwake && isAwake;
             _wasAwake = isAwake;
 
-            float currentMood = Pawn.needs?.mood?.CurLevel ?? 0.5f;
+            float currentMood = pawn.needs?.mood?.CurLevel ?? 0.5f;
 
-            // Check A1: Natural Awakening transition at ANY hour of day or night
             if (justWokeUp && canQueue && Settings.enableSunriseTrigger)
             {
                 float jitter = Rand.Range(0.85f, 1.15f);
@@ -168,8 +160,7 @@ namespace RimMind.Personality.Comps
                 }
             }
 
-            // Check A2: Dusk / Sunset transition (sampled every ~250 ticks ≈ 4 seconds)
-            if (Pawn.IsHashIntervalTick(250, 60))
+            if (pawn.IsHashIntervalTick(250, 60))
             {
                 int currentHour = GenLocalDate.HourInteger(map);
                 if (_lastHour != -1 && currentHour != _lastHour)
@@ -189,10 +180,9 @@ namespace RimMind.Personality.Comps
                 _lastHour = currentHour;
             }
 
-            // Check A3: Daytime Idle Wandering Contemplation Pulse (sampled every ~2500 ticks ≈ 40 seconds)
-            if (Pawn.IsHashIntervalTick(2500, 60) && canQueue && isAwake)
+            if (pawn.IsHashIntervalTick(2500, 60) && canQueue && isAwake)
             {
-                JobDef? activeJob = Pawn.CurJobDef;
+                JobDef? activeJob = pawn.CurJobDef;
                 bool isIdle = activeJob == JobDefOf.Wait_Wander || activeJob == JobDefOf.GotoWander || activeJob == JobDefOf.Wait;
                 if (isIdle)
                 {
@@ -209,15 +199,13 @@ namespace RimMind.Personality.Comps
                 }
             }
 
-            // Check B: Job Transition (Recreation or Skygaze/Meditate)
-            JobDef? curJob = Pawn.CurJobDef;
+            JobDef? curJob = pawn.CurJobDef;
             string? curJobName = curJob?.defName;
             if (curJobName != _lastJobDefName)
             {
                 if (curJob != null && curJobName != null)
                 {
                     float jitter = Rand.Range(0.85f, 1.15f);
-                    // Skygazing / Meditating / Praying
                     if (curJobName == "Skygaze" || curJobName == "Meditate" || curJobName == "Pray")
                     {
                         float dynamicChance = PersonalityTriggerPolicy.CalculateDynamicPersonalityChance(Settings.skygazeTriggerChance, currentMood, jitter, activityScale);
@@ -232,7 +220,6 @@ namespace RimMind.Personality.Comps
                                 curJob.label ?? curJobName);
                         }
                     }
-                    // Joy / Recreation
                     else if (curJob.joyKind != null)
                     {
                         float dynamicChance = PersonalityTriggerPolicy.CalculateDynamicPersonalityChance(Settings.recreationTriggerChance, currentMood, jitter, activityScale);
@@ -251,10 +238,9 @@ namespace RimMind.Personality.Comps
                 _lastJobDefName = curJobName;
             }
 
-            // Check C: Mood Swing (sampled every ~500 ticks ≈ 8 seconds)
-            if (Pawn.IsHashIntervalTick(500, 60) && Pawn.needs?.mood != null)
+            if (pawn.IsHashIntervalTick(500, 60) && pawn.needs?.mood != null)
             {
-                float curMood = Pawn.needs.mood.CurLevel;
+                float curMood = pawn.needs.mood.CurLevel;
                 if (_lastMood < 0f)
                 {
                     _lastMood = curMood;
@@ -281,12 +267,9 @@ namespace RimMind.Personality.Comps
             }
         }
 
-        /// <summary>
-        /// 从外部 Patch（受伤、技能升级、事件等）触发一次人格评估。
-        /// </summary>
         public void TriggerEvent(string context, TriggerEventType eventType = TriggerEventType.Incident)
         {
-            if (!Settings.enablePersonality) return;
+            if (PawnOrNull == null || !Settings.enablePersonality) return;
 
             if (!PersonalityTriggerPolicy.IsTriggerEnabled(eventType, Settings))
                 return;
@@ -294,9 +277,8 @@ namespace RimMind.Personality.Comps
             _pendingEventContext = context;
         }
 
-        private bool IsEligible() => PersonalityTriggerPolicy.IsEligible(Pawn);
+        private bool IsEligible() => PawnOrNull is Pawn pawn && PersonalityTriggerPolicy.IsEligible(pawn);
 
-        // Delegates to RimMindText.TrOr (guards key.CanTranslate() on the main thread).
         private static string TranslateOrFallback(string key, string fallback, params object[] args)
             => RimMindText.TrOr(key, fallback, args);
 

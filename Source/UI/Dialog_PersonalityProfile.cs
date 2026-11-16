@@ -26,7 +26,7 @@ namespace RimMind.Personality.UI
             preventCameraMotion = false;
         }
 
-        public override Vector2 InitialSize => new Vector2(520f, 480f);
+        public override Vector2 InitialSize => new Vector2(520f, 510f);
 
         public override void PreOpen()
         {
@@ -74,7 +74,25 @@ namespace RimMind.Personality.UI
             Widgets.Label(new Rect(0f, 0f, inRect.width - 16f, 9999f), narrative);
             GUI.color = Color.white;
             Widgets.EndScrollView();
-            y += narrativeH + 6f;
+            y += narrativeH + 8f;
+
+            if (RimMindPersonalityMod.Settings != null)
+            {
+                string voteToggleLabel = "RimMind.Personality.UI.EnableShapingVoteToggle".CanTranslate()
+                    ? "RimMind.Personality.UI.EnableShapingVoteToggle".Translate().ToString()
+                    : "Enable personality shaping vote popups";
+                string voteToggleTip = "RimMind.Personality.UI.EnableShapingVoteToggle.Tip".CanTranslate()
+                    ? "RimMind.Personality.UI.EnableShapingVoteToggle.Tip".Translate().ToString()
+                    : "When unchecked, new personality traits will not trigger shaping vote popups in the request overlay.";
+                Rect toggleRect = new Rect(inRect.x, y, inRect.width, 24f);
+                bool prevVote = RimMindPersonalityMod.Settings.enableShapingVote;
+                Widgets.CheckboxLabeled(toggleRect, voteToggleLabel, ref RimMindPersonalityMod.Settings.enableShapingVote);
+                TooltipHandler.TipRegion(toggleRect, voteToggleTip);
+                if (RimMindPersonalityMod.Settings.enableShapingVote != prevVote)
+                {
+                    RimMindPersonalityMod.Settings.Write();
+                }
+            }
 
             float btnW = (inRect.width - 8f) / 2f;
             float btnY = inRect.yMax - 36f;
