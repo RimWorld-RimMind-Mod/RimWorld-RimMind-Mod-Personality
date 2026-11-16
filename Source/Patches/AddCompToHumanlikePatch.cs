@@ -8,14 +8,8 @@ using Verse;
 namespace RimMind.Personality.Patches
 {
     /// <summary>
-    /// 在所�?ThingDef 解析完继承关系（ResolveReferences）之后，
-    /// 动态为所有人形智能小人（�?AlienRaces 外星种族）注�?CompProperties_AIPersonality�?
-    ///
-    /// 为什么不�?XML PatchOperation�?
-    ///   XML Patch 在继承解析前运行，raw XML 里没�?race/intelligence 字段（它们从父类继承而来），
-    ///   所�?XPath 过滤 race/intelligence="Humanlike" 匹配 0 个节点�?
-    ///   Harmony Postfix 在解析后运行，可直接读取已解析的 race 字段�?
-    ///   一次性覆盖原�?Human + 所�?AlienRaces 种族 + 未来任何 mod 添加的人形种族�?
+    /// Dynamically injects CompProperties_AIPersonality into all humanlike Pawn ThingDefs
+    /// after ThingDef.ResolveReferences completes (excluding Corpse ThingDefs).
     /// </summary>
     [HarmonyPatch(typeof(ThingDef), nameof(ThingDef.ResolveReferences))]
     public static class AddCompToHumanlikePatch
@@ -23,12 +17,12 @@ namespace RimMind.Personality.Patches
         [HarmonyPostfix]
         public static void Postfix(ThingDef __instance)
         {
-            // 只处理人形智能种�?
+            if (__instance == null || __instance.IsCorpse) return;
+            if (__instance.thingClass == null || !typeof(Pawn).IsAssignableFrom(__instance.thingClass)) return;
             if (__instance.race?.intelligence != Intelligence.Humanlike) return;
 
             __instance.comps ??= new List<CompProperties>();
 
-            // 避免重复注入（热重载或多次调用场景）
             if (__instance.comps.Any(c => c is CompProperties_AIPersonality)) return;
 
             __instance.comps.Add(new CompProperties_AIPersonality());

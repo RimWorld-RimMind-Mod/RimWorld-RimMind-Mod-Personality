@@ -163,7 +163,7 @@ namespace RimMind.Personality.Tests.Contracts
                     {
                         Assert.Contains(key, compSource, StringComparison.Ordinal);
                     }
-                    Assert.Contains("key.CanTranslate()", compSource, StringComparison.Ordinal);
+                    Assert.Contains("RimMindText.TrOr(key, fallback, args)", compSource, StringComparison.Ordinal);
                 }));
         }
 
