@@ -32,9 +32,7 @@ namespace RimMind.Personality
                 return;
             }
 
-            var dto = PersonalityThoughtPolicy.ParseResponse(
-                result.Value.Content,
-                RimMindAPI.Json.TryRepairTruncatedJson);
+            var dto = PersonalityThoughtPolicy.ParseResponse(result.Value.Content);
             if (dto == null)
             {
                 RimMindErrors.Warn($"[RimMind-Personality] Response parse failed ({pawn.Name.ToStringShort}):\n{result.Value.Content}");
@@ -79,28 +77,18 @@ namespace RimMind.Personality
         {
             if (RimMindPersonalityMod.Settings?.enableShapingVote != true) return;
 
-            string optReinforce = "RimMind.Personality.Shaping.Reinforce".CanTranslate()
-                ? "RimMind.Personality.Shaping.Reinforce".Translate().ToString()
-                : "Reinforce";
-            string optSuppress = "RimMind.Personality.Shaping.Suppress".CanTranslate()
-                ? "RimMind.Personality.Shaping.Suppress".Translate().ToString()
-                : "Suppress";
-            string optIgnore = "RimMind.Personality.Shaping.Ignore".CanTranslate()
-                ? "RimMind.Personality.Shaping.Ignore".Translate().ToString()
-                : "Ignore";
-            string optMuteVote = "RimMind.Personality.Shaping.MuteVote".CanTranslate()
-                ? "RimMind.Personality.Shaping.MuteVote".Translate().ToString()
-                : "Mute";
-            string optMuteVoteTip = "RimMind.Personality.Shaping.MuteVote.Tip".CanTranslate()
-                ? "RimMind.Personality.Shaping.MuteVote.Tip".Translate().ToString()
-                : "Disable future personality shaping vote popups (can be re-enabled in Personality settings or the colonist's Personality window).";
-            string titleText = "RimMind.Personality.Shaping.NewTrait".CanTranslate()
-                ? "RimMind.Personality.Shaping.NewTrait".Translate().ToString()
-                : "New Personality Trait";
+            string optReinforce = RimMindAPI.Text.TrOr("RimMind.Personality.Shaping.Reinforce", "Reinforce");
+            string optSuppress = RimMindAPI.Text.TrOr("RimMind.Personality.Shaping.Suppress", "Suppress");
+            string optIgnore = RimMindAPI.Text.TrOr("RimMind.Personality.Shaping.Ignore", "Ignore");
+            string optMuteVote = RimMindAPI.Text.TrOr("RimMind.Personality.Shaping.MuteVote", "Mute");
+            string optMuteVoteTip = RimMindAPI.Text.TrOr(
+                "RimMind.Personality.Shaping.MuteVote.Tip",
+                "Disable future personality shaping vote popups (can be re-enabled in Personality settings or the colonist's Personality window).");
+            string titleText = RimMindAPI.Text.TrOr("RimMind.Personality.Shaping.NewTrait", "New Personality Trait");
 
             var capturedEntry = entry;
 
-            RimMindAPI.RegisterPendingRequest(new RequestEntry
+            RimMindAPI.Bus.RegisterPendingRequest(new RequestEntry
             {
                 source = "personality",
                 pawn = pawn,

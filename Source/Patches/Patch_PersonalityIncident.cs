@@ -1,5 +1,6 @@
 using HarmonyLib;
 using RimMind.Personality.Comps;
+using RimMind.Presentation.Api;
 using RimWorld;
 using Verse;
 
@@ -25,9 +26,7 @@ namespace RimMind.Personality.Patches
                 return;
             }
 
-            string context = IncidentOccurredKey.CanTranslate()
-                ? IncidentOccurredKey.Translate(def!.LabelCap).ToString()
-                : $"Incident occurred: {def!.LabelCap}";
+            string context = RimMindAPI.Text.TrOr(IncidentOccurredKey, "Incident occurred: {0}", def!.LabelCap);
             PersonalityTriggerHelper.TriggerForColonists((Map)parms.target, context, TriggerEventType.Incident);
         }
     }

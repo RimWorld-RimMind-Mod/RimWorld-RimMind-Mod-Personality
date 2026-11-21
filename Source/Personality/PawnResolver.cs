@@ -1,23 +1,16 @@
-using System.Linq;
+using System;
+using RimMind.Presentation.Api;
 using Verse;
-using RimWorld;
 
 namespace RimMind.Personality
 {
     /// <summary>
-    /// Shared helper for resolving a Pawn by thingIDNumber from the same data sources.
-    /// Eliminates duplication across ContextProvider lambdas in RimMindPersonalityMod.
-    /// Uses AllPawnsAlive (world) then FreeColonists (current map) as fallback.
+    /// Thin backwards-compatible forwarding stub; new callers should use <see cref="RimMindPawnLookup.FindPawnByNumber"/> directly.
     /// </summary>
+    [Obsolete("Use RimMind.Presentation.Api.RimMindPawnLookup.FindPawnByNumber directly.")]
     public static class PawnResolver
     {
-        /// <summary>
-        /// Tries to find a pawn by thingIDNumber.
-        /// Delegates to the unified RimMindPawnLookup.
-        /// </summary>
         public static Pawn? TryFindPawn(int pawnId)
-        {
-            return RimMind.Presentation.Api.RimMindPawnLookup.FindPawnByNumber(pawnId);
-        }
+            => RimMindPawnLookup.FindPawnByNumber(pawnId);
     }
 }

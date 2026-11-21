@@ -72,7 +72,7 @@ namespace RimMind.Personality
 
         private static void RegisterAgentIdentityProvider()
         {
-            RimMindAPI.RegisterAgentIdentityProvider(pawn =>
+            RimMindAPI.Ext.RegisterAgentIdentityProvider(pawn =>
             {
                 var profile = AIPersonalityWorldComponent.Instance?.TryGet(pawn);
                 return profile?.agentIdentity;
@@ -174,7 +174,7 @@ namespace RimMind.Personality
         /// <summary>Main thread only.</summary>
         private static string? BuildProfileContext(int pawnId)
         {
-            var pawn = PawnResolver.TryFindPawn(pawnId);
+            var pawn = RimMindPawnLookup.FindPawnByNumber(pawnId);
             if (pawn == null) return null;
             var profile = AIPersonalityWorldComponent.Instance?.TryGet(pawn);
             if (profile == null || profile.IsEmpty) return null;
@@ -195,7 +195,7 @@ namespace RimMind.Personality
         /// <summary>Main thread only.</summary>
         private static string? BuildStateContext(int pawnId)
         {
-            var pawn = PawnResolver.TryFindPawn(pawnId);
+            var pawn = RimMindPawnLookup.FindPawnByNumber(pawnId);
             var memories = pawn?.needs?.mood?.thoughts?.memories?.Memories;
             if (memories == null || memories.Count == 0) return null;
 
@@ -215,7 +215,7 @@ namespace RimMind.Personality
         /// <summary>Main thread only.</summary>
         private static string? BuildShapingContext(int pawnId)
         {
-            var pawn = PawnResolver.TryFindPawn(pawnId);
+            var pawn = RimMindPawnLookup.FindPawnByNumber(pawnId);
             if (pawn == null) return null;
             var history = AIPersonalityWorldComponent.Instance?.TryGet(pawn)?.playerShapingHistory;
             if (history == null || history.Count == 0) return null;

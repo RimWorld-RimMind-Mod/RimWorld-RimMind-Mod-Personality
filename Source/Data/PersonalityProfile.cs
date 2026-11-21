@@ -21,12 +21,13 @@ namespace RimMind.Personality.Data
         private readonly object _sync = new object();
         private Dictionary<int, PersonalityProfile> _profiles = new Dictionary<int, PersonalityProfile>();
 
-        private static AIPersonalityWorldComponent? _instance;
-        public static AIPersonalityWorldComponent? Instance => _instance;
+        private static readonly WorldScopedComponentCache<AIPersonalityWorldComponent> InstanceCache =
+            new WorldScopedComponentCache<AIPersonalityWorldComponent>();
+        public static AIPersonalityWorldComponent? Instance => InstanceCache.Get();
 
         public AIPersonalityWorldComponent(World world) : base(world)
         {
-            _instance = this;
+            InstanceCache.Reset();
         }
 
         private int _lastCleanupTick;
@@ -43,77 +44,11 @@ namespace RimMind.Personality.Data
             if (ticksGame - _lastCleanupTick < RimMind.Domain.Common.RimMindTime.TicksPerDay) return;
             _lastCleanupTick = ticksGame;
 
-            var retainedIds = CollectRetainedPawnIds();
+            var retainedIds = RimMindPawnLookup.CollectRetainedColonyPawnIds();
             lock (_sync)
             {
                 PruneProfiles(_profiles, retainedIds);
             }
-        }
-
-        /// <summary>
-        /// Main thread only. Pawns whose profile survives the daily cleanup: living colonists on maps,
-        /// in caravans and travelling transporters; colony prisoners/slaves on maps; unresurrected colony
-        /// corpses on maps; and pawns held by any faction's kidnapped tracker (so a rescued colonist keeps
-        /// their personality). World pawns are never enumerated.
-        /// </summary>
-        private static HashSet<int> CollectRetainedPawnIds()
-        {
-            var retained = new HashSet<int>();
-
-            var allAliveColonists = PawnsFinder.AllMapsCaravansAndTravellingTransporters_Alive_Colonists;
-            if (allAliveColonists != null)
-            {
-                foreach (var pawn in allAliveColonists)
-                {
-                    if (pawn != null && pawn.thingIDNumber > 0)
-                        retained.Add(pawn.thingIDNumber);
-                }
-            }
-
-            if (Find.Maps != null)
-            {
-                foreach (var map in Find.Maps)
-                {
-                    var allMapPawns = map?.mapPawns?.AllPawns;
-                    if (allMapPawns != null)
-                    {
-                        foreach (var p in allMapPawns)
-                        {
-                            if (p != null && p.thingIDNumber > 0 && !p.Destroyed
-                                && (RimMindPawnLookup.IsEligibleColonist(p) || p.IsColonist || p.IsPrisonerOfColony || p.IsSlaveOfColony))
-                                retained.Add(p.thingIDNumber);
-                        }
-                    }
-
-                    var corpses = map?.listerThings?.ThingsInGroup(ThingRequestGroup.Corpse);
-                    if (corpses != null)
-                    {
-                        foreach (var thing in corpses)
-                        {
-                            if (thing is Corpse corpse && corpse.InnerPawn is Pawn inner && inner.thingIDNumber > 0 && !inner.Destroyed && (inner.IsColonist || inner.IsPrisonerOfColony || inner.IsSlaveOfColony))
-                                retained.Add(inner.thingIDNumber);
-                        }
-                    }
-                }
-            }
-
-            var factions = Find.FactionManager?.AllFactionsListForReading;
-            if (factions != null)
-            {
-                for (int i = 0; i < factions.Count; i++)
-                {
-                    var kidnapped = factions[i]?.kidnapped?.KidnappedPawnsListForReading;
-                    if (kidnapped == null) continue;
-                    for (int j = 0; j < kidnapped.Count; j++)
-                    {
-                        var p = kidnapped[j];
-                        if (p != null && p.thingIDNumber > 0 && !p.Dead && !p.Destroyed)
-                            retained.Add(p.thingIDNumber);
-                    }
-                }
-            }
-
-            return retained;
         }
 
         public static int PruneProfiles(Dictionary<int, PersonalityProfile> profiles, ISet<int> retainedIds)

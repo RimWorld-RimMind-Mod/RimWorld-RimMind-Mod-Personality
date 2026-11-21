@@ -1,6 +1,6 @@
-using UnityEngine;
+using RimMind.Presentation.Api;
 using RimMind.Presentation.Settings;
-using Verse;
+using UnityEngine;
 
 namespace RimMind.Personality
 {
@@ -8,9 +8,7 @@ namespace RimMind.Personality
     {
         public string Id => "personality";
         public string OwnerModId => "RimMindPersonality";
-        public string Label => "RimMind.Personality.Settings.TabLabel".CanTranslate()
-            ? (string)"RimMind.Personality.Settings.TabLabel".Translate()
-            : "Personality";
+        public string Label => RimMindAPI.Text.TrOr("RimMind.Personality.Settings.TabLabel", "Personality");
         public void Draw(Rect rect) => PersonalitySettingsDrawer.Draw(rect);
     }
 }

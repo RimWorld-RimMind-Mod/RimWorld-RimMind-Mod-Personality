@@ -1,3 +1,4 @@
+using RimMind.Application.Common.Helpers;
 using RimMind.Domain.ValueObjects;
 using RimMind.Presentation.Api;
 using RimWorld;
@@ -37,9 +38,10 @@ namespace RimMind.Personality.Comps
         private int GetDailyJitter()
         {
             if (PawnOrNull is not Pawn pawn) return 0;
-            if (_dailyJitter < 0)
-                _dailyJitter = new System.Random(pawn.thingIDNumber ^ 0x3C3C3C3C).Next(-Settings.jitterRangeTicks, Settings.jitterRangeTicks + 1);
-            return _dailyJitter;
+            int range = Settings.jitterRangeTicks;
+            if (range <= 0) return 0;
+            int span = range * 2 + 1;
+            return TickStagger.PhaseOffset(pawn.thingIDNumber, span) - range;
         }
 
         private string GetCachedThingId(Pawn pawn)
@@ -57,7 +59,7 @@ namespace RimMind.Personality.Comps
             if (parent == null || !parent.IsHashIntervalTick(60)) return;
             if (!Settings.enablePersonality) return;
             if (!(parent is Pawn pawn) || !RimMindPawnLookup.IsActiveSpawnedColonist(pawn)) return;
-            if (RimMindAPI.IsConfigured() == false) return;
+            if (!RimMindAPI.Settings.IsConfigured()) return;
             if (RimMindAPI.IsAgentActive(GetCachedThingId(pawn))) return;
             if (_hasPendingRequest)
             {
@@ -125,7 +127,7 @@ namespace RimMind.Personality.Comps
 
             int currentTick = Find.TickManager.TicksGame;
             float activityScale = RimMindAPI.Settings.ActivityFrequencyScale;
-            int effectiveCooldown = RimMind.Application.Common.Helpers.ActivityCooldownScaler.Scale(Settings.eventCooldownTicks, activityScale);
+            int effectiveCooldown = RimMindAPI.Settings.ScaleCooldown(Settings.eventCooldownTicks);
             bool canQueue = !_hasPendingRequest && (currentTick - _lastEventTick) >= effectiveCooldown && _pendingEventContext == null;
 
             bool isAwake = pawn.Awake();

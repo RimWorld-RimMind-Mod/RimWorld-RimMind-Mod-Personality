@@ -1,72 +1,52 @@
-using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Reflection.Emit;
-using HarmonyLib;
+using RimMind.Application.Common.Constants;
 using RimMind.Personality.Comps;
 using RimMind.Personality.Data;
-using RimWorld;
-using UnityEngine;
+using RimMind.Presentation.Api;
+using RimMind.Presentation.UI;
 using Verse;
 
 namespace RimMind.Personality.UI
 {
-    [HarmonyPatch(typeof(CharacterCardUtility), "DoTopStack")]
-    public static class BioTabPersonalityPatch
+    /// <summary>
+    /// Bio-tab badge provider for RimMind-Personality registered via Core's unified
+    /// <c>CharacterCardUtility.DoTopStack</c> host (<see cref="RimMindAPI.UI.RegisterBioTabBadge"/>).
+    /// Uses strictly read-only <see cref="AIPersonalityWorldComponent.TryGet(Pawn?)"/> during hover/draw.
+    /// </summary>
+    public sealed class PersonalityBioTabBadgeProvider : IBioTabBadgeProvider
     {
-        private static void AddPersonalityButton(Pawn pawn)
+        public const string BadgeId = "rimmind.personality.bio_tab";
+
+        public string Id => BadgeId;
+        public string OwnerModId => RimMindOwnerConsts.PersonalityModId;
+        public int Order => 10;
+
+        public BioTabBadgeDescriptor? TryGetBadge(Pawn pawn)
         {
-            if (pawn.GetComp<CompAIPersonality>() == null) return;
+            if (pawn == null || pawn.GetComp<CompAIPersonality>() == null)
+                return null;
 
-            var tmpStackElements = (List<GenUI.AnonymousStackElement>?)
-                AccessTools.Field(typeof(CharacterCardUtility), "tmpStackElements")?.GetValue(null);
-            if (tmpStackElements == null) return;
-
-            string label = "RimMind.Personality.UI.BioTab.Label".Translate();
-            float textW = Text.CalcSize(label).x;
-            float totalW = textW + 16f;
-
-            tmpStackElements.Add(new GenUI.AnonymousStackElement
-            {
-                width = totalW,
-                drawer = rect =>
-                {
-                    Widgets.DrawOptionBackground(rect, false);
-                    Widgets.DrawHighlightIfMouseover(rect);
-
-                    var profile = AIPersonalityWorldComponent.Instance?.GetOrCreate(pawn);
-                    string tip = (profile != null && !profile.aiNarrative.NullOrEmpty())
-                        ? "RimMind.Personality.UI.BioTab.NarrativeTip".Translate(profile.aiNarrative)
-                        : "RimMind.Personality.UI.BioTab.NotEvaluatedTip".Translate();
-                    TooltipHandler.TipRegion(rect, tip);
-
-                    Text.Anchor = TextAnchor.MiddleCenter;
-                    Widgets.Label(rect, label);
-                    Text.Anchor = TextAnchor.UpperLeft;
-
-                    if (Widgets.ButtonInvisible(rect))
-                        Find.WindowStack.Add(new Dialog_PersonalityProfile(pawn));
-                }
-            });
+            string label = RimMindAPI.Text.TrOr("RimMind.Personality.UI.BioTab.Label", "Personality");
+            return new BioTabBadgeDescriptor(
+                Label: label,
+                TooltipProvider: () => BuildTooltip(pawn),
+                OnClick: () => Find.WindowStack.Add(new Dialog_PersonalityProfile(pawn)),
+                ExtraWidth: 16f);
         }
 
-        public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        private static string BuildTooltip(Pawn pawn)
         {
-            MethodInfo anchor = AccessTools.Method(
-                typeof(QuestUtility),
-                nameof(QuestUtility.AppendInspectStringsFromQuestParts),
-                new Type[] { typeof(Action<string, Quest>), typeof(ISelectable), typeof(int).MakeByRefType() });
-
-            foreach (var instr in instructions)
+            var profile = AIPersonalityWorldComponent.Instance?.TryGet(pawn);
+            if (profile != null && !profile.aiNarrative.NullOrEmpty())
             {
-                yield return instr;
-                if (anchor != null && instr.Calls(anchor))
-                {
-                    yield return new CodeInstruction(OpCodes.Ldarg_0);
-                    yield return new CodeInstruction(OpCodes.Call,
-                        AccessTools.Method(typeof(BioTabPersonalityPatch), nameof(AddPersonalityButton)));
-                }
+                return RimMindAPI.Text.TrOr(
+                    "RimMind.Personality.UI.BioTab.NarrativeTip",
+                    "AI recent narrative: {0}",
+                    profile.aiNarrative);
             }
+
+            return RimMindAPI.Text.TrOr(
+                "RimMind.Personality.UI.BioTab.NotEvaluatedTip",
+                "Not yet evaluated - AI will fill in personality narrative automatically after running for a while.");
         }
     }
 }

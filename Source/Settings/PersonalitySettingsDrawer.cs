@@ -6,19 +6,22 @@ namespace RimMind.Personality
 {
     internal static class PersonalitySettingsDrawer
     {
-        private static UnityEngine.Vector2 _scrollPos = UnityEngine.Vector2.zero;
+        private static Vector2 _scrollPos = Vector2.zero;
+        private static float _measuredHeight = 760f;
 
-        internal static void Draw(UnityEngine.Rect inRect)
+        internal static void Draw(Rect inRect)
         {
-            UnityEngine.Rect contentArea = SettingsUIDrawer.SplitContentArea(inRect);
-            UnityEngine.Rect bottomBar = SettingsUIDrawer.SplitBottomBar(inRect);
+            SettingsUIDrawer.DrawScrollableSettingsPage(
+                inRect,
+                ref _scrollPos,
+                ref _measuredHeight,
+                DrawContent,
+                ResetDefaults,
+                () => RimMindPersonalityMod.Settings.Write());
+        }
 
-            float contentH = EstimateHeight();
-            UnityEngine.Rect viewRect = new UnityEngine.Rect(0f, 0f, contentArea.width - 16f, contentH);
-            Widgets.BeginScrollView(contentArea, ref _scrollPos, viewRect);
-
-            var listing = new Verse.Listing_Standard();
-            listing.Begin(viewRect);
+        private static void DrawContent(Listing_Standard listing)
+        {
 
             listing.CheckboxLabeled("RimMind.Personality.Settings.EnablePersonality".Translate(), ref RimMindPersonalityMod.Settings.enablePersonality,
                 "RimMind.Personality.Settings.EnablePersonality.Desc".Translate());
@@ -95,56 +98,35 @@ namespace RimMind.Personality
             listing.LabelWithTooltip("RimMind.Personality.Settings.RequestTimeout".Translate($"{RimMindPersonalityMod.Settings.requestTimeoutTicks / 2500f:F1}"), timeoutTip);
             RimMindPersonalityMod.Settings.requestTimeoutTicks = (int)listing.SliderWithTooltip(RimMindPersonalityMod.Settings.requestTimeoutTicks, 12000f, 120000f, timeoutTip);
             RimMindPersonalityMod.Settings.requestTimeoutTicks = (RimMindPersonalityMod.Settings.requestTimeoutTicks / 3000) * 3000;
-
-            listing.End();
-            Widgets.EndScrollView();
-
-            SettingsUIDrawer.DrawBottomBar(bottomBar, () =>
-            {
-                RimMindPersonalityMod.Settings.enablePersonality = true;
-                RimMindPersonalityMod.Settings.showNotifications = true;
-                RimMindPersonalityMod.Settings.showLabelPrefix = true;
-                RimMindPersonalityMod.Settings.enableDailyEval = true;
-                RimMindPersonalityMod.Settings.enableInjuryTrigger = true;
-                RimMindPersonalityMod.Settings.enableSkillTrigger = true;
-                RimMindPersonalityMod.Settings.enableIncidentTrigger = true;
-                RimMindPersonalityMod.Settings.enableDeathTrigger = true;
-                RimMindPersonalityMod.Settings.enableSunriseTrigger = true;
-                RimMindPersonalityMod.Settings.sunriseTriggerChance = 0.25f;
-                RimMindPersonalityMod.Settings.enableRecreationTrigger = true;
-                RimMindPersonalityMod.Settings.recreationTriggerChance = 0.25f;
-                RimMindPersonalityMod.Settings.enableSkygazeTrigger = true;
-                RimMindPersonalityMod.Settings.skygazeTriggerChance = 0.40f;
-                RimMindPersonalityMod.Settings.enableMoodSwingTrigger = true;
-                RimMindPersonalityMod.Settings.moodSwingTriggerChance = 0.35f;
-                RimMindPersonalityMod.Settings.thoughtDurationHours = 24f;
-                RimMindPersonalityMod.Settings.durationMode = ThoughtDurationMode.AIDecides;
-                RimMindPersonalityMod.Settings.requestExpireTicks = 30000;
-                RimMindPersonalityMod.Settings.enableShapingVote = true;
-                RimMindPersonalityMod.Settings.shapingHistoryMaxCount = 20;
-                RimMindPersonalityMod.Settings.dailyIntervalTicks = 60000;
-                RimMindPersonalityMod.Settings.jitterRangeTicks = 3000;
-                RimMindPersonalityMod.Settings.eventCooldownTicks = 1200;
-                RimMindPersonalityMod.Settings.requestTimeoutTicks = 60000;
-            });
-
-            RimMindPersonalityMod.Settings.Write();
         }
 
-        private static float EstimateHeight()
+        private static void ResetDefaults()
         {
-            float h = 24f;
-            h += 24f;
-            h += 24f + 24f * 5;
-            h += 24f + 24f + 24f;
-            if (RimMindPersonalityMod.Settings.durationMode != ThoughtDurationMode.AIDecides)
-                h += 46f;
-            else
-                h += 24f;
-            h += 24f + 24f * 2;
-            h += 24f + 24f + 46f * 2;
-            h += 24f + 46f * 4;
-            return h + 16f;
+            RimMindPersonalityMod.Settings.enablePersonality = true;
+            RimMindPersonalityMod.Settings.showNotifications = true;
+            RimMindPersonalityMod.Settings.showLabelPrefix = true;
+            RimMindPersonalityMod.Settings.enableDailyEval = true;
+            RimMindPersonalityMod.Settings.enableInjuryTrigger = true;
+            RimMindPersonalityMod.Settings.enableSkillTrigger = true;
+            RimMindPersonalityMod.Settings.enableIncidentTrigger = true;
+            RimMindPersonalityMod.Settings.enableDeathTrigger = true;
+            RimMindPersonalityMod.Settings.enableSunriseTrigger = true;
+            RimMindPersonalityMod.Settings.sunriseTriggerChance = 0.30f;
+            RimMindPersonalityMod.Settings.enableRecreationTrigger = true;
+            RimMindPersonalityMod.Settings.recreationTriggerChance = 0.25f;
+            RimMindPersonalityMod.Settings.enableSkygazeTrigger = true;
+            RimMindPersonalityMod.Settings.skygazeTriggerChance = 0.40f;
+            RimMindPersonalityMod.Settings.enableMoodSwingTrigger = true;
+            RimMindPersonalityMod.Settings.moodSwingTriggerChance = 0.50f;
+            RimMindPersonalityMod.Settings.thoughtDurationHours = 24f;
+            RimMindPersonalityMod.Settings.durationMode = ThoughtDurationMode.AIDecides;
+            RimMindPersonalityMod.Settings.requestExpireTicks = 30000;
+            RimMindPersonalityMod.Settings.enableShapingVote = true;
+            RimMindPersonalityMod.Settings.shapingHistoryMaxCount = 20;
+            RimMindPersonalityMod.Settings.dailyIntervalTicks = 60000;
+            RimMindPersonalityMod.Settings.jitterRangeTicks = 3000;
+            RimMindPersonalityMod.Settings.eventCooldownTicks = 1200;
+            RimMindPersonalityMod.Settings.requestTimeoutTicks = 60000;
         }
     }
 }
