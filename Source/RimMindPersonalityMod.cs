@@ -1,5 +1,6 @@
 using HarmonyLib;
 using RimMind.Application.Common.Interfaces.Extension;
+using RimMind.Personality.UI;
 using RimMind.Presentation;
 using RimMind.Presentation.Api;
 using RimMind.Presentation.Settings;
@@ -18,6 +19,7 @@ namespace RimMind.Personality
             InitializeHarmony();
 
             PersonalityProviderRegistrar.RegisterAll();
+            RimMindAPI.UI.RegisterBioTabBadge(new PersonalityBioTabBadgeProvider());
             RimMindAPI.Extensions<ISettingsTab>().Register(new PersonalitySettingsTab());
             RimMindAPI.Extensions<IToggleBehavior>().Register(new PersonalityToggleBehavior());
             RimMindAPI.Extensions<IModCooldown>().Register(new PersonalityModCooldown());

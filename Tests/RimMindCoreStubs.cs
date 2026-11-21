@@ -1,3 +1,5 @@
+using RimMind.Application.Features.Json;
+
 namespace RimMind.Presentation.Api
 {
     public static class RimMindAPI
@@ -7,6 +9,24 @@ namespace RimMind.Presentation.Api
             public static string ScenarioPersonality => "Personality";
             public static string ScenarioDecision => "Decision";
             public static string ScenarioDialogue => "Dialogue";
+        }
+
+        public static class Json
+        {
+            public static string StripThinkingAndCodeFences(string? raw)
+                => LlmPayloadParser.StripThinkingAndCodeFences(raw);
+
+            public static string? ExtractJsonPayload(string? raw)
+                => LlmPayloadParser.ExtractJsonPayload(raw);
+
+            public static bool TryDeserialize<T>(string json, out T? result) where T : class
+                => JsonExtractorUtils.TryDeserialize<T>(json, out result);
+
+            public static bool TryDeserializeWithRepair<T>(string? raw, out T? value) where T : class
+                => LlmPayloadParser.TryDeserializeWithRepair<T>(raw, out value);
+
+            public static string? TryRepairTruncatedJson(string input)
+                => JsonRepairer.TryRepairTruncatedJson(input);
         }
     }
 

@@ -83,12 +83,16 @@ namespace RimMind.Personality.Tests.Contracts
                     Assert.NotNull(profile.playerShapingHistory);
                     Assert.Empty(profile.playerShapingHistory);
                 }),
-                ("personality context is limited to its three consumer scenarios", () =>
+                ("personality context covers personality, dialogue, and split decision scenarios only", () =>
                 {
                     Assert.True(PersonalityContextScenarioPolicy.IncludesPersonalityContext("Personality"));
                     Assert.True(PersonalityContextScenarioPolicy.IncludesPersonalityContext("Decision"));
+                    Assert.True(PersonalityContextScenarioPolicy.IncludesPersonalityContext("agent_decision"));
+                    Assert.True(PersonalityContextScenarioPolicy.IncludesPersonalityContext("advisor_decision"));
                     Assert.True(PersonalityContextScenarioPolicy.IncludesPersonalityContext("Dialogue"));
+                    Assert.True(PersonalityContextScenarioPolicy.IncludesPersonalityContext("CrisisDialogue"));
                     Assert.False(PersonalityContextScenarioPolicy.IncludesPersonalityContext("Storyteller"));
+                    Assert.False(PersonalityContextScenarioPolicy.IncludesPersonalityContext("Memory"));
                     Assert.False(PersonalityContextScenarioPolicy.IncludesPersonalityContext(null));
                 }),
                 ("public personality providers expose stable bridge data without RimTalk coupling", () =>
@@ -132,15 +136,29 @@ namespace RimMind.Personality.Tests.Contracts
                     Assert.DoesNotContain("async (ctx, ct)", source, StringComparison.Ordinal);
                     Assert.DoesNotContain("RimTalk", source, StringComparison.Ordinal);
                 }),
-                ("thought mapper checks IsActiveSpawnedColonist and profile cleanup avoids WorldPawns.AllPawnsAlive", () =>
+                ("thought mapper checks IsActiveSpawnedColonist and profile cleanup delegates to Core retention & scoped cache", () =>
                 {
                     string mapperSource = ReadSource("Personality", "PersonalityThoughtMapper.cs");
                     string profileSource = ReadSource("Data", "PersonalityProfile.cs");
+                    string thoughtSource = ReadSource("Personality", "Thought_AIPersonality.cs");
+                    string compSource = ReadSource("Comps", "CompAIPersonality.cs");
+                    string bioTabSource = ReadSource("UI", "BioTabPersonalityPatch.cs");
+                    string drawerSource = ReadSource("Settings", "PersonalitySettingsDrawer.cs");
 
                     Assert.Contains("!RimMindPawnLookup.IsActiveSpawnedColonist(pawn)", mapperSource, StringComparison.Ordinal);
                     Assert.DoesNotContain("AllPawnsAlive", profileSource, StringComparison.Ordinal);
-                    Assert.Contains("RimMindPawnLookup.IsEligibleColonist(p)", profileSource, StringComparison.Ordinal);
-                    Assert.Contains("KidnappedPawnsListForReading", profileSource, StringComparison.Ordinal);
+                    Assert.Contains("RimMindPawnLookup.CollectRetainedColonyPawnIds()", profileSource, StringComparison.Ordinal);
+                    Assert.Contains("WorldScopedComponentCache<AIPersonalityWorldComponent>", profileSource, StringComparison.Ordinal);
+                    Assert.Contains("RimMindAPI.Thoughts.FormatCleanLabel(aiLabel)", thoughtSource, StringComparison.Ordinal);
+                    Assert.Contains("TickStagger.PhaseOffset(", compSource, StringComparison.Ordinal);
+                    Assert.DoesNotContain("new System.Random(", compSource, StringComparison.Ordinal);
+                    Assert.Contains("IBioTabBadgeProvider", bioTabSource, StringComparison.Ordinal);
+                    Assert.Contains("TryGet(pawn)", bioTabSource, StringComparison.Ordinal);
+                    Assert.DoesNotContain("GetOrCreate(", bioTabSource, StringComparison.Ordinal);
+                    Assert.DoesNotContain("[HarmonyPatch", bioTabSource, StringComparison.Ordinal);
+                    Assert.DoesNotContain("AccessTools.Field", bioTabSource, StringComparison.Ordinal);
+                    Assert.Contains("SettingsUIDrawer.DrawScrollableSettingsPage", drawerSource, StringComparison.Ordinal);
+                    Assert.DoesNotContain("EstimateHeight", drawerSource, StringComparison.Ordinal);
                 }),
                 ("comp state transition contexts use guarded translation keys with English fallbacks", () =>
                 {
@@ -177,7 +195,7 @@ namespace RimMind.Personality.Tests.Contracts
                     Assert.Equal("NPC-42", PersonalityRequestBuilder.BuildNpcId(42));
                     Assert.Equal("NPC--7", PersonalityRequestBuilder.BuildNpcId(-7));
                 }),
-                ("request envelope uses the personality scenario schema and limits", () =>
+                ("request envelope uses the personality scenario schema, limits, coalescing, and TTL", () =>
                 {
                     var envelope = PersonalityRequestBuilder.BuildEnvelope("NPC-42", "injured");
                     Assert.Equal("Personality", envelope.ScenarioId);
@@ -188,6 +206,8 @@ namespace RimMind.Personality.Tests.Contracts
                     Assert.Equal("test-schema", envelope.JsonSchema);
                     Assert.Equal(600, envelope.MaxTokens);
                     Assert.Equal(0.8f, envelope.Temperature);
+                    Assert.Equal("RimMind.Personality:NPC-42", envelope.CoalesceKey);
+                    Assert.Equal(60000, envelope.MaxQueueWaitTicks);
                 }),
                 ("malformed responses use repair then return a safe null outcome", () =>
                 {
@@ -220,6 +240,22 @@ namespace RimMind.Personality.Tests.Contracts
 
                     Assert.False(repairCalled);
                     Assert.Equal("direct", parsed!.narrative);
+                }),
+                ("markdown code fences, thinking blocks, and truncated JSON parse via Core RimMindAPI.Json", () =>
+                {
+                    var fenced = PersonalityThoughtPolicy.ParseResponse(
+                        "<think>reflecting on raid</think>\n```json\n{\"narrative\":\"resilient\",\"thoughts\":[{\"label\":\"Steady\",\"description\":\"Kept calm\",\"intensity\":2}]}\n```");
+                    Assert.NotNull(fenced);
+                    Assert.Equal("resilient", fenced!.narrative);
+                    Assert.Equal("Steady", Assert.Single(fenced.thoughts).label);
+
+                    var repaired = PersonalityThoughtPolicy.ParseResponse(
+                        "{\"narrative\":\"cut off\",\"thoughts\":[{\"label\":\"Alert\",\"description\":\"On guard\",\"intensity\":1");
+                    Assert.NotNull(repaired);
+                    Assert.Equal("cut off", repaired!.narrative);
+                    Assert.Equal("Alert", Assert.Single(repaired.thoughts).label);
+
+                    Assert.Null(PersonalityThoughtPolicy.ParseResponse("not json at all"));
                 }));
         }
 

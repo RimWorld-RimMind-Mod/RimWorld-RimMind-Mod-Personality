@@ -33,7 +33,7 @@ namespace RimMind.Personality.Debug
                 return;
             }
 
-            if (!RimMindAPI.IsConfigured())
+            if (!RimMindAPI.Settings.IsConfigured())
             {
                 RimMindErrors.Warn("[RimMind-Personality] API not configured. Please enter API Key in Mod settings first.");
                 return;
@@ -71,11 +71,11 @@ namespace RimMind.Personality.Debug
             var sb = new StringBuilder();
             sb.AppendLine($"=== {pawn.Name.ToStringShort} Personality State ===");
 
-            sb.AppendLine($"[Diag] API configured: {RimMindAPI.IsConfigured()}");
+            sb.AppendLine($"[Diag] API configured: {RimMindAPI.Settings.IsConfigured()}");
             var comp = pawn.GetComp<CompAIPersonality>();
             sb.AppendLine($"[Diag] CompAIPersonality: {(comp != null ? "exists" : "missing")}");
 
-            var profile = AIPersonalityWorldComponent.Instance?.GetOrCreate(pawn);
+            var profile = AIPersonalityWorldComponent.Instance?.TryGet(pawn);
             if (profile != null && !profile.IsEmpty)
             {
                 sb.AppendLine("[Personality Profile]");
@@ -143,11 +143,11 @@ namespace RimMind.Personality.Debug
 
             var sb = new StringBuilder("=== Pawns with personality system enabled ===\n");
             int count = 0;
-            foreach (var p in map.mapPawns.FreeColonists)
+            foreach (var p in RimMindPawnLookup.GetFreeColonistsSafe(map))
             {
                 if (p.GetComp<CompAIPersonality>() == null) continue;
 
-                var profile = AIPersonalityWorldComponent.Instance?.GetOrCreate(p);
+                var profile = AIPersonalityWorldComponent.Instance?.TryGet(p);
                 int thoughtCount = 0;
                 if (p.needs?.mood?.thoughts?.memories?.Memories != null)
                     foreach (var t in p.needs.mood.thoughts.memories.Memories)
@@ -157,7 +157,7 @@ namespace RimMind.Personality.Debug
                 sb.AppendLine($"  {p.Name.ToStringShort}: profile={(profile != null && !profile.IsEmpty)}, activeThoughts={thoughtCount}");
                 count++;
             }
-            sb.AppendLine($"API configured: {RimMindAPI.IsConfigured()}  Total: {count} pawns");
+            sb.AppendLine($"API configured: {RimMindAPI.Settings.IsConfigured()}  Total: {count} pawns");
             Log.Message(sb.ToString());
         }
 
@@ -187,7 +187,7 @@ namespace RimMind.Personality.Debug
                 return;
             }
 
-            var profile = AIPersonalityWorldComponent.Instance?.GetOrCreate(pawn);
+            var profile = AIPersonalityWorldComponent.Instance?.TryGet(pawn);
             if (profile == null || profile.playerShapingHistory.Count == 0)
             {
                 Log.Message($"[RimMind-Personality] {pawn.Name.ToStringShort} has no shaping history.");

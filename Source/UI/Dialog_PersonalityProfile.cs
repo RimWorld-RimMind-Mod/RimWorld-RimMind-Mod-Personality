@@ -1,4 +1,5 @@
 using RimMind.Personality.Data;
+using RimMind.Presentation.Api;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -78,12 +79,12 @@ namespace RimMind.Personality.UI
 
             if (RimMindPersonalityMod.Settings != null)
             {
-                string voteToggleLabel = "RimMind.Personality.UI.EnableShapingVoteToggle".CanTranslate()
-                    ? "RimMind.Personality.UI.EnableShapingVoteToggle".Translate().ToString()
-                    : "Enable personality shaping vote popups";
-                string voteToggleTip = "RimMind.Personality.UI.EnableShapingVoteToggle.Tip".CanTranslate()
-                    ? "RimMind.Personality.UI.EnableShapingVoteToggle.Tip".Translate().ToString()
-                    : "When unchecked, new personality traits will not trigger shaping vote popups in the request overlay.";
+                string voteToggleLabel = RimMindAPI.Text.TrOr(
+                    "RimMind.Personality.UI.EnableShapingVoteToggle",
+                    "Enable personality shaping vote popups");
+                string voteToggleTip = RimMindAPI.Text.TrOr(
+                    "RimMind.Personality.UI.EnableShapingVoteToggle.Tip",
+                    "When unchecked, new personality traits will not trigger shaping vote popups in the request overlay.");
                 Rect toggleRect = new Rect(inRect.x, y, inRect.width, 24f);
                 bool prevVote = RimMindPersonalityMod.Settings.enableShapingVote;
                 Widgets.CheckboxLabeled(toggleRect, voteToggleLabel, ref RimMindPersonalityMod.Settings.enableShapingVote);

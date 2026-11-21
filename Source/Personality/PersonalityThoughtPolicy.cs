@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
+using RimMind.Presentation.Api;
 
 namespace RimMind.Personality
 {
@@ -90,38 +90,39 @@ namespace RimMind.Personality
             return projections;
         }
 
+        public static PersonalityResultDto? ParseResponse(string? content)
+        {
+            if (string.IsNullOrWhiteSpace(content))
+                return null;
+
+            return RimMindAPI.Json.TryDeserializeWithRepair<PersonalityResultDto>(content, out var dto)
+                ? dto
+                : null;
+        }
+
         public static PersonalityResultDto? ParseResponse(
             string? content,
             Func<string, string?> repairTruncatedJson)
         {
-            if (string.IsNullOrEmpty(content))
+            if (string.IsNullOrWhiteSpace(content))
                 return null;
             if (repairTruncatedJson == null)
                 throw new ArgumentNullException(nameof(repairTruncatedJson));
 
-            string nonEmptyContent = content!;
-            try
-            {
-                var direct = JsonConvert.DeserializeObject<PersonalityResultDto>(nonEmptyContent);
-                if (direct != null)
-                    return direct;
-            }
-            catch (JsonException)
-            {
-            }
-
-            string? repaired = repairTruncatedJson(nonEmptyContent);
-            if (repaired == null)
+            string? candidate = RimMindAPI.Json.ExtractJsonPayload(content);
+            if (string.IsNullOrWhiteSpace(candidate))
                 return null;
 
-            try
-            {
-                return JsonConvert.DeserializeObject<PersonalityResultDto>(repaired);
-            }
-            catch (JsonException)
-            {
+            if (RimMindAPI.Json.TryDeserialize<PersonalityResultDto>(candidate!, out var direct) && direct != null)
+                return direct;
+
+            string? repaired = repairTruncatedJson(candidate!);
+            if (string.IsNullOrWhiteSpace(repaired))
                 return null;
-            }
+
+            return RimMindAPI.Json.TryDeserialize<PersonalityResultDto>(repaired!, out var repairedDto)
+                ? repairedDto
+                : null;
         }
 
         public static bool ShouldRecordShapingAction(ShapingAction action)

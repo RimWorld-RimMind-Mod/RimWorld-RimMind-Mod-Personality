@@ -1,4 +1,5 @@
 using System;
+using RimMind.Presentation.Api;
 using RimWorld;
 using Verse;
 
@@ -28,8 +29,10 @@ namespace RimMind.Personality
             get
             {
                 if (aiLabel.NullOrEmpty()) return base.LabelCap;
+                string cleanLabel = RimMindAPI.Thoughts.FormatCleanLabel(aiLabel);
+                if (cleanLabel.NullOrEmpty()) return base.LabelCap;
                 bool prefix = RimMindPersonalityMod.Settings?.showLabelPrefix ?? true;
-                return prefix ? $"[RimMind] {aiLabel.CapitalizeFirst()}" : aiLabel.CapitalizeFirst();
+                return prefix ? $"[RimMind] {cleanLabel.CapitalizeFirst()}" : cleanLabel.CapitalizeFirst();
             }
         }
 
