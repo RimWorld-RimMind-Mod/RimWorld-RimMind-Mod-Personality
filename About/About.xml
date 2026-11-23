@@ -9,13 +9,13 @@
     <li>1.7</li>
   </supportedVersions>
   <description>[h1]RimMind - Personality (v2.0)[/h1]
-Big-Five psychological profiling and probabilistic state-transition reflection system for RimWorld colonists. Endows every colonist with a persistent inner world, generating dynamic personality Thoughts and introspective soliloquies that influence mood, behavior, and advisor decisions.
+LLM-driven psychological profiling and probabilistic state-transition reflection system for RimWorld colonists. Endows every colonist with a persistent inner narrative and evolving agent identity, generating up to 3 dynamic personality Thoughts that influence mood, behavior, and advisor decisions.
 
 [b]v2.0 Clean Architecture &amp; RimWorld 1.6 / 1.7 Dual-Version Support:[/b]
 [list]
 [*][b]RimWorld 1.6 &amp; 1.7 (Waylith / .NET 10) Ready[/b]: Native multi-target compilation supporting both RimWorld 1.6 (.NET Framework 4.8) and RimWorld 1.7 (.NET 10 / Harmony 2.x &amp; 3.x).
-[*][b]v2.0 Big-Five Psychometric &amp; Probabilistic State Engine[/b]: Replaces rigid timers with organic environmental triggers (06:00 Dawn Sunrise, Skygazing, Shared Recreation, Traumatic Mood Swings). Note: v1.x saves are not compatible with v2.0.
-[*][b]Loose-Coupled Thought Event Bus[/b]: Broadcasts psychological shifts to [code]RimMind-Advisor[/code] and [code]RimMind-Core[/code] Zone 2 context without direct cross-mod coupling.
+[*][b]v2.0 LLM Psychological Profiles &amp; Probabilistic State Engine[/b]: Combines organic environmental state-transition triggers (06:00 Dawn Sunrise, Skygazing, Shared Recreation, Traumatic Mood Swings) with event triggers and staggered daily evaluations. Note: v1.x saves are not compatible with v2.0.
+[*][b]Loose-Coupled Thought &amp; Identity Bus[/b]: Broadcasts psychological narratives, traits/motivations/values, and Thoughts to [code]RimMind-Advisor[/code], [code]RimMind-Dialogue[/code], and [code]RimMind-Core[/code] context providers without direct cross-mod coupling.
 [/list]
 
 [h2]What Is RimMind[/h2]
@@ -29,7 +29,7 @@ RimMind is an enterprise-grade, AI-powered RimWorld mod suite. Integrated with L
 [tr][td]RimMind-Advisor[/td][td]Colonist self-reflective advice cards, 5-domain autonomy &amp; player approval[/td][td]Core, Actions[/td][td][url=https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Advisor]Link[/url][/td][/tr]
 [tr][td]RimMind-Dialogue[/td][td]Contextual spoken dialogue via express_dialogue ToolCall &amp; speech bubbles[/td][td]Core[/td][td][url=https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Dialogue]Link[/url][/td][/tr]
 [tr][td]RimMind-Memory[/td][td]3-Tier cognitive memory hierarchy, work aggregation &amp; temporal decay[/td][td]Core[/td][td][url=https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Memory]Link[/url][/td][/tr]
-[tr][td][b]RimMind-Personality[/b][/td][td]Big-Five psychological profiles, dawn monologues &amp; dynamic mood thoughts[/td][td]Core[/td][td][url=https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Personality]Link[/url][/td][/tr]
+[tr][td][b]RimMind-Personality[/b][/td][td]LLM psychological profiles, state-transition reflections &amp; dynamic mood thoughts[/td][td]Core[/td][td][url=https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Personality]Link[/url][/td][/tr]
 [tr][td]RimMind-Storyteller[/td][td]AI Story Director, dramatic tension curve, chained arcs &amp; Storyteller Altar[/td][td]Core, Memory[/td][td][url=https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Storyteller]Link[/url][/td][/tr]
 [tr][td]RimMind-Extension-ModelService[/td][td]Multi-provider routing, Anthropic KV cache, local gateways &amp; load balancing[/td][td]Core[/td][td][url=https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Extension-ModelService]Link[/url][/td][/tr]
 [tr][td]RimMind-Bridge-RimChat[/td][td]RimChat compatibility bridge: dialogue/action mutual exclusion &amp; context sync[/td][td]Core, RimChat[/td][td][url=https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Bridge-RimChat]Link[/url][/td][/tr]
@@ -45,7 +45,7 @@ RimMind is an enterprise-grade, AI-powered RimWorld mod suite. Integrated with L
 
 [h2]Core Features[/h2]
 [list]
-[*][b]Big-Five Cognitive Profiling[/b] - Maps vanilla RimWorld traits (e.g., Bloodlust, Optimist, Neurotic) onto continuous psychometric axes ([i]Openness, Conscientiousness, Extraversion, Agreeableness, Neuroticism[/i]).
+[*][b]LLM Psychological Profiles &amp; Agent Identity[/b] - Builds a persistent narrative profile, work/social tendencies, and structured [code]AgentIdentity[/code] (motivations, traits, core values) grounded in each colonist's RimWorld traits and lived colony history.
 [*][b]Probabilistic State-Transition Reflections[/b] - Colonists reflect naturally during 06:00 Dawn Sunrise (30% chance), Skygazing/Solitude (40% chance), Shared Recreation (25% chance), and Traumatic Mood Swings (50% chance).
 [*][b]Dynamic Mood Thought Injection[/b] - Generates 1 to 3 contextual Personality Thoughts (intensity -3 to +3, mapping to -10 to +10 mood offset) injected into independent mood slots without overwriting one another.
 [*][b]Bio Personality Tab &amp; Player Editing[/b] - View AI psychological narratives directly in the pawn Bio tab, customize personality descriptions, work preferences, and social tendencies, and use [b]Shape Voting[/b] to guide future AI evaluations.

@@ -12,10 +12,9 @@
   <RimMind.Personality.Settings.ThoughtDuration>Thought duration:</RimMind.Personality.Settings.ThoughtDuration>
   <RimMind.Personality.Settings.ThoughtDuration.Desc>Set the duration mode for AI-generated psychological states (Thoughts).</RimMind.Personality.Settings.ThoughtDuration.Desc>
   <RimMind.Personality.Settings.AIDecidesDuration>Let AI decide each Thought's duration</RimMind.Personality.Settings.AIDecidesDuration>
-  <RimMind.Personality.Settings.AIDecidesDuration.Desc>When enabled, AI outputs a duration_hours field in JSON, automatically setting duration based on emotional intensity.</RimMind.Personality.Settings.AIDecidesDuration.Desc>
+  <RimMind.Personality.Settings.AIDecidesDuration.Desc>When enabled, AI outputs duration_hours (1~24) in JSON, automatically setting duration based on emotional intensity.</RimMind.Personality.Settings.AIDecidesDuration.Desc>
   <RimMind.Personality.Settings.FixedDuration>  Fixed duration: {0} game hours</RimMind.Personality.Settings.FixedDuration>
   <RimMind.Personality.Settings.FixedDuration.Desc>All AI-generated Thoughts use this fixed duration uniformly.</RimMind.Personality.Settings.FixedDuration.Desc>
-  <RimMind.Personality.Settings.AIDurationHint>  AI outputs duration_hours (1~24) in JSON, applied automatically</RimMind.Personality.Settings.AIDurationHint>
   <RimMind.Personality.Settings.TriggerSources>Trigger Sources</RimMind.Personality.Settings.TriggerSources>
   <RimMind.Personality.Settings.DailyEval>Daily Evaluation</RimMind.Personality.Settings.DailyEval>
   <RimMind.Personality.Settings.DailyEval.Desc>Automatically evaluate colonist personality each day, generating psychological states.</RimMind.Personality.Settings.DailyEval.Desc>
@@ -79,6 +78,7 @@
   <RimMind.Personality.Shaping.MuteVote.Tip>Disable future personality shaping vote popups (can be re-enabled in Personality settings or the colonist's Personality window).</RimMind.Personality.Shaping.MuteVote.Tip>
   <!-- RimMindPersonalityMod.cs - Shaping Action Labels (context provider) -->
   <RimMind.Personality.Context.ShapingHistoryHeader>[Player Shaping History]</RimMind.Personality.Context.ShapingHistoryHeader>
+  <RimMind.Personality.Context.ShapingBriefHeader>[RimMind Shaping]</RimMind.Personality.Context.ShapingBriefHeader>
   <RimMind.Personality.ShapingAction.Reinforce>Reinforce</RimMind.Personality.ShapingAction.Reinforce>
   <RimMind.Personality.ShapingAction.Suppress>Suppress</RimMind.Personality.ShapingAction.Suppress>
   <RimMind.Personality.ShapingAction.Ignore>Ignore</RimMind.Personality.ShapingAction.Ignore>

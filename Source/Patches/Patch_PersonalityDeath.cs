@@ -1,8 +1,6 @@
-using System.Collections.Generic;
 using HarmonyLib;
 using RimMind.Personality.Comps;
 using RimMind.Presentation.Api;
-using RimWorld;
 using Verse;
 
 namespace RimMind.Personality.Patches
@@ -12,7 +10,9 @@ namespace RimMind.Personality.Patches
     {
         static void Postfix(Pawn __instance, DamageInfo? dinfo, Hediff exactCulprit)
         {
-            if (!RimMindPersonalityMod.Settings.enableDeathTrigger) return;
+            var settings = RimMindPersonalityMod.Settings;
+            if (!settings.enablePersonality || !settings.enableDeathTrigger) return;
+            if (Find.Maps == null) return;
 
             // Iterate ALL maps, not just the killed pawn's current map: the killed
             // pawn's Map may be null after death, and related colonists on other
@@ -30,8 +30,13 @@ namespace RimMind.Personality.Patches
                     {
                         if (dr.otherPawn == killedPawn)
                         {
+                            string relLabel = dr.def?.LabelCap.RawText ?? dr.def?.defName ?? string.Empty;
                             PersonalityTriggerHelper.TriggerForPawn(pawn,
-                                $"{"RimMind.Personality.Trigger.RelationDeath".Translate(dr.def.LabelCap, killedName)}",
+                                RimMindAPI.Text.TrOr(
+                                    "RimMind.Personality.Trigger.RelationDeath",
+                                    "{0} {1} died",
+                                    relLabel,
+                                    killedName),
                                 TriggerEventType.Death);
                             break;
                         }

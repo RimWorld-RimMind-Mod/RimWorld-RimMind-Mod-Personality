@@ -1,6 +1,6 @@
 using HarmonyLib;
 using RimMind.Personality.Comps;
-using RimWorld;
+using RimMind.Presentation.Api;
 using Verse;
 
 namespace RimMind.Personality.Patches
@@ -10,19 +10,31 @@ namespace RimMind.Personality.Patches
     {
         static void Postfix(HediffSet __instance, Hediff hediff)
         {
+            var settings = RimMindPersonalityMod.Settings;
+            if (!settings.enablePersonality) return;
+
             var pawn = __instance.pawn;
             if (!PersonalityTriggerPolicy.ShouldTriggerInjury(
-                    RimMindPersonalityMod.Settings.enableInjuryTrigger,
+                    settings.enableInjuryTrigger,
                     hediff != null,
-                    hediff?.def.isBad == true,
+                    hediff?.def?.isBad == true,
                     hediff?.Severity ?? 0f,
                     PersonalityTriggerPolicy.IsEligible(pawn)))
             {
                 return;
             }
 
+            string partLabel = hediff!.Part?.Label
+                ?? RimMindAPI.Text.TrOr("RimMind.Personality.Trigger.FullBody", "full body");
+            string hediffLabel = hediff.LabelCap.NullOrEmpty()
+                ? (hediff.def?.defName ?? string.Empty)
+                : hediff.LabelCap;
             PersonalityTriggerHelper.TriggerForPawn(pawn!,
-                $"{"RimMind.Personality.Trigger.Contracted".Translate(hediff!.LabelCap, "RimMind.Personality.Trigger.FullBody".Translate())}",
+                RimMindAPI.Text.TrOr(
+                    "RimMind.Personality.Trigger.Contracted",
+                    "Suffered {0} ({1})",
+                    hediffLabel,
+                    partLabel),
                 TriggerEventType.Injury);
         }
     }

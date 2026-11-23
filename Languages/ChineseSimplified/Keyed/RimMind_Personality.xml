@@ -12,10 +12,9 @@
   <RimMind.Personality.Settings.ThoughtDuration>Thought 持续时长：</RimMind.Personality.Settings.ThoughtDuration>
   <RimMind.Personality.Settings.ThoughtDuration.Desc>设置 AI 生成的心理状态（Thought）的持续时间模式。</RimMind.Personality.Settings.ThoughtDuration.Desc>
   <RimMind.Personality.Settings.AIDecidesDuration>由 AI 决定每个 Thought 的时长</RimMind.Personality.Settings.AIDecidesDuration>
-  <RimMind.Personality.Settings.AIDecidesDuration.Desc>开启后，AI 会在 JSON 中输出 duration_hours 字段，根据情绪强度自动设定持续时间。</RimMind.Personality.Settings.AIDecidesDuration.Desc>
+  <RimMind.Personality.Settings.AIDecidesDuration.Desc>开启后，AI 会在 JSON 中输出 duration_hours（1~24）字段，根据情绪强度自动设定持续时间。</RimMind.Personality.Settings.AIDecidesDuration.Desc>
   <RimMind.Personality.Settings.FixedDuration>  固定时长：{0} 游戏小时</RimMind.Personality.Settings.FixedDuration>
   <RimMind.Personality.Settings.FixedDuration.Desc>所有 AI 生成的 Thought 统一使用此固定时长。</RimMind.Personality.Settings.FixedDuration.Desc>
-  <RimMind.Personality.Settings.AIDurationHint>  AI 在 JSON 中输出 duration_hours（1~24），自动应用</RimMind.Personality.Settings.AIDurationHint>
   <RimMind.Personality.Settings.TriggerSources>触发来源</RimMind.Personality.Settings.TriggerSources>
   <RimMind.Personality.Settings.DailyEval>每日评估</RimMind.Personality.Settings.DailyEval>
   <RimMind.Personality.Settings.DailyEval.Desc>每天自动对殖民者进行人格评估，生成心理状态。</RimMind.Personality.Settings.DailyEval.Desc>
@@ -79,6 +78,7 @@
   <RimMind.Personality.Shaping.MuteVote.Tip>关闭后续的人格塑造投票弹窗（可在人格设置或角色人格档案窗口中重新开启）。</RimMind.Personality.Shaping.MuteVote.Tip>
   <!-- RimMindPersonalityMod.cs - Shaping Action Labels (context provider) -->
   <RimMind.Personality.Context.ShapingHistoryHeader>[玩家塑造历史]</RimMind.Personality.Context.ShapingHistoryHeader>
+  <RimMind.Personality.Context.ShapingBriefHeader>[RimMind 塑造]</RimMind.Personality.Context.ShapingBriefHeader>
   <RimMind.Personality.ShapingAction.Reinforce>强化</RimMind.Personality.ShapingAction.Reinforce>
   <RimMind.Personality.ShapingAction.Suppress>抑制</RimMind.Personality.ShapingAction.Suppress>
   <RimMind.Personality.ShapingAction.Ignore>忽略</RimMind.Personality.ShapingAction.Ignore>

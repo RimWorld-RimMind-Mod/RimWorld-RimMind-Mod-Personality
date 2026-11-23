@@ -1,4 +1,3 @@
-using HarmonyLib;
 using RimMind.Application.Common.Interfaces.Extension;
 using RimMind.Personality.UI;
 using RimMind.Presentation;
@@ -18,6 +17,9 @@ namespace RimMind.Personality
             Settings = base.Settings;
             InitializeHarmony();
 
+            RimMindAPI.Context.RegisterSchema(
+                PersonalityThoughtMapper.SchemaKey,
+                PersonalityThoughtMapper.PersonalityOutputSchema);
             PersonalityProviderRegistrar.RegisterAll();
             RimMindAPI.UI.RegisterBioTabBadge(new PersonalityBioTabBadgeProvider());
             RimMindAPI.Extensions<ISettingsTab>().Register(new PersonalitySettingsTab());

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using RimMind.Application.Common.Constants;
 using RimMind.Application.Common.Interfaces.Context;
 using RimMind.Application.Common.Models.Context;
 using RimMind.Application.Features.Context;
@@ -15,7 +16,7 @@ namespace RimMind.Personality
 {
     internal static class PersonalityProviderRegistrar
     {
-        private const string PublicProviderOwner = "RimMind.Personality";
+        private const string PublicProviderOwner = RimMindOwnerConsts.PersonalityModId;
         private const int PublicProviderPriority = 100;
 
         internal static void RegisterAll()
@@ -37,14 +38,17 @@ namespace RimMind.Personality
                 PublicProviderOwner,
                 pawn =>
                 {
-                    if (pawn == null) return null;
+                    if (pawn == null || RimMindPersonalityMod.Settings?.enablePersonality != true) return null;
                     // Read-only lookup: synchronous public providers may be called from any thread.
                     var profile = AIPersonalityWorldComponent.Instance?.TryGet(pawn);
-                    var history = profile?.playerShapingHistory?.ToArray();
+                    var history = profile?.GetShapingHistorySnapshot();
                     if (history == null || history.Length == 0) return string.Empty;
 
+                    string header = RimMindText.TrOr(
+                        "RimMind.Personality.Context.ShapingBriefHeader",
+                        "[RimMind Shaping]");
                     return PersonalityContextText.FormatHeaderedLines(
-                        "[RimMind Shaping]",
+                        header,
                         PersonalityContextText.TakeLast(history, 5)
                             .Where(record => record != null)
                             .Select(record => $"- [{record.action}] {record.label}")) ?? string.Empty;
@@ -62,7 +66,7 @@ namespace RimMind.Personality
                 PublicProviderOwner,
                 pawn =>
                 {
-                    if (pawn == null) return null;
+                    if (pawn == null || RimMindPersonalityMod.Settings?.enablePersonality != true) return null;
                     var profile = AIPersonalityWorldComponent.Instance?.TryGet(pawn);
                     return profile == null ? null : selector(profile);
                 },
@@ -74,8 +78,9 @@ namespace RimMind.Personality
         {
             RimMindAPI.Ext.RegisterAgentIdentityProvider(pawn =>
             {
+                if (RimMindPersonalityMod.Settings?.enablePersonality != true) return null;
                 var profile = AIPersonalityWorldComponent.Instance?.TryGet(pawn);
-                return profile?.agentIdentity;
+                return profile?.GetAgentIdentitySnapshot();
             });
         }
 
@@ -93,7 +98,7 @@ namespace RimMind.Personality
         // is inert in Core. Cached keys refresh through their 750-tick staleness window.
         private static void RegisterContextProviders()
         {
-            ScenarioRegistry.Register(new ScenarioDescriptor
+            RimMindAPI.Context.RegisterScenario(new ScenarioDescriptor
             {
                 Id = ScenarioIds.Personality,
                 DefaultBaseRounds = 3,
@@ -135,7 +140,8 @@ namespace RimMind.Personality
                 "personality_profile", ContextLayer.L3_State, 0.25f,
                 (ctx, ct) =>
                 {
-                    if (!PersonalityContextScenarioPolicy.IncludesPersonalityContext(ctx.Scenario))
+                    if (RimMindPersonalityMod.Settings?.enablePersonality != true
+                        || !PersonalityContextScenarioPolicy.IncludesPersonalityContext(ctx.Scenario))
                         return Task.FromResult<string?>(null);
                     int pawnId = ctx.PawnId;
                     return OnMainThread(() => BuildProfileContext(pawnId), ct);
@@ -145,7 +151,8 @@ namespace RimMind.Personality
                 "personality_state", ContextLayer.L3_State, 0.2f,
                 (ctx, ct) =>
                 {
-                    if (!PersonalityContextScenarioPolicy.IncludesPersonalityContext(ctx.Scenario))
+                    if (RimMindPersonalityMod.Settings?.enablePersonality != true
+                        || !PersonalityContextScenarioPolicy.IncludesPersonalityContext(ctx.Scenario))
                         return Task.FromResult<string?>(null);
                     int pawnId = ctx.PawnId;
                     return OnMainThread(() => BuildStateContext(pawnId), ct);
@@ -155,7 +162,8 @@ namespace RimMind.Personality
                 "personality_shaping", ContextLayer.L3_State, 0.15f,
                 (ctx, ct) =>
                 {
-                    if (!PersonalityContextScenarioPolicy.IncludesPersonalityContext(ctx.Scenario))
+                    if (RimMindPersonalityMod.Settings?.enablePersonality != true
+                        || !PersonalityContextScenarioPolicy.IncludesPersonalityContext(ctx.Scenario))
                         return Task.FromResult<string?>(null);
                     int pawnId = ctx.PawnId;
                     return OnMainThread(() => BuildShapingContext(pawnId), ct);
@@ -165,7 +173,8 @@ namespace RimMind.Personality
                 "personality_task", ContextLayer.L0_Static, 0.95f,
                 (ctx, ct) =>
                 {
-                    if (ctx.Scenario != RimMindAPI.Context.ScenarioPersonality)
+                    if (RimMindPersonalityMod.Settings?.enablePersonality != true
+                        || ctx.Scenario != RimMindAPI.Context.ScenarioPersonality)
                         return Task.FromResult<string?>(null);
                     return OnMainThread(BuildTaskInstruction, ct);
                 }, PublicProviderOwner, stalenessTicks: 0));
@@ -175,12 +184,12 @@ namespace RimMind.Personality
         private static string? BuildProfileContext(int pawnId)
         {
             var pawn = RimMindPawnLookup.FindPawnByNumber(pawnId);
-            if (pawn == null) return null;
+            if (!RimMindPawnLookup.IsActiveSpawnedColonist(pawn)) return null;
             var profile = AIPersonalityWorldComponent.Instance?.TryGet(pawn);
             if (profile == null || profile.IsEmpty) return null;
 
             var sb = new System.Text.StringBuilder();
-            sb.AppendLine(Tr("RimMind.Personality.Context.ProfileHeader", pawn.Name?.ToStringShort ?? ""));
+            sb.AppendLine(Tr("RimMind.Personality.Context.ProfileHeader", pawn!.Name?.ToStringShort ?? pawn.LabelShort));
             if (!profile.description.NullOrEmpty())
                 sb.AppendLine(profile.description);
             if (!profile.workTendencies.NullOrEmpty())
@@ -196,14 +205,15 @@ namespace RimMind.Personality
         private static string? BuildStateContext(int pawnId)
         {
             var pawn = RimMindPawnLookup.FindPawnByNumber(pawnId);
-            var memories = pawn?.needs?.mood?.thoughts?.memories?.Memories;
+            if (!RimMindPawnLookup.IsActiveSpawnedColonist(pawn)) return null;
+            var memories = pawn!.needs?.mood?.thoughts?.memories?.Memories;
             if (memories == null || memories.Count == 0) return null;
 
-            var lines = new System.Collections.Generic.List<string>();
+            var lines = new List<string>();
             for (int i = 0; i < memories.Count; i++)
             {
                 var t = memories[i];
-                if (t?.def == null || !Personality.PersonalityThoughtMapper.IsAIPersonalityDef(t.def.defName)) continue;
+                if (t?.def == null || !PersonalityThoughtMapper.IsAIPersonalityDef(t.def.defName)) continue;
 
                 string desc = (t as Thought_AIPersonality)?.aiDescription ?? t.def.label;
                 float hours = t.DurationTicks / (float)RimMind.Domain.Common.RimMindTime.TicksPerHour;
@@ -216,9 +226,9 @@ namespace RimMind.Personality
         private static string? BuildShapingContext(int pawnId)
         {
             var pawn = RimMindPawnLookup.FindPawnByNumber(pawnId);
-            if (pawn == null) return null;
-            var history = AIPersonalityWorldComponent.Instance?.TryGet(pawn)?.playerShapingHistory;
-            if (history == null || history.Count == 0) return null;
+            if (!RimMindPawnLookup.IsActiveSpawnedColonist(pawn)) return null;
+            var history = AIPersonalityWorldComponent.Instance?.TryGet(pawn)?.GetShapingHistorySnapshot();
+            if (history == null || history.Length == 0) return null;
             int maxCount = RimMindPersonalityMod.Settings?.shapingHistoryMaxCount ?? 20;
 
             var lines = PersonalityContextText.TakeLast(history, maxCount)

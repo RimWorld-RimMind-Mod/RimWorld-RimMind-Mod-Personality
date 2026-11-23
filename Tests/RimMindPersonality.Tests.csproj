@@ -37,7 +37,6 @@
     <Compile Include="../Source/Data/PersonalityProfileState.cs" />
     <Compile Include="../Source/Data/ShapingRecord.cs" />
     <Compile Include="../Source/Settings/AIPersonalitySettings.cs" />
-    <Compile Include="../../RimMind-Core/Source/Application/Features/Json/JsonTagExtractor.cs" LinkBase="Application/Json" />
   </ItemGroup>
 
   <ItemGroup>

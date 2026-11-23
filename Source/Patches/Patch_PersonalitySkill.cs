@@ -19,9 +19,12 @@ namespace RimMind.Personality.Patches
         {
             if (__state < 0) return;
 
+            var settings = RimMindPersonalityMod.Settings;
+            if (!settings.enablePersonality) return;
+
             int currentLevel = __instance.Level;
             if (!PersonalityTriggerPolicy.ShouldTriggerSkill(
-                    RimMindPersonalityMod.Settings.enableSkillTrigger,
+                    settings.enableSkillTrigger,
                     preLevelWasCaptured: true,
                     __state,
                     currentLevel))
@@ -32,15 +35,25 @@ namespace RimMind.Personality.Patches
             Pawn pawn = __instance.Pawn;
             if (!RimMindPawnLookup.IsActiveSpawnedColonist(pawn)) return;
 
+            string defName = __instance.def?.defName ?? string.Empty;
             RimMindAPI.GameEvents.Publish(new SkillLevelUpGameEvent(
                 pawn.thingIDNumber,
-                __instance.def.defName ?? string.Empty,
+                defName,
                 __state,
                 currentLevel));
 
+            string skillLabel = (__instance.def?.LabelCap.RawText.NullOrEmpty() ?? true)
+                ? defName
+                : __instance.def!.LabelCap.RawText;
             PersonalityTriggerHelper.TriggerForPawn(
                 pawn,
-                $"{"RimMind.Personality.Trigger.SkillUp".Translate(__instance.def.LabelCap, currentLevel, __state, currentLevel)}",
+                RimMindAPI.Text.TrOr(
+                    "RimMind.Personality.Trigger.SkillUp",
+                    "{0} skill increased to level {1} ({2}→{3})",
+                    skillLabel,
+                    currentLevel,
+                    __state,
+                    currentLevel),
                 TriggerEventType.Skill);
         }
     }

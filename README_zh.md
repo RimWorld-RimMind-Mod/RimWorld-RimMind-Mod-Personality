@@ -1,18 +1,18 @@
 <div align="center">
 
 # RimMind-Personality 🎭
-### 专为 RimWorld 1.6 & 1.7 打造的大五人格特质画像、概率状态跃迁与心境反思系统
+### 专为 RimWorld 1.6 & 1.7 打造的 LLM 心理档案、动态心境 Thought 与概率反思系统
 
 [English](README.md) | **简体中文**
 
 <p>
   <a href="https://rimworldgame.com/"><img src="https://img.shields.io/badge/RimWorld-1.6%20%7C%201.7-brightgreen.svg" alt="RimWorld 1.6 | 1.7"></a>
   <a href="https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Core"><img src="https://img.shields.io/badge/核心依赖-RimMind--Core-blue.svg" alt="依赖: RimMind-Core"></a>
-  <a href="#"><img src="https://img.shields.io/badge/单元测试-9%2B%20通过-success.svg" alt="单元测试"></a>
+  <a href="#"><img src="https://img.shields.io/badge/单元测试-通过-success.svg" alt="单元测试"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/开源协议-MIT-yellow.svg" alt="License: MIT"></a>
 </p>
 
-<p><em>为殖民者注入多维心理深度、晨曦哲学独白与自然随境而生的心境波动。</em></p>
+<p><em>为殖民者赋予持续演化的内在心理档案、智能体身份画像与随境而生的动态心情 Thought。</em></p>
 
 </div>
 
@@ -20,16 +20,16 @@
 
 ## 📖 模块概览
 
-**RimMind-Personality** 通过大五人格心理学模型（开放性、尽责性、外向性、宜人性、神经质）对殖民者进行立体刻画。它彻底摒弃死板机械的定时器轮询，通过**基于概率的状态跃迁触发体系**让小人在富有意义的环境情境下自然反思。
+**RimMind-Personality** 为每位殖民者构建由大模型驱动的持久化心理档案与结构化 `AgentIdentity`（动机、特质与核心价值观）。它结合**基于概率的状态跃迁触发**、重大人生事件与每日交错评估，让小人持续消化殖民地经历并生成 1 至 3 条动态心境 Thought。
 
 ### 核心特性
-- **立体大五人格画像**：将原版特质（嗜血、懒惰、乐天派等）映射为平滑的心理测量维度，决定其心理潜台词与行动逻辑。
-- **概率状态跃迁引擎**：在自然情境发生时机投骰感知：
-  - 🌅 **破晓晨曦 (06:00)**：清晨微光洒下时的内心独白（概率 30%）。
-  - 🌌 **仰望星空 / 独处**：户外看天或漫步时的哲学与诗意遐思（概率 40%）。
-  - 🍷 **娱乐聚会**：与同伴共处时的风趣幽默或冷峻审视（概率 25%）。
-  - 💔 **心态剧变**：面临严重精神崩溃边缘时的绝望反思或心理自救（概率 50%）。
-- **心理 Thought 注入**：AI 生成的心理反思直接转化为 RimWorld 的原生 `ThoughtDef`，实质影响小人的心情与精神崩溃阈值。
+- **持久化心理档案与智能体身份**：结合原版特质、殖民地记忆与玩家在 Bio 页的自定义设定，持续演化 AI 心理叙事与动机/特质/价值观画像。
+- **概率状态跃迁与事件触发体系**：在富有意义的自然情境与重大变故时触发反思：
+  - 🌅 **破晓晨曦 (06:00)**：清晨微光洒下时的内心独白（默认概率 30%）。
+  - 🌌 **仰望星空 / 独处**：户外看天或静思时的哲学与诗意遐思（默认概率 40%）。
+  - 🍷 **娱乐休憩**：休闲活动中的心境流露（默认概率 25%）。
+  - 💔 **心态剧变与重大事件**：剧烈情绪波动（默认概率 50%）、严重负伤、技能突破、重大威胁袭击与挚友离世。
+- **三槽位动态 Thought 与玩家塑造投票**：最多独立注入 3 个 `Thought_AIPersonality` 槽位（强度 `-3..+3`，映射 `-10..+10` 心情偏移），支持在 Bio 页通过塑造投票强化或抑制 AI 性格判断。
 
 ---
 

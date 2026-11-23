@@ -10,6 +10,8 @@ namespace RimMind.Personality.Data
     /// </summary>
     public class PersonalityProfile : IExposable
     {
+        private readonly object _sync = new object();
+
         public string description = string.Empty;
         public string workTendencies = string.Empty;
         public string socialTendencies = string.Empty;
@@ -22,11 +24,49 @@ namespace RimMind.Personality.Data
         {
             if (record == null) throw new ArgumentNullException(nameof(record));
 
-            playerShapingHistory ??= new List<ShapingRecord>();
-            playerShapingHistory.Add(record);
-            int effectiveMax = Math.Max(maxCount, 1);
-            if (playerShapingHistory.Count > effectiveMax)
-                playerShapingHistory.RemoveRange(0, playerShapingHistory.Count - effectiveMax);
+            lock (_sync)
+            {
+                playerShapingHistory ??= new List<ShapingRecord>();
+                playerShapingHistory.Add(record);
+                int effectiveMax = Math.Max(maxCount, 1);
+                if (playerShapingHistory.Count > effectiveMax)
+                    playerShapingHistory.RemoveRange(0, playerShapingHistory.Count - effectiveMax);
+            }
+        }
+
+        public bool RemoveShapingRecord(ShapingRecord record)
+        {
+            if (record == null) return false;
+            lock (_sync)
+            {
+                return playerShapingHistory != null && playerShapingHistory.Remove(record);
+            }
+        }
+
+        public ShapingRecord[] GetShapingHistorySnapshot()
+        {
+            lock (_sync)
+            {
+                return playerShapingHistory == null || playerShapingHistory.Count == 0
+                    ? Array.Empty<ShapingRecord>()
+                    : playerShapingHistory.ToArray();
+            }
+        }
+
+        public AgentIdentity? GetAgentIdentitySnapshot()
+        {
+            lock (_sync)
+            {
+                return agentIdentity;
+            }
+        }
+
+        public void SetAgentIdentity(AgentIdentity identity)
+        {
+            lock (_sync)
+            {
+                agentIdentity = identity;
+            }
         }
 
         public bool IsEmpty =>
@@ -37,21 +77,24 @@ namespace RimMind.Personality.Data
 
         public void ExposeData()
         {
+            lock (_sync)
+            {
 #pragma warning disable CS8601
-            Scribe_Values.Look(ref description, "description", string.Empty);
-            Scribe_Values.Look(ref workTendencies, "workTendencies", string.Empty);
-            Scribe_Values.Look(ref socialTendencies, "socialTendencies", string.Empty);
-            Scribe_Values.Look(ref aiNarrative, "aiNarrative", string.Empty);
+                Scribe_Values.Look(ref description, "description", string.Empty);
+                Scribe_Values.Look(ref workTendencies, "workTendencies", string.Empty);
+                Scribe_Values.Look(ref socialTendencies, "socialTendencies", string.Empty);
+                Scribe_Values.Look(ref aiNarrative, "aiNarrative", string.Empty);
 #pragma warning restore CS8601
-            Scribe_Values.Look(ref lastNarrativeUpdateTick, "lastNarrativeUpdateTick");
+                Scribe_Values.Look(ref lastNarrativeUpdateTick, "lastNarrativeUpdateTick");
 
-            bool legacyRimTalkSynced = false;
-            Scribe_Values.Look(ref legacyRimTalkSynced, "rimTalkSynced");
+                bool legacyRimTalkSynced = false;
+                Scribe_Values.Look(ref legacyRimTalkSynced, "rimTalkSynced");
 
-            Scribe_Collections.Look(ref playerShapingHistory, "playerShapingHistory", LookMode.Deep);
-            playerShapingHistory ??= new List<ShapingRecord>();
-            Scribe_Deep.Look(ref agentIdentity, "agentIdentity");
-            agentIdentity ??= new AgentIdentity();
+                Scribe_Collections.Look(ref playerShapingHistory, "playerShapingHistory", LookMode.Deep);
+                playerShapingHistory ??= new List<ShapingRecord>();
+                Scribe_Deep.Look(ref agentIdentity, "agentIdentity");
+                agentIdentity ??= new AgentIdentity();
+            }
         }
     }
 

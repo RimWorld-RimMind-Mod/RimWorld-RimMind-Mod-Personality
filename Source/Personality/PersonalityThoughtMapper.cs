@@ -3,13 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using RimMind.Domain.Llm;
 using RimMind.Domain.ValueObjects;
-using RimMind.Application.Common.Interfaces.UI;
 using RimMind.Application.Common.Models.UI;
 using RimMind.Presentation.Api;
-using RimMind.Application.Common.Interfaces.Extension;
 using RimMind.Application.Common.Models.Agent;
-using RimMind.Application.Common.Models.Context;
-using RimMind.Application.Common.Interfaces.Context;
 using RimMind.Personality.Data;
 using RimWorld;
 using Verse;
@@ -18,7 +14,19 @@ namespace RimMind.Personality
 {
     public static class PersonalityThoughtMapper
     {
-        public static readonly string EvaluationSchema = RimMindAPI.Context.SchemaPersonalityOutput;
+        public const string SchemaKey = "PersonalityOutput";
+        public const string PersonalityOutputSchema =
+            "{\"type\":\"object\",\"properties\":{\"thoughts\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"properties\":{\"type\":{\"type\":\"string\"},\"label\":{\"type\":\"string\"},\"description\":{\"type\":\"string\"},\"intensity\":{\"type\":\"number\"},\"duration_hours\":{\"type\":\"number\"}},\"required\":[\"label\",\"description\",\"intensity\"]}},\"narrative\":{\"type\":\"string\"},\"identity\":{\"type\":\"object\",\"properties\":{\"motivations\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}},\"traits\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}},\"core_values\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}}}}},\"required\":[\"thoughts\",\"narrative\"]}";
+
+        public static string EvaluationSchema
+        {
+            get
+            {
+                string? registered = RimMindAPI.Context.FindSchema(SchemaKey);
+                return !string.IsNullOrEmpty(registered) ? registered! : PersonalityOutputSchema;
+            }
+        }
+
         public const int DefaultMaxTokens = PersonalityRequestDefaults.MaxTokens;
         public const float DefaultTemperature = PersonalityRequestDefaults.Temperature;
 
@@ -26,16 +34,18 @@ namespace RimMind.Personality
         {
             if (pawn == null || !RimMindPawnLookup.IsActiveSpawnedColonist(pawn) || pawn.needs?.mood == null) return;
 
+            string pawnName = pawn.Name?.ToStringShort ?? pawn.LabelShort;
             if (result.IsErr)
             {
-                if (result.Error.Code != RimMindErrorCode.Cancelled) RimMindErrors.Warn($"[RimMind-Personality] Request failed ({pawn.Name.ToStringShort}): {result.Error}");
+                if (result.Error.Code != RimMindErrorCode.Cancelled)
+                    RimMindErrors.Warn($"[RimMind-Personality] Request failed ({pawnName}): {result.Error}");
                 return;
             }
 
             var dto = PersonalityThoughtPolicy.ParseResponse(result.Value.Content);
             if (dto == null)
             {
-                RimMindErrors.Warn($"[RimMind-Personality] Response parse failed ({pawn.Name.ToStringShort}):\n{result.Value.Content}");
+                RimMindErrors.Warn($"[RimMind-Personality] Response parse failed ({pawnName}):\n{result.Value.Content}");
                 return;
             }
 
@@ -59,14 +69,20 @@ namespace RimMind.Personality
 
             if (dto.identity != null)
             {
-                if (profile.agentIdentity == null)
-                    profile.agentIdentity = new AgentIdentity();
-                if (dto.identity.motivations != null)
-                    profile.agentIdentity.Motivations = new List<string>(dto.identity.motivations);
-                if (dto.identity.traits != null)
-                    profile.agentIdentity.PersonalityTraits = new List<string>(dto.identity.traits);
-                if (dto.identity.core_values != null)
-                    profile.agentIdentity.CoreValues = new List<string>(dto.identity.core_values);
+                var existing = profile.GetAgentIdentitySnapshot();
+                var updated = new AgentIdentity
+                {
+                    Motivations = dto.identity.motivations != null
+                        ? new List<string>(dto.identity.motivations)
+                        : (existing?.Motivations != null ? new List<string>(existing.Motivations) : new List<string>()),
+                    PersonalityTraits = dto.identity.traits != null
+                        ? new List<string>(dto.identity.traits)
+                        : (existing?.PersonalityTraits != null ? new List<string>(existing.PersonalityTraits) : new List<string>()),
+                    CoreValues = dto.identity.core_values != null
+                        ? new List<string>(dto.identity.core_values)
+                        : (existing?.CoreValues != null ? new List<string>(existing.CoreValues) : new List<string>())
+                };
+                profile.SetAgentIdentity(updated);
             }
         }
 
@@ -174,8 +190,9 @@ namespace RimMind.Personality
 
             if (showNotifications && projections.Count > 0 && pawn.Spawned && pawn.Map != null)
             {
+                string pawnName = pawn.Name?.ToStringShort ?? pawn.LabelShort;
                 Messages.Message(
-                    "RimMind.Personality.UI.PersonalityUpdated".Translate(pawn.Name.ToStringShort),
+                    RimMindAPI.Text.TrOr("RimMind.Personality.UI.PersonalityUpdated", "[RimMind] {0}'s personality state has been updated.", pawnName),
                     pawn,
                     MessageTypeDefOf.SilentInput,
                     historical: false);

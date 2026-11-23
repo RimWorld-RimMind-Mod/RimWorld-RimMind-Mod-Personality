@@ -44,5 +44,5 @@ dotnet test RimMind-Personality/Tests/RimMindPersonality.Tests.csproj -c Release
 dotnet build RimMind-Personality/Source/RimMindPersonality.csproj -c Release
 ```
 
-The permanent suite contains eight aggregate Facts. The game Autotester remains
-separate and is currently blocked by missing resources.
+Count discovered cases with the root test-budget script (all projects per mod < 1000).
+The game Autotester remains separate and is currently blocked by missing resources.
