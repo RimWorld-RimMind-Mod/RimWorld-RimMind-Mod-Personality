@@ -1,12 +1,8 @@
 using LudeonTK;
-using RimMind.Application.Features.Llm;
-using RimMind.Domain.Llm;
 using RimMind.Domain.ValueObjects;
 using RimMind.Presentation.Api;
-using RimMind.Application.Common.Models.Context;
 using RimMind.Personality.Comps;
 using RimMind.Personality.Data;
-using RimWorld;
 using System;
 using System.Text;
 using Verse;
@@ -16,6 +12,8 @@ namespace RimMind.Personality.Debug
     [StaticConstructorOnStartup]
     public static class PersonalityDebugActions
     {
+        private static string PawnName(Pawn pawn) => pawn.Name?.ToStringShort ?? pawn.LabelShort;
+
         [DebugAction("RimMind Personality", "Force Evaluate Selected Pawn",
             actionType = DebugActionType.Action)]
         public static void ForceEvaluateSelected()
@@ -29,7 +27,7 @@ namespace RimMind.Personality.Debug
 
             if (pawn.GetComp<CompAIPersonality>() == null)
             {
-                RimMindErrors.Warn($"[RimMind-Personality] {pawn.Name.ToStringShort} has no CompAIPersonality (non-humanlike?).");
+                RimMindErrors.Warn($"[RimMind-Personality] {PawnName(pawn)} has no CompAIPersonality (non-humanlike?).");
                 return;
             }
 
@@ -39,7 +37,7 @@ namespace RimMind.Personality.Debug
                 return;
             }
 
-            Log.Message($"[RimMind-Personality] Sending evaluation request for {pawn.Name.ToStringShort}...");
+            Log.Message($"[RimMind-Personality] Sending evaluation request for {PawnName(pawn)}...");
 
             var envelope = PersonalityRequestBuilder.BuildForPawn(pawn.thingIDNumber, "[Debug] Force evaluate");
 
@@ -47,12 +45,12 @@ namespace RimMind.Personality.Debug
             {
                 if (result.IsErr)
                 {
-                    if (result.Error.Code != RimMindErrorCode.Cancelled) RimMindErrors.Warn($"[RimMind-Personality] Evaluation failed ({pawn.Name.ToStringShort}): {result.Error}");
+                    if (result.Error.Code != RimMindErrorCode.Cancelled) RimMindErrors.Warn($"[RimMind-Personality] Evaluation failed ({PawnName(pawn)}): {result.Error}");
                     return;
                 }
 
                 var aiResult = result;
-                Log.Message($"[RimMind-Personality] Received response ({pawn.Name.ToStringShort}):\n{aiResult.Value.Content}");
+                Log.Message($"[RimMind-Personality] Received response ({PawnName(pawn)}):\n{aiResult.Value.Content}");
                 PersonalityThoughtMapper.Apply(aiResult, pawn);
             });
         }
@@ -69,7 +67,7 @@ namespace RimMind.Personality.Debug
             }
 
             var sb = new StringBuilder();
-            sb.AppendLine($"=== {pawn.Name.ToStringShort} Personality State ===");
+            sb.AppendLine($"=== {PawnName(pawn)} Personality State ===");
 
             sb.AppendLine($"[Diag] API configured: {RimMindAPI.Settings.IsConfigured()}");
             var comp = pawn.GetComp<CompAIPersonality>();
@@ -131,7 +129,7 @@ namespace RimMind.Personality.Debug
 
             PersonalityThoughtMapper.RemoveAllAIPersonalityThoughts(pawn);
 
-            Log.Message($"[RimMind-Personality] Cleared {before} personality thoughts for {pawn.Name.ToStringShort}.");
+            Log.Message($"[RimMind-Personality] Cleared {before} personality thoughts for {PawnName(pawn)}.");
         }
 
         [DebugAction("RimMind Personality", "List Personality-Enabled Pawns",
@@ -154,7 +152,7 @@ namespace RimMind.Personality.Debug
                         if (PersonalityThoughtMapper.IsAIPersonalityDef(t.def.defName))
                             thoughtCount++;
 
-                sb.AppendLine($"  {p.Name.ToStringShort}: profile={(profile != null && !profile.IsEmpty)}, activeThoughts={thoughtCount}");
+                sb.AppendLine($"  {PawnName(p)}: profile={(profile != null && !profile.IsEmpty)}, activeThoughts={thoughtCount}");
                 count++;
             }
             sb.AppendLine($"API configured: {RimMindAPI.Settings.IsConfigured()}  Total: {count} pawns");
@@ -173,7 +171,7 @@ namespace RimMind.Personality.Debug
             }
 
             AIPersonalityWorldComponent.Instance?.Remove(pawn);
-            Log.Message($"[RimMind-Personality] Reset personality profile for {pawn.Name.ToStringShort}.");
+            Log.Message($"[RimMind-Personality] Reset personality profile for {PawnName(pawn)}.");
         }
 
         [DebugAction("RimMind Personality", "Show Shaping History (selected)",
@@ -187,19 +185,19 @@ namespace RimMind.Personality.Debug
                 return;
             }
 
-            var profile = AIPersonalityWorldComponent.Instance?.TryGet(pawn);
-            if (profile == null || profile.playerShapingHistory.Count == 0)
+            var history = AIPersonalityWorldComponent.Instance?.TryGet(pawn)?.GetShapingHistorySnapshot();
+            if (history == null || history.Length == 0)
             {
-                Log.Message($"[RimMind-Personality] {pawn.Name.ToStringShort} has no shaping history.");
+                Log.Message($"[RimMind-Personality] {PawnName(pawn)} has no shaping history.");
                 return;
             }
 
             var sb = new StringBuilder();
-            sb.AppendLine($"=== {pawn.Name.ToStringShort} Shaping History (last 20) ===");
-            int start = Math.Max(0, profile.playerShapingHistory.Count - 20);
-            for (int i = start; i < profile.playerShapingHistory.Count; i++)
+            sb.AppendLine($"=== {PawnName(pawn)} Shaping History (last 20) ===");
+            int start = Math.Max(0, history.Length - 20);
+            for (int i = start; i < history.Length; i++)
             {
-                var r = profile.playerShapingHistory[i];
+                var r = history[i];
                 sb.AppendLine($"  [{i}] label={r.label}, action={r.action}, tick={r.tick}");
             }
             Log.Message(sb.ToString());

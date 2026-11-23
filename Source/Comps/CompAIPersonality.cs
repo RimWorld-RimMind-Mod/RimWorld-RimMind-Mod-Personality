@@ -2,7 +2,6 @@ using RimMind.Application.Common.Helpers;
 using RimMind.Domain.ValueObjects;
 using RimMind.Presentation.Api;
 using RimWorld;
-using UnityEngine;
 using Verse;
 
 namespace RimMind.Personality.Comps
@@ -18,11 +17,11 @@ namespace RimMind.Personality.Comps
     public class CompAIPersonality : ThingComp
     {
         private bool _hasPendingRequest;
+        private int _requestGeneration;
         private int _lastEventTick = -1200;
         private int _lastDailyDecayTick = -1;
         private int _pendingRequestTick;
         private string? _pendingEventContext;
-        private int _dailyJitter = -1;
         private string? _cachedThingId;
         private int _cachedThingIdNumber = -1;
 
@@ -32,7 +31,6 @@ namespace RimMind.Personality.Comps
         private bool _wasAwake = true;
 
         private Pawn? PawnOrNull => parent as Pawn;
-        private Pawn? Pawn => parent as Pawn;
         private AIPersonalitySettings Settings => RimMindPersonalityMod.Settings;
 
         private int GetDailyJitter()
@@ -65,8 +63,10 @@ namespace RimMind.Personality.Comps
             {
                 if (Find.TickManager.TicksGame - _pendingRequestTick > Settings.requestTimeoutTicks)
                 {
-                    RimMindErrors.Warn($"[RimMind-Personality] Pending request timeout for {pawn.Name.ToStringShort}, resetting.");
+                    string pawnName = pawn.Name?.ToStringShort ?? pawn.LabelShort;
+                    RimMindErrors.Warn($"[RimMind-Personality] Pending request timeout for {pawnName}, resetting.");
                     _hasPendingRequest = false;
+                    _requestGeneration++;
                 }
                 else
                 {
@@ -85,9 +85,15 @@ namespace RimMind.Personality.Comps
                 _lastDailyDecayTick = ticksGame;
             }
 
-            bool cooldownExpired = (ticksGame - _lastEventTick) >= Settings.eventCooldownTicks;
-            int dailyInterval = System.Math.Max(60, Settings.dailyIntervalTicks + GetDailyJitter());
-            bool dailyFire = Settings.enableDailyEval && pawn.Awake() && (ticksGame - _lastDailyDecayTick >= 60000 || ticksGame - _lastDailyDecayTick >= dailyInterval);
+            int effectiveCooldown = RimMindAPI.Settings.ScaleCooldown(Settings.eventCooldownTicks);
+            bool cooldownExpired = (ticksGame - _lastEventTick) >= effectiveCooldown;
+            bool dailyFire = PersonalityTriggerPolicy.ShouldTriggerDailyEvaluation(
+                Settings.enableDailyEval,
+                pawn.Awake(),
+                ticksGame,
+                _lastDailyDecayTick,
+                Settings.dailyIntervalTicks,
+                GetDailyJitter());
             bool eventFire = _pendingEventContext != null && cooldownExpired;
 
             if (!dailyFire && !eventFire) return;
@@ -101,6 +107,7 @@ namespace RimMind.Personality.Comps
             }
             _hasPendingRequest = true;
             _pendingRequestTick = ticksGame;
+            int requestGen = ++_requestGeneration;
 
             if (!string.IsNullOrEmpty(eventCtx))
             {
@@ -114,6 +121,7 @@ namespace RimMind.Personality.Comps
 
             RimMindAPI.Request.Send(envelope, result =>
             {
+                if (requestGen != _requestGeneration) return;
                 _hasPendingRequest = false;
                 PersonalityThoughtMapper.Apply(result, pawn);
             });
@@ -289,7 +297,8 @@ namespace RimMind.Personality.Comps
             base.PostExposeData();
             Scribe_Values.Look(ref _lastEventTick, "lastEventTick", -1200);
             Scribe_Values.Look(ref _lastDailyDecayTick, "lastDailyDecayTick", -1);
-            Scribe_Values.Look(ref _dailyJitter, "dailyJitter", -1);
+            int legacyDailyJitter = -1;
+            Scribe_Values.Look(ref legacyDailyJitter, "dailyJitter", -1);
             Scribe_Values.Look(ref _lastHour, "lastHour", -1);
             Scribe_Values.Look(ref _lastJobDefName, "lastJobDefName", null);
             Scribe_Values.Look(ref _lastMood, "lastMood", -1f);

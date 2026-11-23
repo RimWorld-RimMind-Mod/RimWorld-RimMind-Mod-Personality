@@ -129,5 +129,18 @@ namespace RimMind.Personality.Comps
             float moodDelta,
             float threshold = 0.15f)
             => triggerEnabled && System.Math.Abs(moodDelta) >= threshold && roll < triggerChance;
+
+        public static bool ShouldTriggerDailyEvaluation(
+            bool enableDailyEval,
+            bool isAwake,
+            int ticksGame,
+            int lastDailyDecayTick,
+            int dailyIntervalTicks,
+            int dailyJitterTicks)
+        {
+            if (!enableDailyEval || !isAwake) return false;
+            int dailyInterval = System.Math.Max(60, dailyIntervalTicks + dailyJitterTicks);
+            return ticksGame - lastDailyDecayTick >= dailyInterval;
+        }
     }
 }

@@ -1,18 +1,18 @@
 <div align="center">
 
 # RimMind-Personality 🎭
-### Big-Five Psychological Profiles & Probabilistic State-Transition Reflection for RimWorld 1.6 & 1.7
+### LLM Psychological Profiles, Dynamic Mood Thoughts & Probabilistic Reflections for RimWorld 1.6 & 1.7
 
 **English** | [简体中文](README_zh.md)
 
 <p>
   <a href="https://rimworldgame.com/"><img src="https://img.shields.io/badge/RimWorld-1.6%20%7C%201.7-brightgreen.svg" alt="RimWorld 1.6 | 1.7"></a>
   <a href="https://github.com/RimWorld-RimMind-Mod/RimWorld-RimMind-Mod-Core"><img src="https://img.shields.io/badge/Dependency-RimMind--Core-blue.svg" alt="Dependency: RimMind-Core"></a>
-  <a href="#"><img src="https://img.shields.io/badge/Unit%20Tests-9%2B%20Passing-success.svg" alt="Unit Tests"></a>
+  <a href="#"><img src="https://img.shields.io/badge/Unit%20Tests-Passing-success.svg" alt="Unit Tests"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
 </p>
 
-<p><em>Infuse colonists with multidimensional psychological depth, dawn soliloquies, and organic mood reflections.</em></p>
+<p><em>Infuse colonists with persistent inner narratives, evolving agent identities, and organic mood reflections.</em></p>
 
 </div>
 
@@ -20,16 +20,16 @@
 
 ## 📖 Overview
 
-**RimMind-Personality** models colonists with nuanced Big-Five personality dimensions (Openness, Conscientiousness, Extraversion, Agreeableness, Neuroticism). Instead of rigid timer loops, personality reflections occur dynamically through **probabilistic state transitions**.
+**RimMind-Personality** builds a persistent LLM-driven psychological profile and structured `AgentIdentity` (motivations, traits, core values) for every colonist. Combining **probabilistic state-transition triggers**, major life events, and staggered daily evaluations, colonists continuously interpret their colony life and materialize 1 to 3 dynamic mood Thoughts.
 
 ### Key Highlights
-- **Big-Five Cognitive Profiling**: Maps vanilla RimWorld traits (e.g., Bloodlust, Slothful, Optimist) onto continuous psychometric axes, guiding tone and decision rationale.
-- **Probabilistic State-Transition Engine**: Colonists reflect on life during meaningful environmental moments:
-  - 🌅 **Sunrise (06:00 Dawn)**: Morning reflection as daylight returns (chance: 30%).
-  - 🌌 **Skygazing / Solitude**: Philosophical or poetic musings (chance: 40%).
-  - 🍷 **Shared Recreation**: Social warmth or witty cynicism (chance: 25%).
-  - 💔 **Traumatic Mood Swings**: Severe mental break risks trigger desperate internal rationales (chance: 50%).
-- **Thought Injection**: AI-generated psychological reflections manifest directly as RimWorld `ThoughtDef` entries, influencing mood and mental break thresholds.
+- **Persistent Psychological Profiles & Agent Identity**: Synthesizes an evolving AI narrative plus structured motivations, traits, and core values grounded in each colonist's vanilla traits, memories, and player customizations in the Bio tab.
+- **Probabilistic State-Transition & Event Triggers**: Colonists reflect organically during meaningful moments:
+  - 🌅 **Sunrise (06:00 Dawn)**: Morning reflection as daylight returns (default chance: 30%).
+  - 🌌 **Skygazing / Solitude**: Quiet philosophical or introspective musings (default chance: 40%).
+  - 🍷 **Shared Recreation**: Reflections sparked during leisure activities (default chance: 25%).
+  - 💔 **Traumatic Mood Swings & Colony Events**: Sharp mood shifts (default chance: 50%), severe injuries, skill milestones, major threat incidents, and companion bereavement.
+- **3-Slot Dynamic Thought Injection & Shape Voting**: Injects up to 3 independent `Thought_AIPersonality` entries (intensity `-3..+3`, mood offset `-10..+10`) and lets players reinforce, suppress, or edit personality traits via Bio tab Shape Voting.
 
 ---
 

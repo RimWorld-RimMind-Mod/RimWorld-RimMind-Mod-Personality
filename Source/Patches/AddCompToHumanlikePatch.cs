@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using HarmonyLib;
 using RimMind.Personality.Comps;
-using RimWorld;
 using Verse;
 
 namespace RimMind.Personality.Patches

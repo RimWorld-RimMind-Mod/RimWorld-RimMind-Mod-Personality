@@ -1,6 +1,5 @@
 using RimMind.Personality.Comps;
 using RimMind.Presentation.Api;
-using RimWorld;
 using Verse;
 
 namespace RimMind.Personality.Patches

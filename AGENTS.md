@@ -8,7 +8,7 @@
 
 ## 项目定位
 
-每日定时(含确定性抖动)或事件触发(受伤/技能/事件/死亡) → ContextEngine(RequestStructured, SchemaRegistry.PersonalityOutput) → AI评估 → `PersonalityThoughtMapper.Apply` 解析 → 写入 `PersonalityProfile`(narrative+identity) → 生成 `Thought_AIPersonality`(最多3槽位) → `MoodOffsetCalculator` 查表影响心情。含玩家塑造投票(强化/抑制/忽略)、AgentIdentity注册、Bio页人格按钮、WorldComponent定期清理无效Profile。
+每日定时(含确定性抖动)、概率状态跃迁或事件触发(受伤/技能/事件/死亡) → `PersonalityRequestBuilder` + `RimMindAPI.Request.Send`（使用自身注册的 `PersonalityOutput` JSON Schema） → AI评估 → `PersonalityThoughtMapper.Apply` 解析 → 写入 `PersonalityProfile`(narrative+identity，线程安全快照) → 生成 `Thought_AIPersonality`(最多3槽位) → `MoodOffsetCalculator` 查表影响心情。含玩家塑造投票(强化/抑制/忽略)、AgentIdentity注册、Bio页人格徽章(`IBioTabBadgeProvider`)、WorldComponent定期清理无效Profile。
 
 依赖: Core(编译期)，Personality上下文被Advisor/Dialogue通过Core系统自动消费。翻译自包含(事件触发key已迁入自身语言文件)。
 
@@ -16,45 +16,50 @@
 
 | 项 | 值 |
 |----|-----|
-| Target | net48, C#9.0, Nullable enable |
-| Output | `../1.6/Assemblies/` |
+| Target | `net48` (1.6) / `net10.0` (1.7), C#9.0, Nullable enable |
+| Output | `../$(GameVersion)/Assemblies/` |
 | Assembly | RimMindPersonality |
 | Harmony ID | mcocdaa.RimMindPersonality |
-| 依赖 | RimMindCore.dll, Krafs.Rimworld.Ref, Lib.Harmony.Ref, Newtonsoft.Json 13.0 |
+| 依赖 | 0_RimMindDomain.dll, 1_RimMindApplication.dll, 2_RimMindCore.dll (`Private=false`), Krafs.Rimworld.Ref, Lib.Harmony.Ref, Newtonsoft.Json 13.0 |
 
 ## 源码结构
 
 ```
 Source/
 ├── README.md                              入口到测试的运行时阅读地图
-├── RimMindPersonalityMod.cs              组合根与设置入口
+├── RimMindPersonalityMod.cs              组合根、Schema注册(`PersonalityOutput`)与Core扩展注册
 ├── Personality/
-│   ├── PersonalityProviderRegistrar.cs   Context 与 Agent Identity 注册
-│   ├── PersonalityThoughtMapper.cs       核心: AI响应→Thought映射+塑造投票+EvaluationSchema
+│   ├── PersonalityProviderRegistrar.cs   Context 与 Agent Identity 注册(直接委托 RimMindPawnLookup)
+│   ├── PersonalityThoughtMapper.cs       核心: AI响应→Thought映射+塑造投票+PersonalityOutputSchema
 │   ├── PersonalityResultDto.cs           JSON DTO(无RimWorld依赖)
 │   ├── Thought_AIPersonality.cs          自定义Thought(重写Label/MoodOffset/DurationTicks)
 │   ├── MoodOffsetCalculator.cs           强度→心情偏移查表(-3~+3)
 │   ├── ShapingAction.cs                  塑造投票枚举(替代字符串魔法值)
-│   ├── PersonalityRequestBuilder.cs      共享请求信封构建器
+│   ├── PersonalityRequestBuilder.cs      共享请求信封构建器(含CoalesceKey与TTL)
+│   ├── PersonalityRequestDefaults.cs     共享ModId/Token/温度常量
 │   ├── PersonalityContextScenarioPolicy.cs  人格上下文消费场景策略
 │   ├── PersonalityContextText.cs         人格上下文格式化与截取纯函数
-│   └── PawnResolver.cs                   共享Pawn查找辅助(按thingIDNumber)
+│   ├── PersonalityThoughtPolicy.cs       槽位投影/时长裁剪/响应解析纯策略
+│   ├── PersonalityThoughtPersistence.cs  Thought持久化辅助
+│   └── PersonalityTriggerPolicy.cs       纯触发判定策略(含ShouldTriggerDailyEvaluation)
+├── Extensions/                           Core扩展适配器(ActionSkipCheck/ModCooldown/SettingsTab/ToggleBehavior)
 ├── Settings/
-│   ├── AIPersonalitySettings.cs          17项设置(含4项时间参数)
-│   └── PersonalitySettingsDrawer.cs      原生/Core设置页共享绘制实现
+│   ├── AIPersonalitySettings.cs          25项持久化设置(含概率状态跃迁与时间参数)
+│   └── PersonalitySettingsDrawer.cs      原生/Core设置页共享绘制实现(委托 SettingsUIDrawer)
 ├── Data/
-│   ├── PersonalityProfile.cs             人格档案(IExposable) + AIPersonalityWorldComponent(含定期清理)
+│   ├── PersonalityProfile.cs             AIPersonalityWorldComponent(含定期清理与WorldScopedComponentCache)
+│   ├── PersonalityProfileState.cs        线程安全人格档案(IExposable, `_sync` 锁 + 快照方法)
 │   └── ShapingRecord.cs                  玩家塑造记录
-├── Comps/CompAIPersonality.cs            ThingComp(Tick触发/事件触发/TriggerEventType枚举)
+├── Comps/CompAIPersonality.cs            ThingComp(Tick触发/事件触发/请求代际防陈旧回调)
 ├── UI/BioTabPersonalityPatch.cs + Dialog_PersonalityProfile.cs
 ├── Patches/
 │   ├── AddCompToHumanlikePatch.cs        ThingDef.ResolveReferences Postfix注入Comp
-│   ├── Patch_PersonalityInjury.cs        HediffSet.AddDirect Postfix(isBad+Severity>=0.2f+IsFreeNonSlaveColonist过滤)
+│   ├── Patch_PersonalityInjury.cs        HediffSet.AddDirect Postfix(isBad+Severity>=0.2f+IsEligible过滤)
 │   ├── Patch_PersonalityDeath.cs         Pawn.Kill Postfix(检查DirectRelations)
-│   ├── Patch_PersonalityIncident.cs      IncidentWorker.TryExecuteWorker Postfix(ThreatBig/ThreatSmall过滤)
+│   ├── Patch_PersonalityIncident.cs      IncidentWorker.TryExecute Postfix(ThreatBig/ThreatSmall过滤)
 │   ├── Patch_PersonalitySkill.cs         SkillRecord.Learn Prefix+Postfix(Harmony out int __state 捕获升级前等级 + __instance.Pawn)
 │   └── PersonalityTriggerHelper.cs       共享Patch触发辅助(TriggerForPawn/TriggerForColonists)
-└── Debug/PersonalityDebugActions.cs      8个Debug动作
+└── Debug/PersonalityDebugActions.cs + PersonalityBehaviorAutotestSuite.cs
 ```
 
 ## 触发机制
@@ -121,8 +126,8 @@ identity?: {motivations[], traits[], core_values[]}
 - `_compat1` 字段仅消费旧存档 `rimTalkSynced` key，值不使用
 - ShapingAction 枚举替代 "reinforce"/"suppress"/"ignored" 字符串魔法值
 - PersonalityRequestBuilder 统一 CompAIPersonality 和 DebugActions 的请求构建
-- PawnResolver 统一 3 个 ContextProvider 的 Pawn 查找逻辑
-- PersonalityContextScenarioPolicy 统一人格状态在 Personality / Decision / Dialogue 三类场景的注入边界
+- ContextProvider 直接使用 Core 公共 `RimMindPawnLookup.FindPawnByNumber` 与 `IsActiveSpawnedColonist` 查找并校验 Pawn
+- PersonalityContextScenarioPolicy 统一人格状态在 Personality / Decision / Dialogue（含 `agent_decision`/`advisor_decision`/`CrisisDialogue`）场景的注入边界
 - PersonalityTriggerHelper 统一 4 个 Patch 的 "查Comp→TriggerEvent" 模式
 
 ## 操作边界

@@ -4,7 +4,6 @@ using LudeonTK;
 using RimMind.Personality.Comps;
 using RimMind.Personality.Data;
 using RimMind.Presentation.Api;
-using RimWorld;
 using Verse;
 
 namespace RimMind.Personality.Debug
@@ -26,9 +25,10 @@ namespace RimMind.Personality.Debug
             Pawn? pawn = context.ActiveColonist;
 
             // 1. CompAIPersonality Attachment
-            if (context.CurrentMap?.mapPawns?.FreeColonists != null && context.CurrentMap.mapPawns.FreeColonists.Count > 0)
+            var colonists = RimMindPawnLookup.GetSpawnedColonistsSafe(context.CurrentMap);
+            if (colonists.Count > 0)
             {
-                bool anyAttached = context.CurrentMap.mapPawns.FreeColonists.Any(p => p.GetComp<CompAIPersonality>() != null);
+                bool anyAttached = colonists.Any(p => p.GetComp<CompAIPersonality>() != null);
                 context.Assert(anyAttached, "Free colonists on map have CompAIPersonality attached");
             }
             else if (pawn != null)
@@ -45,7 +45,7 @@ namespace RimMind.Personality.Debug
                 try
                 {
                     var profile = worldComp.GetOrCreate(pawn);
-                    context.Assert(profile != null, $"PersonalityProfile retrieved/created for {pawn.Name.ToStringShort}");
+                    context.Assert(profile != null, $"PersonalityProfile retrieved/created for {pawn.Name?.ToStringShort ?? pawn.LabelShort}");
 
                     if (profile != null)
                     {
@@ -56,15 +56,16 @@ namespace RimMind.Personality.Debug
                             label = "Verified shaping history addition"
                         };
 
-                        int countBefore = profile.playerShapingHistory.Count;
+                        int countBefore = profile.GetShapingHistorySnapshot().Length;
                         profile.AddShapingRecord(record, 20);
+                        var afterAdd = profile.GetShapingHistorySnapshot();
 
-                        context.Assert(profile.playerShapingHistory.Count == countBefore + 1, "ShapingRecord appended successfully to playerShapingHistory");
-                        context.Assert(profile.playerShapingHistory.Last().action == "autotest_shaping", "Latest shaping record matches autotest action");
+                        context.Assert(afterAdd.Length == countBefore + 1, "ShapingRecord appended successfully to playerShapingHistory");
+                        context.Assert(afterAdd.Last().action == "autotest_shaping", "Latest shaping record matches autotest action");
 
                         // Self-cleanup
-                        profile.playerShapingHistory.Remove(record);
-                        context.Assert(profile.playerShapingHistory.Count == countBefore, "Test shaping record cleaned up cleanly");
+                        profile.RemoveShapingRecord(record);
+                        context.Assert(profile.GetShapingHistorySnapshot().Length == countBefore, "Test shaping record cleaned up cleanly");
                     }
                 }
                 catch (Exception ex)

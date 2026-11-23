@@ -48,7 +48,8 @@ namespace RimMind.Personality.Tests.Contracts
                     }
 
                     string cooldown = ReadSource("Extensions", "PersonalityModCooldown.cs");
-                    Assert.Contains("OwnerModId => PersonalityRequestDefaults.ModId", cooldown, StringComparison.Ordinal);
+                    Assert.Contains("Id => PersonalityRequestDefaults.ModId", cooldown, StringComparison.Ordinal);
+                    Assert.Contains("OwnerModId => RimMindOwnerConsts.PersonalityModId", cooldown, StringComparison.Ordinal);
                 }));
         }
 

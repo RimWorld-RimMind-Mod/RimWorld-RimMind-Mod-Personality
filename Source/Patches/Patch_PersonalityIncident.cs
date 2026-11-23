@@ -15,6 +15,7 @@ namespace RimMind.Personality.Patches
 
         static void Postfix(IncidentWorker __instance, IncidentParms parms, bool __result)
         {
+            if (!RimMindPersonalityMod.Settings.enablePersonality) return;
             var def = __instance.def;
             bool targetIsMap = parms.target is Map;
             if (!PersonalityTriggerPolicy.ShouldTriggerIncident(

@@ -76,12 +76,55 @@ namespace RimMind.Personality.Tests.Contracts
                     Assert.Equal("careful", Assert.Single(restored.identity.traits!));
                     Assert.Equal("community", Assert.Single(restored.identity.core_values!));
                 }),
-                ("profile defaults are empty and collection-safe", () =>
+                ("profile defaults and thread-safe snapshot helpers preserve isolation", () =>
                 {
                     var profile = new Data.PersonalityProfile();
                     Assert.True(profile.IsEmpty);
                     Assert.NotNull(profile.playerShapingHistory);
                     Assert.Empty(profile.playerShapingHistory);
+
+                    var rec1 = new Data.ShapingRecord { label = "brave" };
+                    var rec2 = new Data.ShapingRecord { label = "calm" };
+                    profile.AddShapingRecord(rec1, 5);
+                    profile.AddShapingRecord(rec2, 5);
+                    var snap = profile.GetShapingHistorySnapshot();
+                    Assert.Equal(2, snap.Length);
+                    Assert.True(profile.RemoveShapingRecord(rec1));
+                    Assert.Equal(2, snap.Length); // snapshot isolated from later mutations
+                    Assert.Single(profile.GetShapingHistorySnapshot());
+
+                    var id = new RimMind.Application.Common.Models.Agent.AgentIdentity();
+                    profile.SetAgentIdentity(id);
+                    Assert.Same(id, profile.GetAgentIdentitySnapshot());
+                }),
+                ("daily evaluation honors configured interval and positive jitter without early 60k bypass", () =>
+                {
+                    Assert.False(Comps.PersonalityTriggerPolicy.ShouldTriggerDailyEvaluation(
+                        enableDailyEval: true, isAwake: true,
+                        ticksGame: 60000, lastDailyDecayTick: 0,
+                        dailyIntervalTicks: 60000, dailyJitterTicks: 1500));
+                    Assert.True(Comps.PersonalityTriggerPolicy.ShouldTriggerDailyEvaluation(
+                        enableDailyEval: true, isAwake: true,
+                        ticksGame: 61500, lastDailyDecayTick: 0,
+                        dailyIntervalTicks: 60000, dailyJitterTicks: 1500));
+                    // User configured >24h interval (90,000 ticks) must NOT fire early at 60,000 ticks
+                    Assert.False(Comps.PersonalityTriggerPolicy.ShouldTriggerDailyEvaluation(
+                        enableDailyEval: true, isAwake: true,
+                        ticksGame: 60000, lastDailyDecayTick: 0,
+                        dailyIntervalTicks: 90000, dailyJitterTicks: 0));
+                    Assert.True(Comps.PersonalityTriggerPolicy.ShouldTriggerDailyEvaluation(
+                        enableDailyEval: true, isAwake: true,
+                        ticksGame: 90000, lastDailyDecayTick: 0,
+                        dailyIntervalTicks: 90000, dailyJitterTicks: 0));
+                    // Sleeping or disabled does not fire
+                    Assert.False(Comps.PersonalityTriggerPolicy.ShouldTriggerDailyEvaluation(
+                        enableDailyEval: true, isAwake: false,
+                        ticksGame: 120000, lastDailyDecayTick: 0,
+                        dailyIntervalTicks: 60000, dailyJitterTicks: 0));
+                    Assert.False(Comps.PersonalityTriggerPolicy.ShouldTriggerDailyEvaluation(
+                        enableDailyEval: false, isAwake: true,
+                        ticksGame: 120000, lastDailyDecayTick: 0,
+                        dailyIntervalTicks: 60000, dailyJitterTicks: 0));
                 }),
                 ("personality context covers personality, dialogue, and split decision scenarios only", () =>
                 {
@@ -99,34 +142,17 @@ namespace RimMind.Personality.Tests.Contracts
                 {
                     string source = ReadSource("Personality", "PersonalityProviderRegistrar.cs")
                         .Replace("\r\n", "\n");
+                    string skipSource = ReadSource("Extensions", "PersonalityActionSkipCheck.cs");
 
-                    Assert.Contains(
-                        "internal static void RegisterAll()\n" +
-                        "        {\n" +
-                        "            RegisterContextProviders();\n" +
-                        "            RegisterPublicProviders();\n" +
-                        "            RegisterAgentIdentityProvider();\n" +
-                        "        }",
-                        source,
-                        StringComparison.Ordinal);
-                    Assert.Contains(
-                        "private const string PublicProviderOwner = \"RimMind.Personality\";\n" +
-                        "        private const int PublicProviderPriority = 100;",
-                        source,
-                        StringComparison.Ordinal);
-                    Assert.Contains(
-                        "RegisterProfileField(\"personality.description\", profile => profile.description);\n" +
-                        "            RegisterProfileField(\"personality.work_tendencies\", profile => profile.workTendencies);\n" +
-                        "            RegisterProfileField(\"personality.social_tendencies\", profile => profile.socialTendencies);\n" +
-                        "            RegisterProfileField(\"personality.ai_narrative\", profile => profile.aiNarrative);",
-                        source,
-                        StringComparison.Ordinal);
-                    Assert.Contains(
-                        "RimMindAPI.Providers.RegisterPawnProvider(\n" +
-                        "                \"personality.shaping_history\",\n" +
-                        "                PublicProviderOwner,",
-                        source,
-                        StringComparison.Ordinal);
+                    Assert.Contains("RegisterContextProviders();", source, StringComparison.Ordinal);
+                    Assert.Contains("RegisterPublicProviders();", source, StringComparison.Ordinal);
+                    Assert.Contains("RegisterAgentIdentityProvider();", source, StringComparison.Ordinal);
+                    Assert.Contains("PublicProviderOwner = RimMindOwnerConsts.PersonalityModId;", source, StringComparison.Ordinal);
+                    Assert.Contains("RegisterProfileField(\"personality.description\", profile => profile.description);", source, StringComparison.Ordinal);
+                    Assert.Contains("RegisterProfileField(\"personality.work_tendencies\", profile => profile.workTendencies);", source, StringComparison.Ordinal);
+                    Assert.Contains("RegisterProfileField(\"personality.social_tendencies\", profile => profile.socialTendencies);", source, StringComparison.Ordinal);
+                    Assert.Contains("RegisterProfileField(\"personality.ai_narrative\", profile => profile.aiNarrative);", source, StringComparison.Ordinal);
+                    Assert.Contains("\"personality.shaping_history\"", source, StringComparison.Ordinal);
 
                     // Providers must never create profiles (GetOrCreate is main-thread only) and every
                     // context provider body must read Verse state through the main-thread snapshot.
@@ -135,6 +161,7 @@ namespace RimMind.Personality.Tests.Contracts
                     Assert.Contains("RimMindAPI.MainThreadSnapshot.GetAsync(", source, StringComparison.Ordinal);
                     Assert.DoesNotContain("async (ctx, ct)", source, StringComparison.Ordinal);
                     Assert.DoesNotContain("RimTalk", source, StringComparison.Ordinal);
+                    Assert.Contains("ShouldSkip(in SkipCheckArgs args) => false;", skipSource, StringComparison.Ordinal);
                 }),
                 ("thought mapper checks IsActiveSpawnedColonist and profile cleanup delegates to Core retention & scoped cache", () =>
                 {

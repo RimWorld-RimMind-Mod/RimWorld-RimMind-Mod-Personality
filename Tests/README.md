@@ -1,12 +1,14 @@
 # RimMind Personality contract tests
 
-The retained suite is organized around three stable public boundaries:
+The retained suite is organized around five stable public contract files:
 
-- `PersonalityEvaluationContracts` — evaluation math, DTO/request behavior, context policy, and malformed-response isolation.
-- `PersonalityThoughtInjectionContracts` — owned Thought slots, trigger eligibility, shaping actions, and bounded shaping history.
+- `PersonalityEvaluationContracts` — evaluation math, DTO/request behavior, daily-evaluation interval/jitter policy, thread-safe profile snapshots, context policy, and malformed-response isolation.
+- `PersonalityThoughtInjectionContracts` — owned Thought slots, trigger eligibility, shaping actions, peak shaping candidate selection, and bounded shaping history.
 - `PersonalityPersistenceContracts` — settings defaults, complete Scribe field mapping, legacy save keys, and malformed/partial save recovery.
+- `PersonalityPatchTargetContracts` — `IncidentWorker.TryExecute` Harmony target regression and queue cooldown/ModId alignment.
+- `PersonalityContextTextContracts` — headered context formatting and bounded tail selection.
 
-The compact suite contains 8 Facts and no Theory rows, below the Personality budget of 40 discovered tests.
+Count actual discovered cases with the root test-budget script (module budget: strictly below 1000).
 
 ## Cutover handoff
 
